@@ -1,0 +1,46 @@
+type VehicleMake {
+  id: ID!
+  name: String!
+  slug: String!
+  logoUrl: String
+  country: String
+  foundedYear: Int
+  isActive: Boolean!
+  sortOrder: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type VehicleModel {
+  id: ID!
+  makeId: ID!
+  name: String!
+  slug: String!
+  yearStart: Int
+  yearEnd: Int
+  vehicleType: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type ServiceType {
+  id: ID!
+  name: String!
+  code: String!
+  category: String!
+  description: String
+  estimatedHours: Float
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Query {
+  vehicleMakes(search: String, isActive: Boolean): [VehicleMake!]!
+  vehicleMake(id: ID!): VehicleMake
+  vehicleModels(makeId: ID!, search: String, year: Int, vehicleType: String): [VehicleModel!]!
+  vehicleModel(id: ID!): VehicleModel
+  serviceTypes(category: String, isGlobal: Boolean, tenantId: ID): [ServiceType!]!
+  serviceType(id: ID!): ServiceType
+}

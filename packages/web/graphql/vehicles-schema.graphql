@@ -1,0 +1,149 @@
+type Query {
+    vehicle(id: ID!): Vehicle
+    vehicles(ownerId: ID, page: Int, perPage: Int): VehicleConnection!
+    vehicleMaintenance(vehicleId: ID!): [VehicleMaintenance!]!
+    vehicleExpenses(vehicleId: ID!): [VehicleExpense!]!
+    vehicleDocuments(vehicleId: ID!): [VehicleDocument!]!
+    maintenanceHistory(vehicleId: ID!): [VehicleMaintenance!]!
+    expenseSummary(vehicleId: ID!): ExpenseSummary!
+}
+
+type Mutation {
+    createVehicle(input: CreateVehicleInput!): Vehicle!
+    updateVehicle(id: ID!, input: UpdateVehicleInput!): Vehicle!
+    deleteVehicle(id: ID!): Boolean!
+    logMileage(vehicleId: ID!, mileage: Int!, notes: String): Vehicle!
+    addMaintenance(input: AddMaintenanceInput!): VehicleMaintenance!
+    addExpense(input: AddExpenseInput!): VehicleExpense!
+    addDocument(input: AddDocumentInput!): VehicleDocument!
+}
+
+type Vehicle {
+    id: ID!
+    tenantId: ID!
+    ownerId: ID!
+    make: String
+    model: String
+    year: Int
+    vin: String
+    licensePlate: String
+    color: String
+    engineType: String
+    transmission: String
+    currentMileage: Int!
+    fuelType: String
+    purchaseDate: String
+    purchasePrice: Float
+    imageUrl: String
+    notes: String
+    createdAt: String!
+    updatedAt: String!
+}
+
+type VehicleConnection {
+    items: [Vehicle!]!
+    total: Int!
+    page: Int!
+    perPage: Int!
+}
+
+type VehicleMaintenance {
+    id: ID!
+    vehicleId: ID!
+    serviceType: String!
+    description: String
+    mileageAtService: Int
+    cost: Float
+    serviceDate: String!
+    providerName: String
+    status: String!
+    nextDueMileage: Int
+    nextDueDate: String
+}
+
+type VehicleExpense {
+    id: ID!
+    vehicleId: ID!
+    category: String!
+    amount: Float!
+    date: String!
+    description: String
+    receiptUrl: String
+    recurring: Boolean!
+}
+
+type VehicleDocument {
+    id: ID!
+    vehicleId: ID!
+    docType: String!
+    title: String!
+    fileUrl: String!
+    expiryDate: String
+}
+
+type ExpenseSummary {
+    totalRepairs: Float!
+    totalMaintenance: Float!
+    totalFuel: Float!
+    totalInsurance: Float!
+    totalOther: Float!
+    grandTotal: Float!
+    monthlyAverage: Float!
+}
+
+input CreateVehicleInput {
+    ownerId: ID!
+    make: String
+    model: String
+    year: Int
+    vin: String
+    licensePlate: String
+    color: String
+    engineType: String
+    transmission: String
+    currentMileage: Int
+    fuelType: String
+    purchaseDate: String
+    purchasePrice: Float
+    notes: String
+}
+
+input UpdateVehicleInput {
+    make: String
+    model: String
+    year: Int
+    vin: String
+    licensePlate: String
+    color: String
+    currentMileage: Int
+    notes: String
+}
+
+input AddMaintenanceInput {
+    vehicleId: ID!
+    serviceType: String!
+    description: String
+    mileageAtService: Int
+    cost: Float
+    serviceDate: String!
+    providerName: String
+    nextDueMileage: Int
+    nextDueDate: String
+}
+
+input AddExpenseInput {
+    vehicleId: ID!
+    category: String!
+    amount: Float!
+    date: String!
+    description: String
+    recurring: Boolean
+}
+
+input AddDocumentInput {
+    vehicleId: ID!
+    docType: String!
+    title: String!
+    fileUrl: String!
+    expiryDate: String
+}

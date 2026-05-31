@@ -1,0 +1,122 @@
+query Appointments($tenantId: ID!) {
+    appointments(tenantId: $tenantId) {
+        items {
+            id
+            customerName
+            vehicleMake
+            vehicleModel
+            serviceType
+            scheduledDate
+            startTime
+            status
+            assignedMechanic
+        }
+        total
+    }
+}
+
+query Customers($tenantId: ID!) {
+    customers(tenantId: $tenantId) {
+        items {
+            id
+            name
+            email
+            phone
+            address
+            city
+            state
+            zip
+            notes
+            totalVehicles
+            totalVisits
+            totalSpent
+            lastVisit
+            status
+            createdAt
+            updatedAt
+        }
+        total
+    }
+}
+
+mutation CreateCustomer($input: CreateCustomerInput!) {
+    createCustomer(input: $input) {
+        id
+        name
+        email
+        phone
+        status
+    }
+}
+
+mutation UpdateCustomer($id: ID!, $input: UpdateCustomerInput!) {
+    updateCustomer(id: $id, input: $input) {
+        id
+        name
+        email
+        phone
+        status
+    }
+}
+
+mutation DeleteCustomer($id: ID!) {
+    deleteCustomer(id: $id)
+}
+
+query Vehicles($tenantId: ID!) {
+    vehicles(tenantId: $tenantId) {
+        items {
+            id
+            make
+            model
+            year
+            vin
+            licensePlate
+            color
+            customerId
+            notes
+        }
+        total
+    }
+}
+
+mutation CreateVehicle($input: CreateVehicleInput!) {
+    createVehicle(input: $input) {
+        id
+        make
+        model
+        year
+        vin
+        licensePlate
+        color
+    }
+}
+
+mutation UpdateVehicle($id: ID!, $input: UpdateVehicleInput!) {
+    updateVehicle(id: $id, input: $input) {
+        id
+        make
+        model
+        year
+        vin
+        licensePlate
+        color
+    }
+}
+
+mutation DeleteVehicle($id: ID!) {
+    deleteVehicle(id: $id)
+}
+
+mutation CreateAppointment($input: CreateAppointmentInput!) {
+    createAppointment(input: $input) {
+        id
+        customerName
+        vehicleMake
+        vehicleModel
+        serviceType
+        scheduledDate
+        startTime
+        status
+    }
+}

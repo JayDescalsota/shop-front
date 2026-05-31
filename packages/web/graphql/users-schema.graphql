@@ -1,0 +1,132 @@
+type Query {
+    myContext: UserContext!
+    myBranches: [BranchInfo!]!
+    myTenant: Tenant
+    tenant(id: ID!): Tenant
+    tenantSettings: TenantSettings
+    myProfile: UserProfile
+    permissions: [Permission!]!
+    roles: [Role!]!
+}
+
+type Mutation {
+    createTenant(input: CreateTenantInput!): Tenant!
+    updateTenant(id: ID!, input: UpdateTenantInput!): Tenant!
+    inviteUser(input: InviteUserInput!): Boolean!
+    updateProfile(input: UpdateProfileInput!): UserProfile!
+    updateTenantSettings(input: TenantSettingsInput!): TenantSettings!
+    switchBranch(tenantId: ID!): UserContext!
+}
+
+type UserContext {
+    userId: ID!
+    email: String!
+    name: String
+    activeBranch: BranchInfo
+    branches: [BranchInfo!]!
+}
+
+type BranchInfo {
+    tenantId: ID!
+    tenantName: String!
+    tenantType: TenantType!
+    role: String!
+    permissions: [String!]!
+}
+
+enum TenantType {
+    AUTO_OWNER
+    REPAIR_SHOP
+    PARTS_STORE
+    PLATFORM
+}
+
+enum TenantStatus {
+    ACTIVE
+    SUSPENDED
+    TRIAL
+    CANCELLED
+}
+
+type Tenant {
+    id: ID!
+    name: String!
+    type: TenantType!
+    status: TenantStatus!
+    domain: String
+    settings: JSON
+    createdAt: String!
+    updatedAt: String!
+}
+
+type TenantSettings {
+    id: ID!
+    tenantId: ID!
+    businessHours: JSON
+    paymentConfig: JSON
+    notificationConfig: JSON
+    branding: JSON
+    features: JSON
+}
+
+type UserProfile {
+    id: ID!
+    userId: ID!
+    title: String
+    department: String
+    timezone: String!
+    locale: String!
+    notificationPrefs: JSON!
+}
+
+type Role {
+    id: ID!
+    code: String!
+    name: String!
+    description: String
+    isSystem: Boolean!
+    permissions: [Permission!]!
+}
+
+type Permission {
+    id: ID!
+    code: String!
+    name: String!
+    description: String
+    module: String!
+}
+
+input CreateTenantInput {
+    name: String!
+    type: TenantType!
+    domain: String
+}
+
+input UpdateTenantInput {
+    name: String
+    domain: String
+    settings: JSON
+}
+
+input InviteUserInput {
+    email: String!
+    role: String!
+}
+
+input UpdateProfileInput {
+    title: String
+    department: String
+    timezone: String
+    locale: String
+    notificationPrefs: JSON
+}
+
+input TenantSettingsInput {
+    businessHours: JSON
+    paymentConfig: JSON
+    notificationConfig: JSON
+    branding: JSON
+    features: JSON
+}
+
+scalar JSON

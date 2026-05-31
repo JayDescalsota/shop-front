@@ -1,0 +1,14 @@
+{
+  "name": "autocare-frontend",
+  "private": true,
+  "workspaces": [
+    "packages/ui",
+    "packages/web"
+  ],
+  "scripts": {
+    "dev": "npm run --workspace=packages/web dev",
+    "build": "npm run --workspace=packages/web build",
+    "start": "npm run --workspace=packages/web start",
+    "codegen": "npm run --workspace=packages/web codegen"
+  }
+}

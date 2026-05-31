@@ -1,0 +1,29 @@
+query VehicleMakes {
+  vehicleMakes {
+    id
+    name
+    slug
+  }
+}
+
+query VehicleModels($makeId: ID!) {
+  vehicleModels(makeId: $makeId) {
+    id
+    name
+    slug
+    yearStart
+    yearEnd
+    vehicleType
+  }
+}
+
+query ServiceTypes {
+  serviceTypes {
+    id
+    name
+    code
+    category
+    description
+    estimatedHours
+  }
+}

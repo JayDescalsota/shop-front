@@ -1,0 +1,53 @@
+type Query {
+    me: User
+    user(id: ID!): User
+    users(tenantId: ID!, page: Int, perPage: Int): UserConnection!
+}
+
+type Mutation {
+    login(input: LoginInput!): AuthResponse!
+    register(input: RegisterInput!): AuthResponse!
+    refreshToken(token: String!): AuthResponse!
+    forgotPassword(email: String!): Boolean!
+    resetPassword(token: String!, password: String!): Boolean!
+}
+
+type User {
+    id: ID!
+    email: String!
+    name: String!
+    phone: String
+    role: String!
+    isActive: Boolean!
+    emailVerified: Boolean!
+    lastLoginAt: String
+    createdAt: String!
+    updatedAt: String!
+}
+
+type UserConnection {
+    items: [User!]!
+    total: Int!
+    page: Int!
+    perPage: Int!
+    totalPages: Int!
+}
+
+type AuthResponse {
+    token: String!
+    refreshToken: String!
+    expiresAt: String!
+    user: User!
+}
+
+input LoginInput {
+    email: String!
+    password: String!
+}
+
+input RegisterInput {
+    email: String!
+    password: String!
+    name: String!
+    phone: String
+}

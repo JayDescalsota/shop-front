@@ -1,0 +1,14 @@
+{
+  "/login/page": "app/login/page.js",
+  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
+  "/(dashboard)/page": "app/(dashboard)/page.js",
+  "/(dashboard)/vehicles/page": "app/(dashboard)/vehicles/page.js",
+  "/(dashboard)/appointments/page": "app/(dashboard)/appointments/page.js",
+  "/(dashboard)/customers/page": "app/(dashboard)/customers/page.js",
+  "/(dashboard)/invoices/page": "app/(dashboard)/invoices/page.js",
+  "/(dashboard)/mechanics/page": "app/(dashboard)/mechanics/page.js",
+  "/(dashboard)/products/page": "app/(dashboard)/products/page.js",
+  "/(dashboard)/inventory/page": "app/(dashboard)/inventory/page.js",
+  "/(dashboard)/suppliers/page": "app/(dashboard)/suppliers/page.js",
+  "/(dashboard)/purchase-orders/page": "app/(dashboard)/purchase-orders/page.js"
+}

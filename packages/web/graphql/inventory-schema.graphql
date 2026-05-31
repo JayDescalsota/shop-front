@@ -1,0 +1,148 @@
+type Query {
+    inventoryItem(id: ID!): InventoryItem
+    inventoryItems(categoryId: ID, search: String, page: Int, perPage: Int): InventoryItemConnection!
+    inventoryCategories: [InventoryCategory!]!
+    lowStockItems: [InventoryItem!]!
+    supplier(id: ID!): Supplier
+    suppliers(isActive: Boolean): [Supplier!]!
+    purchaseOrder(id: ID!): PurchaseOrder
+    purchaseOrders(status: String, page: Int, perPage: Int): PurchaseOrderConnection!
+}
+
+type Mutation {
+    createInventoryItem(input: CreateInventoryItemInput!): InventoryItem!
+    updateInventoryItem(id: ID!, input: UpdateInventoryItemInput!): InventoryItem!
+    adjustStock(itemId: ID!, quantity: Int!, reason: String!): InventoryItem!
+    createSupplier(input: CreateSupplierInput!): Supplier!
+    createPurchaseOrder(input: CreatePurchaseOrderInput!): PurchaseOrder!
+    receivePurchaseOrder(id: ID!): PurchaseOrder!
+}
+
+type InventoryItem {
+    id: ID!
+    tenantId: ID!
+    categoryId: ID
+    sku: String!
+    name: String!
+    description: String
+    brand: String
+    unitPrice: Float!
+    costPrice: Float
+    quantityOnHand: Int!
+    quantityReserved: Int!
+    quantityAvailable: Int!
+    reorderPoint: Int!
+    reorderQuantity: Int!
+    location: String
+    barcode: String
+    imageUrl: String
+    isActive: Boolean!
+}
+
+type InventoryCategory {
+    id: ID!
+    tenantId: ID!
+    name: String!
+    parentId: ID
+    description: String
+}
+
+type Supplier {
+    id: ID!
+    tenantId: ID!
+    name: String!
+    contactPerson: String
+    email: String
+    phone: String
+    address: String
+    paymentTerms: String
+    leadTimeDays: Int
+    rating: Int
+    isActive: Boolean!
+}
+
+type PurchaseOrder {
+    id: ID!
+    tenantId: ID!
+    supplierId: ID
+    orderNumber: String!
+    status: String!
+    totalAmount: Float
+    taxAmount: Float
+    notes: String
+    expectedDate: String
+    receivedDate: String
+    items: [PurchaseOrderItem!]
+}
+
+type PurchaseOrderItem {
+    id: ID!
+    itemId: ID!
+    quantity: Int!
+    unitPrice: Float!
+    totalPrice: Float!
+    quantityReceived: Int!
+}
+
+type InventoryItemConnection {
+    items: [InventoryItem!]!
+    total: Int!
+    page: Int!
+    perPage: Int!
+}
+
+type PurchaseOrderConnection {
+    items: [PurchaseOrder!]!
+    total: Int!
+    page: Int!
+    perPage: Int!
+}
+
+input CreateInventoryItemInput {
+    categoryId: ID
+    sku: String!
+    name: String!
+    description: String
+    brand: String
+    unitPrice: Float!
+    costPrice: Float
+    quantityOnHand: Int
+    reorderPoint: Int
+    reorderQuantity: Int
+    location: String
+    barcode: String
+}
+
+input UpdateInventoryItemInput {
+    name: String
+    description: String
+    unitPrice: Float
+    costPrice: Float
+    reorderPoint: Int
+    reorderQuantity: Int
+    location: String
+    isActive: Boolean
+}
+
+input CreateSupplierInput {
+    name: String!
+    contactPerson: String
+    email: String
+    phone: String
+    address: String
+    paymentTerms: String
+    leadTimeDays: Int
+}
+
+input CreatePurchaseOrderInput {
+    supplierId: ID
+    expectedDate: String
+    notes: String
+    items: [PurchaseOrderItemInput!]!
+}
+
+input PurchaseOrderItemInput {
+    itemId: ID!
+    quantity: Int!
+    unitPrice: Float!
+}

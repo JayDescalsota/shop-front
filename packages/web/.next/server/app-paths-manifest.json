@@ -1,0 +1,9 @@
+{
+  "/api/graphql/route": "app/api/graphql/route.js",
+  "/(dashboard)/repair/customers/page": "app/(dashboard)/repair/customers/page.js",
+  "/(dashboard)/repair/vehicles/page": "app/(dashboard)/repair/vehicles/page.js",
+  "/(dashboard)/repair/invoices/page": "app/(dashboard)/repair/invoices/page.js",
+  "/(dashboard)/repair/appointments/page": "app/(dashboard)/repair/appointments/page.js",
+  "/(dashboard)/repair/page": "app/(dashboard)/repair/page.js",
+  "/(dashboard)/repair/mechanics/page": "app/(dashboard)/repair/mechanics/page.js"
+}

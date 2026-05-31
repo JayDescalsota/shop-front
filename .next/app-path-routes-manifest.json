@@ -1,0 +1,15 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/login/page": "/login",
+  "/(dashboard)/customers/page": "/customers",
+  "/(dashboard)/appointments/page": "/appointments",
+  "/(dashboard)/inventory/page": "/inventory",
+  "/(dashboard)/invoices/page": "/invoices",
+  "/(dashboard)/mechanics/page": "/mechanics",
+  "/(dashboard)/products/page": "/products",
+  "/(dashboard)/page": "/",
+  "/(dashboard)/purchase-orders/page": "/purchase-orders",
+  "/(dashboard)/suppliers/page": "/suppliers",
+  "/(dashboard)/settings/page": "/settings",
+  "/(dashboard)/vehicles/page": "/vehicles"
+}

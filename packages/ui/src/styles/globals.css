@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sidebar: #111827;
+  --color-sidebar-hover: #1f2937;
+  --color-accent: #7dd3fc;
+  --color-accent-dark: #38bdf8;
+  --color-surface: #f1f5f9;
+  --color-card: #ffffff;
+  --color-primary: #111827;
+  --color-muted: #6b7280;
+  --color-border: #e2e8f0;
+  --font-inter: var(--font-inter);
+  --font-poppins: var(--font-poppins);
+  --font-open-sans: var(--font-open-sans);
+}
+
+body {
+  font-family: var(--font-inter), sans-serif;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+.status-completed, .status-paid {
+  @apply bg-emerald-50 text-emerald-800;
+}
+
+.status-pending {
+  @apply bg-amber-50 text-amber-800;
+}
+
+.status-in-progress {
+  @apply bg-blue-50 text-blue-800;
+}
+
+.status-cancelled, .status-overdue {
+  @apply bg-red-50 text-red-800;
+}
