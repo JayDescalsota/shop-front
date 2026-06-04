@@ -1,50 +1,251 @@
 {
   "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/_not-found/page-a1410fb57be2bd90.js"
+    ],
     "/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/layout.css",
-      "static/chunks/app/layout.js"
-    ],
-    "/(dashboard)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/layout.js"
-    ],
-    "/(dashboard)/repair/customers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/repair/customers/page.js"
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/css/dbbd16b21c8fae88.css",
+      "static/css/084137681cf7e6b9.css",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/778-e4687d3b19972ce2.js",
+      "static/chunks/app/layout-e69aefd077a94562.js"
     ],
     "/api/graphql/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/graphql/route.js"
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/api/graphql/route-dae986c375edd9f2.js"
     ],
-    "/(dashboard)/repair/vehicles/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/repair/vehicles/page.js"
+    "/api/auth/login/route": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/api/auth/login/route-dae986c375edd9f2.js"
     ],
-    "/(dashboard)/repair/invoices/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/repair/invoices/page.js"
+    "/login/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/login/page-73e24e49d8eb8210.js"
+    ],
+    "/(dashboard)/layout": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/664-6d821dc1aacb6b48.js",
+      "static/chunks/app/(dashboard)/layout-4bc9a7bed2c5adc5.js"
+    ],
+    "/(dashboard)/admin/branches/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/admin/branches/page-2601aa31da9e52ae.js"
+    ],
+    "/(dashboard)/admin/settings/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/admin/settings/page-2dff3b2e70e33148.js"
+    ],
+    "/(dashboard)/admin/users/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/admin/users/page-79c77ed52b251e6e.js"
+    ],
+    "/(dashboard)/admin/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/admin/page-7922bc892d926927.js"
+    ],
+    "/(dashboard)/automobile/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/automobile/page-40903dab4a5eb0cc.js"
+    ],
+    "/(dashboard)/automobile/settings/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/automobile/settings/page-0208b6af4cbc8fa2.js"
+    ],
+    "/(dashboard)/automobile/vehicles/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/664-6d821dc1aacb6b48.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/app/(dashboard)/automobile/vehicles/page-01e925a22404237b.js"
     ],
     "/(dashboard)/repair/appointments/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/repair/appointments/page.js"
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/app/(dashboard)/repair/appointments/page-6d4509cb20d8f8b6.js"
+    ],
+    "/(dashboard)/automobile/vehicles/[id]/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/app/(dashboard)/automobile/vehicles/[id]/page-19871e979f84e8aa.js"
+    ],
+    "/(dashboard)/repair/customers/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/app/(dashboard)/repair/customers/page-edcf0d94d08f7bef.js"
     ],
     "/(dashboard)/repair/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/repair/page.js"
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/repair/page-ec4017e9b55229b3.js"
     ],
-    "/(dashboard)/repair/mechanics/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(dashboard)/repair/mechanics/page.js"
+    "/(dashboard)/repair/invoices/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/repair/invoices/page-ec4017e9b55229b3.js"
+    ],
+    "/(dashboard)/repair/settings/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/repair/settings/page-c96f499c6ddad6f2.js"
+    ],
+    "/(dashboard)/repair/staff/[id]/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/780-1b4cdc5251059cbf.js",
+      "static/chunks/app/(dashboard)/repair/staff/[id]/page-171a849a9e0fa64c.js"
+    ],
+    "/(dashboard)/repair/staff/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/664-6d821dc1aacb6b48.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/app/(dashboard)/repair/staff/page-138f49695bff23ba.js"
+    ],
+    "/(dashboard)/automobile/staff/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/664-6d821dc1aacb6b48.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/app/(dashboard)/automobile/staff/page-690326fe7af03854.js"
+    ],
+    "/(dashboard)/store/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/store/page-ec4017e9b55229b3.js"
+    ],
+    "/(dashboard)/repair/vehicles/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/app/(dashboard)/repair/vehicles/page-c1b31db23e6433cf.js"
+    ],
+    "/(dashboard)/store/products/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/store/products/page-ec4017e9b55229b3.js"
+    ],
+    "/(dashboard)/store/purchase-orders/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/store/purchase-orders/page-ec4017e9b55229b3.js"
+    ],
+    "/(dashboard)/store/settings/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/store/settings/page-4b1d5b134be84672.js"
+    ],
+    "/(dashboard)/store/suppliers/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/store/suppliers/page-ec4017e9b55229b3.js"
+    ],
+    "/(dashboard)/automobile/staff/[id]/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/567-aef0298cda864e47.js",
+      "static/chunks/12-7b5bf7f3ec801ef6.js",
+      "static/chunks/396-8c9d60b759aa7e38.js",
+      "static/chunks/780-1b4cdc5251059cbf.js",
+      "static/chunks/app/(dashboard)/automobile/staff/[id]/page-933ded7dcbb3204d.js"
+    ],
+    "/(dashboard)/store/inventory/page": [
+      "static/chunks/webpack-a89d4718069ef7cf.js",
+      "static/chunks/87c73c54-24122e7b92478d00.js",
+      "static/chunks/18-4ce5efc64451836b.js",
+      "static/chunks/main-app-7ca7249a520303bc.js",
+      "static/chunks/app/(dashboard)/store/inventory/page-ec4017e9b55229b3.js"
     ]
   }
 }

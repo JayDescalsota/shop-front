@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Modal, Field, FormActions, ErrorBanner } from '@autocare/ui';
-import { useVehicleMakesQuery, useVehicleModelsQuery } from '../graphql/generated/hooks';
+import { useVehicleMakesQuery, useVehicleModelsQuery, useCustomersQuery } from '../graphql/generated/hooks';
 
 export interface VehicleForm {
   make: string;
@@ -12,10 +12,13 @@ export interface VehicleForm {
   licensePlate: string;
   color: string;
   notes: string;
+  customerId: string;
+  status: string;
+  repairStatus: string;
 }
 
 const emptyForm: VehicleForm = {
-  make: '', model: '', year: '', vin: '', licensePlate: '', color: '', notes: '',
+  make: '', model: '', year: '', vin: '', licensePlate: '', color: '', notes: '', customerId: '', status: 'running', repairStatus: 'none',
 };
 
 interface VehicleModalProps {
@@ -28,13 +31,15 @@ interface VehicleModalProps {
   submitting?: boolean;
   error?: string;
   size?: 's' | 'm' | 'l' | 'xl' | 'sm' | 'md' | 'lg' | 'xs';
+  hideOwner?: boolean;
 }
 
 const inputClass = 'w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none';
 
-export default function VehicleModal({ open, onClose, onSubmit, title, submitLabel, initialData, submitting, error, size }: VehicleModalProps) {
+export default function VehicleModal({ open, onClose, onSubmit, title, submitLabel, initialData, submitting, error, size, hideOwner }: VehicleModalProps) {
   const [form, setForm] = useState<VehicleForm>(emptyForm);
   const [selectedMakeId, setSelectedMakeId] = useState('');
+  const [selectedModelId, setSelectedModelId] = useState('');
 
   const { data: makesData } = useVehicleMakesQuery({ fetchPolicy: 'cache-first' });
   const { data: modelsData } = useVehicleModelsQuery({
@@ -42,14 +47,17 @@ export default function VehicleModal({ open, onClose, onSubmit, title, submitLab
     skip: !selectedMakeId,
     fetchPolicy: 'cache-first',
   });
+  const { data: custData } = useCustomersQuery({ skip: !open });
 
   const makes = makesData?.vehicleMakes ?? [];
   const models = modelsData?.vehicleModels ?? [];
+  const customers = custData?.customers?.items ?? [];
 
   useEffect(() => {
     if (open) {
       setForm({ ...emptyForm, ...initialData });
       setSelectedMakeId('');
+      setSelectedModelId('');
     }
   }, [open, initialData]);
 
@@ -60,12 +68,14 @@ export default function VehicleModal({ open, onClose, onSubmit, title, submitLab
   const handleMakeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const makeId = e.target.value;
     setSelectedMakeId(makeId);
+    setSelectedModelId('');
     const make = makes.find((m) => m.id === makeId);
     setForm({ ...form, make: make?.name ?? '', model: '' });
   };
 
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const modelId = e.target.value;
+    setSelectedModelId(modelId);
     const model = models.find((m) => m.id === modelId);
     setForm({ ...form, model: model?.name ?? '' });
   };
@@ -81,6 +91,18 @@ export default function VehicleModal({ open, onClose, onSubmit, title, submitLab
         <ErrorBanner message={error} />
 
         <div className="grid grid-cols-2 gap-4">
+          {!hideOwner && (
+            <div className="col-span-2">
+              <Field label="Owner">
+                <select name="customerId" value={form.customerId} onChange={handleChange} className={inputClass}>
+                  <option value="">Select owner</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+          )}
           <Field label="Make" required>
             <select name="makeId" value={selectedMakeId} onChange={handleMakeChange} required className={inputClass}>
               <option value="">Select make</option>
@@ -90,7 +112,7 @@ export default function VehicleModal({ open, onClose, onSubmit, title, submitLab
             </select>
           </Field>
           <Field label="Model" required>
-            <select name="modelId" value="" onChange={handleModelChange} required className={inputClass} disabled={!selectedMakeId}>
+            <select name="modelId" value={selectedModelId} onChange={handleModelChange} required className={inputClass} disabled={!selectedMakeId}>
               <option value="">Select model</option>
               {models.map((m) => (
                 <option key={m.id} value={m.id}>{m.name}</option>
@@ -108,6 +130,14 @@ export default function VehicleModal({ open, onClose, onSubmit, title, submitLab
           </Field>
           <Field label="License Plate">
             <Field.Input name="licensePlate" value={form.licensePlate} onChange={handleChange} placeholder="ABC-1234" />
+          </Field>
+          <Field label="Status">
+            <select name="status" value={form.status} onChange={handleChange} className={inputClass}>
+              <option value="running">Running</option>
+              <option value="broken">Broken</option>
+              <option value="under_maintenance">Under Maintenance</option>
+              <option value="out_of_service">Out of Service</option>
+            </select>
           </Field>
         </div>
         <Field label="Notes">

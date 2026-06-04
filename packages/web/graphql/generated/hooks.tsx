@@ -7,14 +7,16 @@ import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type CreateAppointmentInput = {
   assignedMechanic?: string | null | undefined;
+  bay?: string | null | undefined;
   customerEmail?: string | null | undefined;
   customerName: string;
   customerPhone?: string | null | undefined;
   description?: string | null | undefined;
-  endTime: string;
+  endTime?: string | null | undefined;
   notes?: string | null | undefined;
   scheduledDate: string;
   serviceType: string;
+  shopId?: string | null | undefined;
   startTime: string;
   tenantId: string | number;
   vehicleMake: string;
@@ -35,6 +37,34 @@ export type CreateCustomerInput = {
   zip?: string | null | undefined;
 };
 
+export type CreateStaffAssignmentInput = {
+  appointmentId: string | number;
+  notes?: string | null | undefined;
+  role: string;
+  staffId: string | number;
+  staffName: string;
+  tenantId: string | number;
+};
+
+export type CreateStaffInput = {
+  address?: string | null | undefined;
+  assignedVehicleId?: string | number | null | undefined;
+  dateOfBirth?: string | null | undefined;
+  email?: string | null | undefined;
+  emergencyContact?: string | null | undefined;
+  emergencyPhone?: string | null | undefined;
+  hireDate?: string | null | undefined;
+  licenseClass?: string | null | undefined;
+  licenseExpiry?: string | null | undefined;
+  licenseNumber?: string | null | undefined;
+  name: string;
+  notes?: string | null | undefined;
+  phone?: string | null | undefined;
+  role?: string | null | undefined;
+  status?: string | null | undefined;
+  tenantId: string | number;
+};
+
 export type CreateVehicleInput = {
   color?: string | null | undefined;
   currentMileage?: number | null | undefined;
@@ -48,10 +78,28 @@ export type CreateVehicleInput = {
   ownerId: string | number;
   purchaseDate?: string | null | undefined;
   purchasePrice?: number | null | undefined;
+  repairStatus?: string | null | undefined;
+  status?: string | null | undefined;
   tenantId: string | number;
   transmission?: string | null | undefined;
   vin?: string | null | undefined;
   year?: number | null | undefined;
+};
+
+export type UpdateAppointmentInput = {
+  assignedMechanic?: string | null | undefined;
+  bay?: string | null | undefined;
+  customerEmail?: string | null | undefined;
+  customerName?: string | null | undefined;
+  customerPhone?: string | null | undefined;
+  description?: string | null | undefined;
+  notes?: string | null | undefined;
+  serviceType?: string | null | undefined;
+  status?: string | null | undefined;
+  vehicleMake?: string | null | undefined;
+  vehicleModel?: string | null | undefined;
+  vehiclePlate?: string | null | undefined;
+  vehicleYear?: number | null | undefined;
 };
 
 export type UpdateCustomerInput = {
@@ -66,6 +114,30 @@ export type UpdateCustomerInput = {
   zip?: string | null | undefined;
 };
 
+export type UpdateStaffAssignmentInput = {
+  notes?: string | null | undefined;
+  status?: string | null | undefined;
+  totalMinutes?: number | null | undefined;
+};
+
+export type UpdateStaffInput = {
+  address?: string | null | undefined;
+  assignedVehicleId?: string | number | null | undefined;
+  dateOfBirth?: string | null | undefined;
+  email?: string | null | undefined;
+  emergencyContact?: string | null | undefined;
+  emergencyPhone?: string | null | undefined;
+  hireDate?: string | null | undefined;
+  licenseClass?: string | null | undefined;
+  licenseExpiry?: string | null | undefined;
+  licenseNumber?: string | null | undefined;
+  name?: string | null | undefined;
+  notes?: string | null | undefined;
+  phone?: string | null | undefined;
+  role?: string | null | undefined;
+  status?: string | null | undefined;
+};
+
 export type UpdateVehicleInput = {
   color?: string | null | undefined;
   currentMileage?: number | null | undefined;
@@ -73,6 +145,8 @@ export type UpdateVehicleInput = {
   make?: string | null | undefined;
   model?: string | null | undefined;
   notes?: string | null | undefined;
+  repairStatus?: string | null | undefined;
+  status?: string | null | undefined;
   vin?: string | null | undefined;
   year?: number | null | undefined;
 };
@@ -92,18 +166,14 @@ export type VehicleModelsQuery = { vehicleModels: Array<{ id: string, name: stri
 export type ServiceTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ServiceTypesQuery = { serviceTypes: Array<{ id: string, name: string, code: string, category: string, description: string | null, estimatedHours: number | null }> };
+export type ServiceTypesQuery = { serviceTypes: Array<{ id: string, name: string, code: string, category: string, system: string, estimatedHours: number | null, isActive: boolean }> };
 
-export type AppointmentsQueryVariables = Exact<{
-  tenantId: string | number;
-}>;
+export type AppointmentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AppointmentsQuery = { appointments: { total: number, items: Array<{ id: string, customerName: string, vehicleMake: string, vehicleModel: string, serviceType: string, scheduledDate: string, startTime: string, status: string, assignedMechanic: string | null }> } };
+export type AppointmentsQuery = { appointments: { total: number, items: Array<{ id: string, customerName: string, customerPhone: string | null, customerEmail: string | null, vehicleMake: string, vehicleModel: string, vehicleYear: number | null, vehiclePlate: string | null, serviceType: string, description: string | null, scheduledDate: string, startTime: string, endTime: string | null, status: string, assignedMechanic: string | null, bay: string | null, notes: string | null, shopId: string | null }> } };
 
-export type CustomersQueryVariables = Exact<{
-  tenantId: string | number;
-}>;
+export type CustomersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CustomersQuery = { customers: { total: number, items: Array<{ id: string, name: string, email: string | null, phone: string | null, address: string | null, city: string | null, state: string | null, zip: string | null, notes: string | null, totalVehicles: number, totalVisits: number, totalSpent: number, lastVisit: string | null, status: string, createdAt: string, updatedAt: string }> } };
@@ -130,19 +200,24 @@ export type DeleteCustomerMutationVariables = Exact<{
 
 export type DeleteCustomerMutation = { deleteCustomer: boolean };
 
-export type VehiclesQueryVariables = Exact<{
-  tenantId: string | number;
+export type VehiclesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type VehiclesQuery = { vehicles: { total: number, items: Array<{ id: string, make: string, model: string, year: number | null, vin: string | null, licensePlate: string | null, color: string | null, customerId: string | null, notes: string | null, status: string, repairStatus: string }> } };
+
+export type VehicleQueryVariables = Exact<{
+  id: string | number;
 }>;
 
 
-export type VehiclesQuery = { vehicles: { total: number, items: Array<{ id: string, make: string, model: string, year: number | null, vin: string | null, licensePlate: string | null, color: string | null, customerId: string | null, notes: string | null }> } };
+export type VehicleQuery = { vehicle: { id: string, tenantId: string, customerId: string | null, make: string, model: string, year: number | null, vin: string | null, licensePlate: string | null, color: string | null, notes: string | null, status: string, repairStatus: string, createdAt: string, updatedAt: string } | null };
 
 export type CreateVehicleMutationVariables = Exact<{
   input: CreateVehicleInput;
 }>;
 
 
-export type CreateVehicleMutation = { createVehicle: { id: string, make: string, model: string, year: number | null, vin: string | null, licensePlate: string | null, color: string | null } };
+export type CreateVehicleMutation = { createVehicle: { id: string, make: string, model: string, year: number | null, vin: string | null, licensePlate: string | null, color: string | null, status: string, repairStatus: string } };
 
 export type UpdateVehicleMutationVariables = Exact<{
   id: string | number;
@@ -150,7 +225,7 @@ export type UpdateVehicleMutationVariables = Exact<{
 }>;
 
 
-export type UpdateVehicleMutation = { updateVehicle: { id: string, make: string, model: string, year: number | null, vin: string | null, licensePlate: string | null, color: string | null } };
+export type UpdateVehicleMutation = { updateVehicle: { id: string, make: string, model: string, year: number | null, vin: string | null, licensePlate: string | null, color: string | null, customerId: string | null, status: string, repairStatus: string } };
 
 export type DeleteVehicleMutationVariables = Exact<{
   id: string | number;
@@ -164,7 +239,101 @@ export type CreateAppointmentMutationVariables = Exact<{
 }>;
 
 
-export type CreateAppointmentMutation = { createAppointment: { id: string, customerName: string, vehicleMake: string, vehicleModel: string, serviceType: string, scheduledDate: string, startTime: string, status: string } };
+export type CreateAppointmentMutation = { createAppointment: { id: string, customerName: string, vehicleMake: string, vehicleModel: string, serviceType: string, scheduledDate: string, startTime: string, endTime: string | null, status: string, shopId: string | null, bay: string | null, assignedMechanic: string | null } };
+
+export type StaffAssignmentsQueryVariables = Exact<{
+  appointmentId: string | number;
+}>;
+
+
+export type StaffAssignmentsQuery = { staffAssignments: Array<{ id: string, appointmentId: string, staffId: string, staffName: string, role: string, status: string, assignedAt: string, startedAt: string | null, completedAt: string | null, totalMinutes: number | null, notes: string | null }> };
+
+export type CreateStaffAssignmentMutationVariables = Exact<{
+  input: CreateStaffAssignmentInput;
+}>;
+
+
+export type CreateStaffAssignmentMutation = { createStaffAssignment: { id: string, appointmentId: string, staffId: string, staffName: string, role: string, status: string, assignedAt: string, notes: string | null } };
+
+export type UpdateStaffAssignmentMutationVariables = Exact<{
+  id: string | number;
+  input: UpdateStaffAssignmentInput;
+}>;
+
+
+export type UpdateStaffAssignmentMutation = { updateStaffAssignment: { id: string, status: string, totalMinutes: number | null } };
+
+export type DeleteStaffAssignmentMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+
+export type DeleteStaffAssignmentMutation = { deleteStaffAssignment: boolean };
+
+export type ReassignStaffAssignmentMutationVariables = Exact<{
+  id: string | number;
+  targetAppointmentId: string | number;
+}>;
+
+
+export type ReassignStaffAssignmentMutation = { reassignStaffAssignment: { id: string, appointmentId: string, status: string } };
+
+export type StartStaffAssignmentMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+
+export type StartStaffAssignmentMutation = { startStaffAssignment: { id: string, status: string, startedAt: string | null } };
+
+export type CompleteStaffAssignmentMutationVariables = Exact<{
+  id: string | number;
+  totalMinutes: number;
+}>;
+
+
+export type CompleteStaffAssignmentMutation = { completeStaffAssignment: { id: string, status: string, completedAt: string | null, totalMinutes: number | null } };
+
+export type UpdateAppointmentMutationVariables = Exact<{
+  id: string | number;
+  input: UpdateAppointmentInput;
+}>;
+
+
+export type UpdateAppointmentMutation = { updateAppointment: { id: string, customerName: string, customerPhone: string | null, customerEmail: string | null, vehicleMake: string, vehicleModel: string, vehicleYear: number | null, vehiclePlate: string | null, serviceType: string, description: string | null, scheduledDate: string, startTime: string, endTime: string | null, status: string, assignedMechanic: string | null, bay: string | null, notes: string | null, shopId: string | null } };
+
+export type StaffListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type StaffListQuery = { staffList: { total: number, items: Array<{ id: string, tenantId: string, name: string, email: string | null, phone: string | null, role: string, licenseNumber: string | null, licenseClass: string | null, licenseExpiry: string | null, dateOfBirth: string | null, address: string | null, emergencyContact: string | null, emergencyPhone: string | null, status: string, assignedVehicleId: string | null, notes: string | null, hireDate: string | null, createdAt: string, updatedAt: string }> } };
+
+export type StaffDetailQueryVariables = Exact<{
+  id: string | number;
+}>;
+
+
+export type StaffDetailQuery = { staff: { id: string, tenantId: string, name: string, email: string | null, phone: string | null, role: string, licenseNumber: string | null, licenseClass: string | null, licenseExpiry: string | null, dateOfBirth: string | null, address: string | null, emergencyContact: string | null, emergencyPhone: string | null, status: string, assignedVehicleId: string | null, notes: string | null, hireDate: string | null, createdAt: string, updatedAt: string } | null };
+
+export type CreateStaffMutationVariables = Exact<{
+  input: CreateStaffInput;
+}>;
+
+
+export type CreateStaffMutation = { createStaff: { id: string, name: string, status: string, createdAt: string } };
+
+export type UpdateStaffMutationVariables = Exact<{
+  id: string | number;
+  input: UpdateStaffInput;
+}>;
+
+
+export type UpdateStaffMutation = { updateStaff: { id: string, name: string, status: string, updatedAt: string } };
+
+export type DeleteStaffMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+
+export type DeleteStaffMutation = { deleteStaff: boolean };
 
 
 export const VehicleMakesDocument = gql`
@@ -266,8 +435,9 @@ export const ServiceTypesDocument = gql`
     name
     code
     category
-    description
+    system
     estimatedHours
+    isActive
   }
 }
     `;
@@ -307,18 +477,27 @@ export type ServiceTypesLazyQueryHookResult = ReturnType<typeof useServiceTypesL
 export type ServiceTypesSuspenseQueryHookResult = ReturnType<typeof useServiceTypesSuspenseQuery>;
 export type ServiceTypesQueryResult = Apollo.QueryResult<ServiceTypesQuery, ServiceTypesQueryVariables>;
 export const AppointmentsDocument = gql`
-    query Appointments($tenantId: ID!) {
-  appointments(tenantId: $tenantId) {
+    query Appointments {
+  appointments {
     items {
       id
       customerName
+      customerPhone
+      customerEmail
       vehicleMake
       vehicleModel
+      vehicleYear
+      vehiclePlate
       serviceType
+      description
       scheduledDate
       startTime
+      endTime
       status
       assignedMechanic
+      bay
+      notes
+      shopId
     }
     total
   }
@@ -337,11 +516,10 @@ export const AppointmentsDocument = gql`
  * @example
  * const { data, loading, error } = useAppointmentsQuery({
  *   variables: {
- *      tenantId: // value for 'tenantId'
  *   },
  * });
  */
-export function useAppointmentsQuery(baseOptions: Apollo.QueryHookOptions<AppointmentsQuery, AppointmentsQueryVariables> & ({ variables: AppointmentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useAppointmentsQuery(baseOptions?: Apollo.QueryHookOptions<AppointmentsQuery, AppointmentsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<AppointmentsQuery, AppointmentsQueryVariables>(AppointmentsDocument, options);
       }
@@ -361,8 +539,8 @@ export type AppointmentsLazyQueryHookResult = ReturnType<typeof useAppointmentsL
 export type AppointmentsSuspenseQueryHookResult = ReturnType<typeof useAppointmentsSuspenseQuery>;
 export type AppointmentsQueryResult = Apollo.QueryResult<AppointmentsQuery, AppointmentsQueryVariables>;
 export const CustomersDocument = gql`
-    query Customers($tenantId: ID!) {
-  customers(tenantId: $tenantId) {
+    query Customers {
+  customers {
     items {
       id
       name
@@ -398,11 +576,10 @@ export const CustomersDocument = gql`
  * @example
  * const { data, loading, error } = useCustomersQuery({
  *   variables: {
- *      tenantId: // value for 'tenantId'
  *   },
  * });
  */
-export function useCustomersQuery(baseOptions: Apollo.QueryHookOptions<CustomersQuery, CustomersQueryVariables> & ({ variables: CustomersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useCustomersQuery(baseOptions?: Apollo.QueryHookOptions<CustomersQuery, CustomersQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<CustomersQuery, CustomersQueryVariables>(CustomersDocument, options);
       }
@@ -528,8 +705,8 @@ export type DeleteCustomerMutationHookResult = ReturnType<typeof useDeleteCustom
 export type DeleteCustomerMutationResult = Apollo.MutationResult<DeleteCustomerMutation>;
 export type DeleteCustomerMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerMutation, DeleteCustomerMutationVariables>;
 export const VehiclesDocument = gql`
-    query Vehicles($tenantId: ID!) {
-  vehicles(tenantId: $tenantId) {
+    query Vehicles {
+  vehicles {
     items {
       id
       make
@@ -540,6 +717,8 @@ export const VehiclesDocument = gql`
       color
       customerId
       notes
+      status
+      repairStatus
     }
     total
   }
@@ -558,11 +737,10 @@ export const VehiclesDocument = gql`
  * @example
  * const { data, loading, error } = useVehiclesQuery({
  *   variables: {
- *      tenantId: // value for 'tenantId'
  *   },
  * });
  */
-export function useVehiclesQuery(baseOptions: Apollo.QueryHookOptions<VehiclesQuery, VehiclesQueryVariables> & ({ variables: VehiclesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useVehiclesQuery(baseOptions?: Apollo.QueryHookOptions<VehiclesQuery, VehiclesQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<VehiclesQuery, VehiclesQueryVariables>(VehiclesDocument, options);
       }
@@ -581,6 +759,62 @@ export type VehiclesQueryHookResult = ReturnType<typeof useVehiclesQuery>;
 export type VehiclesLazyQueryHookResult = ReturnType<typeof useVehiclesLazyQuery>;
 export type VehiclesSuspenseQueryHookResult = ReturnType<typeof useVehiclesSuspenseQuery>;
 export type VehiclesQueryResult = Apollo.QueryResult<VehiclesQuery, VehiclesQueryVariables>;
+export const VehicleDocument = gql`
+    query Vehicle($id: ID!) {
+  vehicle(id: $id) {
+    id
+    tenantId
+    customerId
+    make
+    model
+    year
+    vin
+    licensePlate
+    color
+    notes
+    status
+    repairStatus
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useVehicleQuery__
+ *
+ * To run a query within a React component, call `useVehicleQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVehicleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVehicleQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useVehicleQuery(baseOptions: Apollo.QueryHookOptions<VehicleQuery, VehicleQueryVariables> & ({ variables: VehicleQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VehicleQuery, VehicleQueryVariables>(VehicleDocument, options);
+      }
+export function useVehicleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VehicleQuery, VehicleQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VehicleQuery, VehicleQueryVariables>(VehicleDocument, options);
+        }
+// @ts-ignore
+export function useVehicleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VehicleQuery, VehicleQueryVariables>): Apollo.UseSuspenseQueryResult<VehicleQuery, VehicleQueryVariables>;
+export function useVehicleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehicleQuery, VehicleQueryVariables>): Apollo.UseSuspenseQueryResult<VehicleQuery | undefined, VehicleQueryVariables>;
+export function useVehicleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehicleQuery, VehicleQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<VehicleQuery, VehicleQueryVariables>(VehicleDocument, options);
+        }
+export type VehicleQueryHookResult = ReturnType<typeof useVehicleQuery>;
+export type VehicleLazyQueryHookResult = ReturnType<typeof useVehicleLazyQuery>;
+export type VehicleSuspenseQueryHookResult = ReturnType<typeof useVehicleSuspenseQuery>;
+export type VehicleQueryResult = Apollo.QueryResult<VehicleQuery, VehicleQueryVariables>;
 export const CreateVehicleDocument = gql`
     mutation CreateVehicle($input: CreateVehicleInput!) {
   createVehicle(input: $input) {
@@ -591,6 +825,8 @@ export const CreateVehicleDocument = gql`
     vin
     licensePlate
     color
+    status
+    repairStatus
   }
 }
     `;
@@ -630,6 +866,9 @@ export const UpdateVehicleDocument = gql`
     vin
     licensePlate
     color
+    customerId
+    status
+    repairStatus
   }
 }
     `;
@@ -701,7 +940,11 @@ export const CreateAppointmentDocument = gql`
     serviceType
     scheduledDate
     startTime
+    endTime
     status
+    shopId
+    bay
+    assignedMechanic
   }
 }
     `;
@@ -731,3 +974,550 @@ export function useCreateAppointmentMutation(baseOptions?: Apollo.MutationHookOp
 export type CreateAppointmentMutationHookResult = ReturnType<typeof useCreateAppointmentMutation>;
 export type CreateAppointmentMutationResult = Apollo.MutationResult<CreateAppointmentMutation>;
 export type CreateAppointmentMutationOptions = Apollo.BaseMutationOptions<CreateAppointmentMutation, CreateAppointmentMutationVariables>;
+export const StaffAssignmentsDocument = gql`
+    query StaffAssignments($appointmentId: ID!) {
+  staffAssignments(appointmentId: $appointmentId) {
+    id
+    appointmentId
+    staffId
+    staffName
+    role
+    status
+    assignedAt
+    startedAt
+    completedAt
+    totalMinutes
+    notes
+  }
+}
+    `;
+
+/**
+ * __useStaffAssignmentsQuery__
+ *
+ * To run a query within a React component, call `useStaffAssignmentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useStaffAssignmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useStaffAssignmentsQuery({
+ *   variables: {
+ *      appointmentId: // value for 'appointmentId'
+ *   },
+ * });
+ */
+export function useStaffAssignmentsQuery(baseOptions: Apollo.QueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables> & ({ variables: StaffAssignmentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>(StaffAssignmentsDocument, options);
+      }
+export function useStaffAssignmentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>(StaffAssignmentsDocument, options);
+        }
+// @ts-ignore
+export function useStaffAssignmentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>): Apollo.UseSuspenseQueryResult<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>;
+export function useStaffAssignmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>): Apollo.UseSuspenseQueryResult<StaffAssignmentsQuery | undefined, StaffAssignmentsQueryVariables>;
+export function useStaffAssignmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>(StaffAssignmentsDocument, options);
+        }
+export type StaffAssignmentsQueryHookResult = ReturnType<typeof useStaffAssignmentsQuery>;
+export type StaffAssignmentsLazyQueryHookResult = ReturnType<typeof useStaffAssignmentsLazyQuery>;
+export type StaffAssignmentsSuspenseQueryHookResult = ReturnType<typeof useStaffAssignmentsSuspenseQuery>;
+export type StaffAssignmentsQueryResult = Apollo.QueryResult<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>;
+export const CreateStaffAssignmentDocument = gql`
+    mutation CreateStaffAssignment($input: CreateStaffAssignmentInput!) {
+  createStaffAssignment(input: $input) {
+    id
+    appointmentId
+    staffId
+    staffName
+    role
+    status
+    assignedAt
+    notes
+  }
+}
+    `;
+export type CreateStaffAssignmentMutationFn = Apollo.MutationFunction<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>;
+
+/**
+ * __useCreateStaffAssignmentMutation__
+ *
+ * To run a mutation, you first call `useCreateStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateStaffAssignmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createStaffAssignmentMutation, { data, loading, error }] = useCreateStaffAssignmentMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>(CreateStaffAssignmentDocument, options);
+      }
+export type CreateStaffAssignmentMutationHookResult = ReturnType<typeof useCreateStaffAssignmentMutation>;
+export type CreateStaffAssignmentMutationResult = Apollo.MutationResult<CreateStaffAssignmentMutation>;
+export type CreateStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>;
+export const UpdateStaffAssignmentDocument = gql`
+    mutation UpdateStaffAssignment($id: ID!, $input: UpdateStaffAssignmentInput!) {
+  updateStaffAssignment(id: $id, input: $input) {
+    id
+    status
+    totalMinutes
+  }
+}
+    `;
+export type UpdateStaffAssignmentMutationFn = Apollo.MutationFunction<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>;
+
+/**
+ * __useUpdateStaffAssignmentMutation__
+ *
+ * To run a mutation, you first call `useUpdateStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateStaffAssignmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateStaffAssignmentMutation, { data, loading, error }] = useUpdateStaffAssignmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>(UpdateStaffAssignmentDocument, options);
+      }
+export type UpdateStaffAssignmentMutationHookResult = ReturnType<typeof useUpdateStaffAssignmentMutation>;
+export type UpdateStaffAssignmentMutationResult = Apollo.MutationResult<UpdateStaffAssignmentMutation>;
+export type UpdateStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>;
+export const DeleteStaffAssignmentDocument = gql`
+    mutation DeleteStaffAssignment($id: ID!) {
+  deleteStaffAssignment(id: $id)
+}
+    `;
+export type DeleteStaffAssignmentMutationFn = Apollo.MutationFunction<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>;
+
+/**
+ * __useDeleteStaffAssignmentMutation__
+ *
+ * To run a mutation, you first call `useDeleteStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteStaffAssignmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteStaffAssignmentMutation, { data, loading, error }] = useDeleteStaffAssignmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>(DeleteStaffAssignmentDocument, options);
+      }
+export type DeleteStaffAssignmentMutationHookResult = ReturnType<typeof useDeleteStaffAssignmentMutation>;
+export type DeleteStaffAssignmentMutationResult = Apollo.MutationResult<DeleteStaffAssignmentMutation>;
+export type DeleteStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>;
+export const ReassignStaffAssignmentDocument = gql`
+    mutation ReassignStaffAssignment($id: ID!, $targetAppointmentId: ID!) {
+  reassignStaffAssignment(id: $id, targetAppointmentId: $targetAppointmentId) {
+    id
+    appointmentId
+    status
+  }
+}
+    `;
+export type ReassignStaffAssignmentMutationFn = Apollo.MutationFunction<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>;
+
+/**
+ * __useReassignStaffAssignmentMutation__
+ *
+ * To run a mutation, you first call `useReassignStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReassignStaffAssignmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [reassignStaffAssignmentMutation, { data, loading, error }] = useReassignStaffAssignmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      targetAppointmentId: // value for 'targetAppointmentId'
+ *   },
+ * });
+ */
+export function useReassignStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>(ReassignStaffAssignmentDocument, options);
+      }
+export type ReassignStaffAssignmentMutationHookResult = ReturnType<typeof useReassignStaffAssignmentMutation>;
+export type ReassignStaffAssignmentMutationResult = Apollo.MutationResult<ReassignStaffAssignmentMutation>;
+export type ReassignStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>;
+export const StartStaffAssignmentDocument = gql`
+    mutation StartStaffAssignment($id: ID!) {
+  startStaffAssignment(id: $id) {
+    id
+    status
+    startedAt
+  }
+}
+    `;
+export type StartStaffAssignmentMutationFn = Apollo.MutationFunction<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>;
+
+/**
+ * __useStartStaffAssignmentMutation__
+ *
+ * To run a mutation, you first call `useStartStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartStaffAssignmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startStaffAssignmentMutation, { data, loading, error }] = useStartStaffAssignmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useStartStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>(StartStaffAssignmentDocument, options);
+      }
+export type StartStaffAssignmentMutationHookResult = ReturnType<typeof useStartStaffAssignmentMutation>;
+export type StartStaffAssignmentMutationResult = Apollo.MutationResult<StartStaffAssignmentMutation>;
+export type StartStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>;
+export const CompleteStaffAssignmentDocument = gql`
+    mutation CompleteStaffAssignment($id: ID!, $totalMinutes: Int!) {
+  completeStaffAssignment(id: $id, totalMinutes: $totalMinutes) {
+    id
+    status
+    completedAt
+    totalMinutes
+  }
+}
+    `;
+export type CompleteStaffAssignmentMutationFn = Apollo.MutationFunction<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>;
+
+/**
+ * __useCompleteStaffAssignmentMutation__
+ *
+ * To run a mutation, you first call `useCompleteStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteStaffAssignmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeStaffAssignmentMutation, { data, loading, error }] = useCompleteStaffAssignmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      totalMinutes: // value for 'totalMinutes'
+ *   },
+ * });
+ */
+export function useCompleteStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>(CompleteStaffAssignmentDocument, options);
+      }
+export type CompleteStaffAssignmentMutationHookResult = ReturnType<typeof useCompleteStaffAssignmentMutation>;
+export type CompleteStaffAssignmentMutationResult = Apollo.MutationResult<CompleteStaffAssignmentMutation>;
+export type CompleteStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>;
+export const UpdateAppointmentDocument = gql`
+    mutation UpdateAppointment($id: ID!, $input: UpdateAppointmentInput!) {
+  updateAppointment(id: $id, input: $input) {
+    id
+    customerName
+    customerPhone
+    customerEmail
+    vehicleMake
+    vehicleModel
+    vehicleYear
+    vehiclePlate
+    serviceType
+    description
+    scheduledDate
+    startTime
+    endTime
+    status
+    assignedMechanic
+    bay
+    notes
+    shopId
+  }
+}
+    `;
+export type UpdateAppointmentMutationFn = Apollo.MutationFunction<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>;
+
+/**
+ * __useUpdateAppointmentMutation__
+ *
+ * To run a mutation, you first call `useUpdateAppointmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAppointmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAppointmentMutation, { data, loading, error }] = useUpdateAppointmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAppointmentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>(UpdateAppointmentDocument, options);
+      }
+export type UpdateAppointmentMutationHookResult = ReturnType<typeof useUpdateAppointmentMutation>;
+export type UpdateAppointmentMutationResult = Apollo.MutationResult<UpdateAppointmentMutation>;
+export type UpdateAppointmentMutationOptions = Apollo.BaseMutationOptions<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>;
+export const StaffListDocument = gql`
+    query StaffList {
+  staffList {
+    items {
+      id
+      tenantId
+      name
+      email
+      phone
+      role
+      licenseNumber
+      licenseClass
+      licenseExpiry
+      dateOfBirth
+      address
+      emergencyContact
+      emergencyPhone
+      status
+      assignedVehicleId
+      notes
+      hireDate
+      createdAt
+      updatedAt
+    }
+    total
+  }
+}
+    `;
+
+/**
+ * __useStaffListQuery__
+ *
+ * To run a query within a React component, call `useStaffListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useStaffListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useStaffListQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useStaffListQuery(baseOptions?: Apollo.QueryHookOptions<StaffListQuery, StaffListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<StaffListQuery, StaffListQueryVariables>(StaffListDocument, options);
+      }
+export function useStaffListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StaffListQuery, StaffListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<StaffListQuery, StaffListQueryVariables>(StaffListDocument, options);
+        }
+// @ts-ignore
+export function useStaffListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StaffListQuery, StaffListQueryVariables>): Apollo.UseSuspenseQueryResult<StaffListQuery, StaffListQueryVariables>;
+export function useStaffListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffListQuery, StaffListQueryVariables>): Apollo.UseSuspenseQueryResult<StaffListQuery | undefined, StaffListQueryVariables>;
+export function useStaffListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffListQuery, StaffListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<StaffListQuery, StaffListQueryVariables>(StaffListDocument, options);
+        }
+export type StaffListQueryHookResult = ReturnType<typeof useStaffListQuery>;
+export type StaffListLazyQueryHookResult = ReturnType<typeof useStaffListLazyQuery>;
+export type StaffListSuspenseQueryHookResult = ReturnType<typeof useStaffListSuspenseQuery>;
+export type StaffListQueryResult = Apollo.QueryResult<StaffListQuery, StaffListQueryVariables>;
+export const StaffDetailDocument = gql`
+    query StaffDetail($id: ID!) {
+  staff(id: $id) {
+    id
+    tenantId
+    name
+    email
+    phone
+    role
+    licenseNumber
+    licenseClass
+    licenseExpiry
+    dateOfBirth
+    address
+    emergencyContact
+    emergencyPhone
+    status
+    assignedVehicleId
+    notes
+    hireDate
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useStaffDetailQuery__
+ *
+ * To run a query within a React component, call `useStaffDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useStaffDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useStaffDetailQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useStaffDetailQuery(baseOptions: Apollo.QueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables> & ({ variables: StaffDetailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<StaffDetailQuery, StaffDetailQueryVariables>(StaffDetailDocument, options);
+      }
+export function useStaffDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<StaffDetailQuery, StaffDetailQueryVariables>(StaffDetailDocument, options);
+        }
+// @ts-ignore
+export function useStaffDetailSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables>): Apollo.UseSuspenseQueryResult<StaffDetailQuery, StaffDetailQueryVariables>;
+export function useStaffDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables>): Apollo.UseSuspenseQueryResult<StaffDetailQuery | undefined, StaffDetailQueryVariables>;
+export function useStaffDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<StaffDetailQuery, StaffDetailQueryVariables>(StaffDetailDocument, options);
+        }
+export type StaffDetailQueryHookResult = ReturnType<typeof useStaffDetailQuery>;
+export type StaffDetailLazyQueryHookResult = ReturnType<typeof useStaffDetailLazyQuery>;
+export type StaffDetailSuspenseQueryHookResult = ReturnType<typeof useStaffDetailSuspenseQuery>;
+export type StaffDetailQueryResult = Apollo.QueryResult<StaffDetailQuery, StaffDetailQueryVariables>;
+export const CreateStaffDocument = gql`
+    mutation CreateStaff($input: CreateStaffInput!) {
+  createStaff(input: $input) {
+    id
+    name
+    status
+    createdAt
+  }
+}
+    `;
+export type CreateStaffMutationFn = Apollo.MutationFunction<CreateStaffMutation, CreateStaffMutationVariables>;
+
+/**
+ * __useCreateStaffMutation__
+ *
+ * To run a mutation, you first call `useCreateStaffMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateStaffMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createStaffMutation, { data, loading, error }] = useCreateStaffMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateStaffMutation(baseOptions?: Apollo.MutationHookOptions<CreateStaffMutation, CreateStaffMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateStaffMutation, CreateStaffMutationVariables>(CreateStaffDocument, options);
+      }
+export type CreateStaffMutationHookResult = ReturnType<typeof useCreateStaffMutation>;
+export type CreateStaffMutationResult = Apollo.MutationResult<CreateStaffMutation>;
+export type CreateStaffMutationOptions = Apollo.BaseMutationOptions<CreateStaffMutation, CreateStaffMutationVariables>;
+export const UpdateStaffDocument = gql`
+    mutation UpdateStaff($id: ID!, $input: UpdateStaffInput!) {
+  updateStaff(id: $id, input: $input) {
+    id
+    name
+    status
+    updatedAt
+  }
+}
+    `;
+export type UpdateStaffMutationFn = Apollo.MutationFunction<UpdateStaffMutation, UpdateStaffMutationVariables>;
+
+/**
+ * __useUpdateStaffMutation__
+ *
+ * To run a mutation, you first call `useUpdateStaffMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateStaffMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateStaffMutation, { data, loading, error }] = useUpdateStaffMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateStaffMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStaffMutation, UpdateStaffMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateStaffMutation, UpdateStaffMutationVariables>(UpdateStaffDocument, options);
+      }
+export type UpdateStaffMutationHookResult = ReturnType<typeof useUpdateStaffMutation>;
+export type UpdateStaffMutationResult = Apollo.MutationResult<UpdateStaffMutation>;
+export type UpdateStaffMutationOptions = Apollo.BaseMutationOptions<UpdateStaffMutation, UpdateStaffMutationVariables>;
+export const DeleteStaffDocument = gql`
+    mutation DeleteStaff($id: ID!) {
+  deleteStaff(id: $id)
+}
+    `;
+export type DeleteStaffMutationFn = Apollo.MutationFunction<DeleteStaffMutation, DeleteStaffMutationVariables>;
+
+/**
+ * __useDeleteStaffMutation__
+ *
+ * To run a mutation, you first call `useDeleteStaffMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteStaffMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteStaffMutation, { data, loading, error }] = useDeleteStaffMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteStaffMutation(baseOptions?: Apollo.MutationHookOptions<DeleteStaffMutation, DeleteStaffMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteStaffMutation, DeleteStaffMutationVariables>(DeleteStaffDocument, options);
+      }
+export type DeleteStaffMutationHookResult = ReturnType<typeof useDeleteStaffMutation>;
+export type DeleteStaffMutationResult = Apollo.MutationResult<DeleteStaffMutation>;
+export type DeleteStaffMutationOptions = Apollo.BaseMutationOptions<DeleteStaffMutation, DeleteStaffMutationVariables>;

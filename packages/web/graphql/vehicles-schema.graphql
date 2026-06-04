@@ -1,6 +1,4 @@
-type Query {
-    vehicle(id: ID!): Vehicle
-    vehicles(ownerId: ID, page: Int, perPage: Int): VehicleConnection!
+extend type Query {
     vehicleMaintenance(vehicleId: ID!): [VehicleMaintenance!]!
     vehicleExpenses(vehicleId: ID!): [VehicleExpense!]!
     vehicleDocuments(vehicleId: ID!): [VehicleDocument!]!
@@ -8,7 +6,7 @@ type Query {
     expenseSummary(vehicleId: ID!): ExpenseSummary!
 }
 
-type Mutation {
+extend type Mutation {
     createVehicle(input: CreateVehicleInput!): Vehicle!
     updateVehicle(id: ID!, input: UpdateVehicleInput!): Vehicle!
     deleteVehicle(id: ID!): Boolean!

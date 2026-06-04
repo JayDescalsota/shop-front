@@ -6,13 +6,28 @@ import { type ReactNode } from 'react';
 
 const httpLink = createHttpLink({ uri: '/api/graphql' });
 
+function parseJwtPayload(token: string): Record<string, unknown> {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch {
+    return {};
+  }
+}
+
 const authLink = setContext((_, { headers }) => {
   if (typeof window === 'undefined') return { headers };
   const token = localStorage.getItem('token');
+  if (!token) return { headers };
+  const payload = parseJwtPayload(token);
+  const selectedTenantId = localStorage.getItem('selectedTenantId') || (payload.tenant_id as string) || '';
   return {
     headers: {
       ...headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      Authorization: `Bearer ${token}`,
+      'x-user-id': (payload.sub as string) || '',
+      'x-tenant-id': selectedTenantId,
+      'x-app-id': (payload.app as string[])?.[0] || '',
+      'x-branch-id': '',
     },
   };
 });

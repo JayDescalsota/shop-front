@@ -3,29 +3,14 @@
 import { useState, useMemo } from 'react';
 import { Card, DataTable, PageHeader, Button, Field } from '@autocare/ui';
 import type { Column } from '@autocare/ui';
-import { useVehiclesQuery, useCreateVehicleMutation, useUpdateVehicleMutation } from '@/graphql/generated/hooks';
+import { useVehiclesQuery, useCustomersQuery, useCreateVehicleMutation, useUpdateVehicleMutation } from '@/graphql/generated/hooks';
 import type { CreateVehicleInput, UpdateVehicleInput } from '@/graphql/generated/index';
 import VehicleModal from '@/components/VehicleModal';
 import type { VehicleForm } from '@/components/VehicleModal';
 
-function parseTenantId(): string {
-  if (typeof window === 'undefined') return '';
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return '';
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const tenants = payload.tenants || [];
-    const selectedId = localStorage.getItem('selectedTenantId');
-    if (selectedId && tenants.some((t: any) => t.id === selectedId)) return selectedId;
-    return tenants[0]?.id || '';
-  } catch {
-    return '';
-  }
-}
-
 export default function Vehicles() {
-  const tenantId = parseTenantId();
-  const { data, refetch } = useVehiclesQuery({ variables: { tenantId }, skip: !tenantId });
+  const { data, refetch } = useVehiclesQuery();
+  const { data: custData } = useCustomersQuery();
   const [createVehicle] = useCreateVehicleMutation();
   const [updateVehicle] = useUpdateVehicleMutation();
 
@@ -36,13 +21,23 @@ export default function Vehicles() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const customerMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of custData?.customers?.items ?? []) m.set(c.id, c.name);
+    return m;
+  }, [custData]);
+
   const allVehicles = useMemo(() =>
     (data?.vehicles?.items ?? []).map((v) => ({
       id: v.id, make: v.make, model: v.model, year: v.year,
       vin: v.vin ?? '', licensePlate: v.licensePlate ?? '',
       color: v.color ?? '', notes: v.notes ?? '',
+      customerId: v.customerId ?? '',
+      customerName: v.customerId ? customerMap.get(v.customerId) ?? '' : '',
+      status: v.status ?? 'running',
+      repairStatus: v.repairStatus ?? 'none',
     })),
-    [data],
+    [data, customerMap],
   );
 
   const vehicles = useMemo(() => {
@@ -60,7 +55,7 @@ export default function Vehicles() {
     setError('');
     setSubmitting(true);
 
-    const tid = parseTenantId();
+    const tid = typeof window !== 'undefined' ? localStorage.getItem('selectedTenantId') || '' : '';
     if (!tid) {
       setError('No tenant selected.');
       setSubmitting(false);
@@ -76,6 +71,9 @@ export default function Vehicles() {
       licensePlate: form.licensePlate || null,
       color: form.color || null,
       notes: form.notes || null,
+      customerId: form.customerId || null,
+      status: form.status || null,
+      repairStatus: form.repairStatus || null,
     } as CreateVehicleInput;
 
     try {
@@ -106,6 +104,9 @@ export default function Vehicles() {
       licensePlate: form.licensePlate || null,
       color: form.color || null,
       notes: form.notes || null,
+      customerId: form.customerId || null,
+      status: form.status || null,
+      repairStatus: form.repairStatus || null,
     } as UpdateVehicleInput;
 
     try {
@@ -131,6 +132,15 @@ export default function Vehicles() {
     { key: 'vin', header: 'VIN' },
     { key: 'licensePlate', header: 'License' },
     { key: 'color', header: 'Color' },
+    { key: 'customerName', header: 'Owner' },
+    {
+      key: 'status', header: 'Status',
+      render: (v) => {
+        const labels: Record<string, string> = { running: 'Running', broken: 'Broken', under_maintenance: 'In Shop', out_of_service: 'Out of Service' };
+        const colors: Record<string, string> = { running: 'text-green-600', broken: 'text-red-600', under_maintenance: 'text-yellow-600', out_of_service: 'text-gray-400' };
+        return <span className={colors[v.status] ?? ''}>{labels[v.status] ?? v.status}</span>;
+      },
+    },
     {
       key: 'actions', header: 'Actions',
       render: (v) => (

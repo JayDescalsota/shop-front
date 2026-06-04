@@ -58,6 +58,8 @@ type Vehicle {
     licensePlate: String
     color: String
     notes: String
+    status: String!
+    repairStatus: String!
     createdAt: String!
     updatedAt: String!
 }
@@ -77,6 +79,8 @@ input CreateVehicleInput {
     licensePlate: String
     color: String
     notes: String
+    status: String
+    repairStatus: String
 }
 
 input UpdateVehicleInput {
@@ -87,15 +91,17 @@ input UpdateVehicleInput {
     licensePlate: String
     color: String
     notes: String
+    status: String
+    repairStatus: String
 }
 
 type Query {
     customer(id: ID!): Customer
-    customers(tenantId: ID!): CustomerConnection!
+    customers(tenantId: ID): CustomerConnection!
     vehicle(id: ID!): Vehicle
-    vehicles(tenantId: ID!): VehicleConnection!
+    vehicles(tenantId: ID): VehicleConnection!
     appointment(id: ID!): Appointment
-    appointments(tenantId: ID!): AppointmentConnection!
+    appointments(tenantId: ID): AppointmentConnection!
 }
 
 type Mutation {
@@ -106,6 +112,7 @@ type Mutation {
     updateVehicle(id: ID!, input: UpdateVehicleInput!): Vehicle!
     deleteVehicle(id: ID!): Boolean!
     createAppointment(input: CreateAppointmentInput!): Appointment!
+    updateAppointment(id: ID!, input: UpdateAppointmentInput!): Appointment!
     updateAppointmentStatus(id: ID!, status: String!): Appointment!
     deleteAppointment(id: ID!): Boolean!
 }
@@ -123,9 +130,70 @@ input CreateAppointmentInput {
     description: String
     scheduledDate: String!
     startTime: String!
-    endTime: String!
+    endTime: String
     assignedMechanic: String
+    bay: String
     notes: String
+    shopId: String
+}
+
+input UpdateAppointmentInput {
+    customerName: String
+    customerPhone: String
+    customerEmail: String
+    vehicleMake: String
+    vehicleModel: String
+    vehicleYear: Int
+    vehiclePlate: String
+    serviceType: String
+    description: String
+    assignedMechanic: String
+    bay: String
+    notes: String
+    status: String
+}
+
+type StaffAssignment {
+    id: ID!
+    tenantId: ID!
+    appointmentId: ID!
+    staffId: ID!
+    staffName: String!
+    role: String!
+    status: String!
+    assignedAt: String!
+    startedAt: String
+    completedAt: String
+    totalMinutes: Int
+    notes: String
+}
+
+input CreateStaffAssignmentInput {
+    tenantId: ID!
+    appointmentId: ID!
+    staffId: ID!
+    staffName: String!
+    role: String!
+    notes: String
+}
+
+input UpdateStaffAssignmentInput {
+    status: String
+    totalMinutes: Int
+    notes: String
+}
+
+extend type Query {
+    staffAssignments(appointmentId: ID!): [StaffAssignment!]!
+}
+
+extend type Mutation {
+    createStaffAssignment(input: CreateStaffAssignmentInput!): StaffAssignment!
+    updateStaffAssignment(id: ID!, input: UpdateStaffAssignmentInput!): StaffAssignment!
+    deleteStaffAssignment(id: ID!): Boolean!
+    reassignStaffAssignment(id: ID!, targetAppointmentId: ID!): StaffAssignment!
+    startStaffAssignment(id: ID!): StaffAssignment!
+    completeStaffAssignment(id: ID!, totalMinutes: Int!): StaffAssignment!
 }
 
 type Appointment {
@@ -143,9 +211,11 @@ type Appointment {
     status: String!
     scheduledDate: String!
     startTime: String!
-    endTime: String!
+    endTime: String
     assignedMechanic: String
+    bay: String
     notes: String
+    shopId: String
     createdAt: String!
     updatedAt: String!
 }

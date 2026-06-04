@@ -1,0 +1,74 @@
+type Staff {
+    id: ID!
+    tenantId: ID!
+    name: String!
+    email: String
+    phone: String
+    role: String!
+    licenseNumber: String
+    licenseClass: String
+    licenseExpiry: String
+    dateOfBirth: String
+    address: String
+    emergencyContact: String
+    emergencyPhone: String
+    status: String!
+    assignedVehicleId: ID
+    notes: String
+    hireDate: String
+    createdAt: String!
+    updatedAt: String!
+}
+
+type StaffConnection {
+    items: [Staff!]!
+    total: Int!
+}
+
+input CreateStaffInput {
+    tenantId: ID!
+    name: String!
+    email: String
+    phone: String
+    role: String
+    licenseNumber: String
+    licenseClass: String
+    licenseExpiry: String
+    dateOfBirth: String
+    address: String
+    emergencyContact: String
+    emergencyPhone: String
+    status: String
+    assignedVehicleId: ID
+    notes: String
+    hireDate: String
+}
+
+input UpdateStaffInput {
+    name: String
+    email: String
+    phone: String
+    role: String
+    licenseNumber: String
+    licenseClass: String
+    licenseExpiry: String
+    dateOfBirth: String
+    address: String
+    emergencyContact: String
+    emergencyPhone: String
+    status: String
+    assignedVehicleId: ID
+    notes: String
+    hireDate: String
+}
+
+type Query {
+    staff(id: ID!): Staff
+    staffList(tenantId: ID): StaffConnection!
+}
+
+type Mutation {
+    createStaff(input: CreateStaffInput!): Staff!
+    updateStaff(id: ID!, input: UpdateStaffInput!): Staff!
+    deleteStaff(id: ID!): Boolean!
+}

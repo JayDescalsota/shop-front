@@ -25,15 +25,15 @@ type VehicleModel {
 }
 
 type ServiceType {
-  id: ID!
-  name: String!
-  code: String!
-  category: String!
-  description: String
-  estimatedHours: Float
-  isActive: Boolean!
-  createdAt: String!
-  updatedAt: String!
+    id: ID!
+    code: String!
+    name: String!
+    description: String
+    category: String!
+    system: String!
+    estimatedHours: Float
+    isGlobal: Boolean!
+    isActive: Boolean!
 }
 
 type Query {

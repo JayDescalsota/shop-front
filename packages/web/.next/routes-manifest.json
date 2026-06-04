@@ -1,1 +1,204 @@
-{"version":3,"caseSensitive":false,"basePath":"","rewrites":{"beforeFiles":[],"afterFiles":[],"fallback":[]},"redirects":[{"source":"/:path+/","destination":"/:path+","permanent":true,"internal":true,"regex":"^(?:\\/((?:[^\\/]+?)(?:\\/(?:[^\\/]+?))*))\\/$"}],"headers":[]}
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/automobile/staff/[id]",
+      "regex": "^/automobile/staff/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/automobile/staff/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/automobile/vehicles/[id]",
+      "regex": "^/automobile/vehicles/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/automobile/vehicles/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/repair/staff/[id]",
+      "regex": "^/repair/staff/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/repair/staff/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/branches",
+      "regex": "^/admin/branches(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/branches(?:/)?$"
+    },
+    {
+      "page": "/admin/settings",
+      "regex": "^/admin/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/settings(?:/)?$"
+    },
+    {
+      "page": "/admin/users",
+      "regex": "^/admin/users(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/users(?:/)?$"
+    },
+    {
+      "page": "/automobile",
+      "regex": "^/automobile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/automobile(?:/)?$"
+    },
+    {
+      "page": "/automobile/settings",
+      "regex": "^/automobile/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/automobile/settings(?:/)?$"
+    },
+    {
+      "page": "/automobile/staff",
+      "regex": "^/automobile/staff(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/automobile/staff(?:/)?$"
+    },
+    {
+      "page": "/automobile/vehicles",
+      "regex": "^/automobile/vehicles(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/automobile/vehicles(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/repair",
+      "regex": "^/repair(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/repair(?:/)?$"
+    },
+    {
+      "page": "/repair/appointments",
+      "regex": "^/repair/appointments(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/repair/appointments(?:/)?$"
+    },
+    {
+      "page": "/repair/customers",
+      "regex": "^/repair/customers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/repair/customers(?:/)?$"
+    },
+    {
+      "page": "/repair/invoices",
+      "regex": "^/repair/invoices(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/repair/invoices(?:/)?$"
+    },
+    {
+      "page": "/repair/settings",
+      "regex": "^/repair/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/repair/settings(?:/)?$"
+    },
+    {
+      "page": "/repair/staff",
+      "regex": "^/repair/staff(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/repair/staff(?:/)?$"
+    },
+    {
+      "page": "/repair/vehicles",
+      "regex": "^/repair/vehicles(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/repair/vehicles(?:/)?$"
+    },
+    {
+      "page": "/store",
+      "regex": "^/store(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/store(?:/)?$"
+    },
+    {
+      "page": "/store/inventory",
+      "regex": "^/store/inventory(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/store/inventory(?:/)?$"
+    },
+    {
+      "page": "/store/products",
+      "regex": "^/store/products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/store/products(?:/)?$"
+    },
+    {
+      "page": "/store/purchase-orders",
+      "regex": "^/store/purchase\\-orders(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/store/purchase\\-orders(?:/)?$"
+    },
+    {
+      "page": "/store/settings",
+      "regex": "^/store/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/store/settings(?:/)?$"
+    },
+    {
+      "page": "/store/suppliers",
+      "regex": "^/store/suppliers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/store/suppliers(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

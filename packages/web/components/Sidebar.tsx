@@ -40,7 +40,7 @@ const repairNav = [
   { href: '/repair/customers', label: 'Customers', icon: UsersIcon },
   { href: '/repair/vehicles', label: 'Vehicles', icon: TruckIcon },
   { href: '/repair/invoices', label: 'Invoices', icon: CurrencyDollarIcon },
-  { href: '/repair/mechanics', label: 'Mechanics', icon: WrenchIcon },
+  { href: '/repair/staff', label: 'Staff', icon: UsersIcon },
 ];
 
 const adminNav = [
@@ -53,7 +53,7 @@ const adminNav = [
 const automobileNav = [
   { href: '/automobile', label: 'Dashboard', icon: Squares2X2Icon },
   { href: '/automobile/vehicles', label: 'Vehicles', icon: TruckIcon },
-  { href: '/automobile/drivers', label: 'Drivers', icon: UsersIcon },
+  { href: '/automobile/staff', label: 'Staff', icon: UsersIcon },
   { href: '/automobile/settings', label: 'Settings', icon: Cog6ToothIcon },
 ];
 
@@ -104,11 +104,28 @@ export default function Sidebar() {
   const [selectedTenantId, setSelectedTenantId] = useState<string>('');
 
   useEffect(() => {
-    setTenants(useTenants());
+    const allTenants = useTenants();
+    setTenants(allTenants);
     setRole(useRole());
     setUserInitial(getUserInitials());
-    setSelectedTenantId(localStorage.getItem('selectedTenantId') || '');
-  }, []);
+
+    const storedId = localStorage.getItem('selectedTenantId') || '';
+    const appRoute = '/' + (pathname.startsWith('/admin') ? 'admin' : pathname.startsWith('/repair') ? 'repair' : pathname.startsWith('/mobile') ? 'mobile' : pathname.startsWith('/automobile') ? 'automobile' : 'store');
+    const appTenants = allTenants.filter((t) => {
+      const a = appMap[t.app_id];
+      return a && a.route === appRoute;
+    });
+
+    if (!storedId || !appTenants.some((t) => t.id === storedId)) {
+      const first = appTenants[0];
+      if (first) {
+        localStorage.setItem('selectedTenantId', first.id);
+        setSelectedTenantId(first.id);
+        return;
+      }
+    }
+    setSelectedTenantId(storedId);
+  }, [pathname]);
 
   const [tenantDropdownOpen, setTenantDropdownOpen] = useState(false);
   const tenantDropdownRef = useRef<HTMLDivElement>(null);

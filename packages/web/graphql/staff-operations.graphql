@@ -1,0 +1,72 @@
+query StaffList {
+    staffList {
+        items {
+            id
+            tenantId
+            name
+            email
+            phone
+            role
+            licenseNumber
+            licenseClass
+            licenseExpiry
+            dateOfBirth
+            address
+            emergencyContact
+            emergencyPhone
+            status
+            assignedVehicleId
+            notes
+            hireDate
+            createdAt
+            updatedAt
+        }
+        total
+    }
+}
+
+query StaffDetail($id: ID!) {
+    staff(id: $id) {
+        id
+        tenantId
+        name
+        email
+        phone
+        role
+        licenseNumber
+        licenseClass
+        licenseExpiry
+        dateOfBirth
+        address
+        emergencyContact
+        emergencyPhone
+        status
+        assignedVehicleId
+        notes
+        hireDate
+        createdAt
+        updatedAt
+    }
+}
+
+mutation CreateStaff($input: CreateStaffInput!) {
+    createStaff(input: $input) {
+        id
+        name
+        status
+        createdAt
+    }
+}
+
+mutation UpdateStaff($id: ID!, $input: UpdateStaffInput!) {
+    updateStaff(id: $id, input: $input) {
+        id
+        name
+        status
+        updatedAt
+    }
+}
+
+mutation DeleteStaff($id: ID!) {
+    deleteStaff(id: $id)
+}

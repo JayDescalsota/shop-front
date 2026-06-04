@@ -18,12 +18,13 @@ query VehicleModels($makeId: ID!) {
 }
 
 query ServiceTypes {
-  serviceTypes {
-    id
-    name
-    code
-    category
-    description
-    estimatedHours
-  }
+    serviceTypes {
+        id
+        name
+        code
+        category
+        system
+        estimatedHours
+        isActive
+    }
 }

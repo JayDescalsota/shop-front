@@ -1,22 +1,31 @@
-query Appointments($tenantId: ID!) {
-    appointments(tenantId: $tenantId) {
+query Appointments {
+    appointments {
         items {
             id
             customerName
+            customerPhone
+            customerEmail
             vehicleMake
             vehicleModel
+            vehicleYear
+            vehiclePlate
             serviceType
+            description
             scheduledDate
             startTime
+            endTime
             status
             assignedMechanic
+            bay
+            notes
+            shopId
         }
         total
     }
 }
 
-query Customers($tenantId: ID!) {
-    customers(tenantId: $tenantId) {
+query Customers {
+    customers {
         items {
             id
             name
@@ -63,8 +72,8 @@ mutation DeleteCustomer($id: ID!) {
     deleteCustomer(id: $id)
 }
 
-query Vehicles($tenantId: ID!) {
-    vehicles(tenantId: $tenantId) {
+query Vehicles {
+    vehicles {
         items {
             id
             make
@@ -75,8 +84,29 @@ query Vehicles($tenantId: ID!) {
             color
             customerId
             notes
+            status
+            repairStatus
         }
         total
+    }
+}
+
+query Vehicle($id: ID!) {
+    vehicle(id: $id) {
+        id
+        tenantId
+        customerId
+        make
+        model
+        year
+        vin
+        licensePlate
+        color
+        notes
+        status
+        repairStatus
+        createdAt
+        updatedAt
     }
 }
 
@@ -89,6 +119,8 @@ mutation CreateVehicle($input: CreateVehicleInput!) {
         vin
         licensePlate
         color
+        status
+        repairStatus
     }
 }
 
@@ -101,6 +133,9 @@ mutation UpdateVehicle($id: ID!, $input: UpdateVehicleInput!) {
         vin
         licensePlate
         color
+        customerId
+        status
+        repairStatus
     }
 }
 
@@ -117,6 +152,99 @@ mutation CreateAppointment($input: CreateAppointmentInput!) {
         serviceType
         scheduledDate
         startTime
+        endTime
         status
+        shopId
+        bay
+        assignedMechanic
+    }
+}
+
+query StaffAssignments($appointmentId: ID!) {
+    staffAssignments(appointmentId: $appointmentId) {
+        id
+        appointmentId
+        staffId
+        staffName
+        role
+        status
+        assignedAt
+        startedAt
+        completedAt
+        totalMinutes
+        notes
+    }
+}
+
+mutation CreateStaffAssignment($input: CreateStaffAssignmentInput!) {
+    createStaffAssignment(input: $input) {
+        id
+        appointmentId
+        staffId
+        staffName
+        role
+        status
+        assignedAt
+        notes
+    }
+}
+
+mutation UpdateStaffAssignment($id: ID!, $input: UpdateStaffAssignmentInput!) {
+    updateStaffAssignment(id: $id, input: $input) {
+        id
+        status
+        totalMinutes
+    }
+}
+
+mutation DeleteStaffAssignment($id: ID!) {
+    deleteStaffAssignment(id: $id)
+}
+
+mutation ReassignStaffAssignment($id: ID!, $targetAppointmentId: ID!) {
+    reassignStaffAssignment(id: $id, targetAppointmentId: $targetAppointmentId) {
+        id
+        appointmentId
+        status
+    }
+}
+
+mutation StartStaffAssignment($id: ID!) {
+    startStaffAssignment(id: $id) {
+        id
+        status
+        startedAt
+    }
+}
+
+mutation CompleteStaffAssignment($id: ID!, $totalMinutes: Int!) {
+    completeStaffAssignment(id: $id, totalMinutes: $totalMinutes) {
+        id
+        status
+        completedAt
+        totalMinutes
+    }
+}
+
+mutation UpdateAppointment($id: ID!, $input: UpdateAppointmentInput!) {
+    updateAppointment(id: $id, input: $input) {
+        id
+        customerName
+        customerPhone
+        customerEmail
+        vehicleMake
+        vehicleModel
+        vehicleYear
+        vehiclePlate
+        serviceType
+        description
+        scheduledDate
+        startTime
+        endTime
+        status
+        assignedMechanic
+        bay
+        notes
+        shopId
     }
 }

@@ -8,24 +8,8 @@ import type { CreateCustomerInput, UpdateCustomerInput } from '@/graphql/generat
 import CustomerModal from '@/components/CustomerModal';
 import type { CustomerForm } from '@/components/CustomerModal';
 
-function parseTenantId(): string {
-  if (typeof window === 'undefined') return '';
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return '';
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const tenants = payload.tenants || [];
-    const selectedId = localStorage.getItem('selectedTenantId');
-    if (selectedId && tenants.some((t: any) => t.id === selectedId)) return selectedId;
-    return tenants[0]?.id || '';
-  } catch {
-    return '';
-  }
-}
-
 export default function Customers() {
-  const tenantId = parseTenantId();
-  const { data, refetch } = useCustomersQuery({ variables: { tenantId }, skip: !tenantId });
+  const { data, refetch } = useCustomersQuery();
   const [createCustomer] = useCreateCustomerMutation();
   const [updateCustomer] = useUpdateCustomerMutation();
 
@@ -61,7 +45,7 @@ export default function Customers() {
     setError('');
     setSubmitting(true);
 
-    const tid = parseTenantId();
+    const tid = typeof window !== 'undefined' ? localStorage.getItem('selectedTenantId') || '' : '';
     if (!tid) {
       setError('No tenant selected.');
       setSubmitting(false);
