@@ -293,6 +293,13 @@ export type CompleteStaffAssignmentMutationVariables = Exact<{
 
 export type CompleteStaffAssignmentMutation = { completeStaffAssignment: { id: string, status: string, completedAt: string | null, totalMinutes: number | null } };
 
+export type StaffActiveAssignmentsQueryVariables = Exact<{
+  staffId: string | number;
+}>;
+
+
+export type StaffActiveAssignmentsQuery = { staffActiveAssignments: Array<{ id: string, appointmentId: string, staffName: string, role: string, status: string, assignedAt: string }> };
+
 export type UpdateAppointmentMutationVariables = Exact<{
   id: string | number;
   input: UpdateAppointmentInput;
@@ -1242,6 +1249,54 @@ export function useCompleteStaffAssignmentMutation(baseOptions?: Apollo.Mutation
 export type CompleteStaffAssignmentMutationHookResult = ReturnType<typeof useCompleteStaffAssignmentMutation>;
 export type CompleteStaffAssignmentMutationResult = Apollo.MutationResult<CompleteStaffAssignmentMutation>;
 export type CompleteStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>;
+export const StaffActiveAssignmentsDocument = gql`
+    query StaffActiveAssignments($staffId: ID!) {
+  staffActiveAssignments(staffId: $staffId) {
+    id
+    appointmentId
+    staffName
+    role
+    status
+    assignedAt
+  }
+}
+    `;
+
+/**
+ * __useStaffActiveAssignmentsQuery__
+ *
+ * To run a query within a React component, call `useStaffActiveAssignmentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useStaffActiveAssignmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useStaffActiveAssignmentsQuery({
+ *   variables: {
+ *      staffId: // value for 'staffId'
+ *   },
+ * });
+ */
+export function useStaffActiveAssignmentsQuery(baseOptions: Apollo.QueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables> & ({ variables: StaffActiveAssignmentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>(StaffActiveAssignmentsDocument, options);
+      }
+export function useStaffActiveAssignmentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>(StaffActiveAssignmentsDocument, options);
+        }
+// @ts-ignore
+export function useStaffActiveAssignmentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>): Apollo.UseSuspenseQueryResult<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>;
+export function useStaffActiveAssignmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>): Apollo.UseSuspenseQueryResult<StaffActiveAssignmentsQuery | undefined, StaffActiveAssignmentsQueryVariables>;
+export function useStaffActiveAssignmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>(StaffActiveAssignmentsDocument, options);
+        }
+export type StaffActiveAssignmentsQueryHookResult = ReturnType<typeof useStaffActiveAssignmentsQuery>;
+export type StaffActiveAssignmentsLazyQueryHookResult = ReturnType<typeof useStaffActiveAssignmentsLazyQuery>;
+export type StaffActiveAssignmentsSuspenseQueryHookResult = ReturnType<typeof useStaffActiveAssignmentsSuspenseQuery>;
+export type StaffActiveAssignmentsQueryResult = Apollo.QueryResult<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>;
 export const UpdateAppointmentDocument = gql`
     mutation UpdateAppointment($id: ID!, $input: UpdateAppointmentInput!) {
   updateAppointment(id: $id, input: $input) {

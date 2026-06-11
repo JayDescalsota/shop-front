@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { Card, PageHeader, Button } from '@autocare/ui';
-import { useStaffDetailQuery, useUpdateStaffMutation } from '@/graphql/generated/hooks';
+import { useStaffDetailQuery, useUpdateStaffMutation, useStaffActiveAssignmentsQuery } from '@/graphql/generated/hooks';
 import { StaffInfoCard, StaffEmploymentCard } from '@/components/StaffInfoCard';
 import type { StaffInfo, StaffForm } from '@/components/StaffInfoCard';
 
@@ -13,8 +13,13 @@ export default function RepairStaffDetailPage() {
 
   const { data, loading, refetch } = useStaffDetailQuery({ variables: { id: staffId }, skip: !staffId });
   const [updateStaff, { loading: updating }] = useUpdateStaffMutation();
+  const { data: assignData } = useStaffActiveAssignmentsQuery({
+    variables: { staffId },
+    skip: !staffId,
+  });
 
   const staff = data?.staff as StaffInfo | undefined;
+  const activeAssignments = assignData?.staffActiveAssignments ?? [];
 
   const handleSave = async (form: StaffForm) => {
     const res = await updateStaff({
@@ -57,6 +62,24 @@ export default function RepairStaffDetailPage() {
           <StaffInfoCard staff={staff} saving={updating} onSave={handleSave} />
         </div>
         <div className="flex flex-col gap-4">
+          <Card title="Active Assignments">
+            <div className="text-center py-4">
+              <p className="text-3xl font-bold text-accent">{activeAssignments.length}</p>
+              <p className="text-xs text-muted mt-1">{activeAssignments.length === 1 ? 'assignment' : 'assignments'} in progress</p>
+            </div>
+            {activeAssignments.length > 0 && (
+              <div className="border-t border-border pt-3 mt-1 space-y-2">
+                {activeAssignments.map((a) => (
+                  <div key={a.id} className="flex items-center justify-between text-xs">
+                    <span className="text-primary font-medium">{a.staffName}</span>
+                    <span className={`px-1.5 py-0.5 rounded ${
+                      a.status === 'assigned' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
+                    }`}>{a.status.replace('_', ' ')}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
           <StaffEmploymentCard staff={staff} />
         </div>
       </div>

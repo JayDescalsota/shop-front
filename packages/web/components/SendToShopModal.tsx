@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Modal, Field, FormActions, ErrorBanner } from '@autocare/ui';
-import { useServiceTypesQuery, useCreateAppointmentMutation, useUpdateVehicleMutation } from '../graphql/generated/hooks';
-import type { CreateAppointmentInput, UpdateVehicleInput } from '../graphql/generated/index';
+import { useServiceTypesQuery, useCreateAppointmentMutation, useCreateVehicleMutation, useUpdateVehicleMutation, useVehiclesQuery } from '../graphql/generated/hooks';
+import type { CreateAppointmentInput, CreateVehicleInput, UpdateVehicleInput } from '../graphql/generated/index';
 
 const APP_REPAIR = '00000000-0000-0000-0000-202605270002';
 
@@ -81,6 +81,7 @@ export default function SendToShopModal({ open, onClose, vehicle }: SendToShopMo
   const [newItemNote, setNewItemNote] = useState('');
 
   const [createAppointment] = useCreateAppointmentMutation();
+  const [createRepairVehicle] = useCreateVehicleMutation();
   const [updateVehicle] = useUpdateVehicleMutation();
   const { data: svcTypesData } = useServiceTypesQuery({ fetchPolicy: 'cache-first' });
 
@@ -186,6 +187,19 @@ export default function SendToShopModal({ open, onClose, vehicle }: SendToShopMo
       if (!apptRes.data?.createAppointment) {
         setError(apptRes.errors?.[0]?.message || 'Failed to create appointment');
         return;
+      }
+      const repairVehicleInput: CreateVehicleInput = {
+        tenantId: selectedShop.id as any,
+        customerId: null,
+        make: vehicle.make,
+        model: vehicle.model,
+        year: vehicle.year,
+        licensePlate: vehicle.licensePlate || null,
+        notes: `Source vehicle: ${vehicle.id} | ${vehicle.make} ${vehicle.model}`,
+      } as CreateVehicleInput;
+      const existingRes = await createRepairVehicle({ variables: { input: repairVehicleInput } });
+      if (!existingRes.data?.createVehicle) {
+        console.warn('Could not create repair vehicle record');
       }
       const vehicleInput: UpdateVehicleInput = {
         status: 'under_maintenance',

@@ -624,6 +624,7 @@ export type Query = {
   serviceType?: Maybe<ServiceType>;
   serviceTypes: Array<ServiceType>;
   staff?: Maybe<Staff>;
+  staffActiveAssignments: Array<StaffAssignment>;
   staffAssignments: Array<StaffAssignment>;
   staffList: StaffConnection;
   supplier?: Maybe<Supplier>;
@@ -713,6 +714,11 @@ export type QueryServiceTypesArgs = {
 
 export type QueryStaffArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryStaffActiveAssignmentsArgs = {
+  staffId: Scalars['ID']['input'];
 };
 
 

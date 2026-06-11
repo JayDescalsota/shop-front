@@ -226,6 +226,17 @@ mutation CompleteStaffAssignment($id: ID!, $totalMinutes: Int!) {
     }
 }
 
+query StaffActiveAssignments($staffId: ID!) {
+    staffActiveAssignments(staffId: $staffId) {
+        id
+        appointmentId
+        staffName
+        role
+        status
+        assignedAt
+    }
+}
+
 mutation UpdateAppointment($id: ID!, $input: UpdateAppointmentInput!) {
     updateAppointment(id: $id, input: $input) {
         id

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, DataTable, StatusBadge, PageHeader, Button, Modal, Field, FieldSet, FormActions, ErrorBanner } from '@autocare/ui';
 import type { Column } from '@autocare/ui';
 import { useAppointmentsQuery, useCreateAppointmentMutation, useUpdateAppointmentMutation, useStaffListQuery, useStaffAssignmentsQuery, useCreateStaffAssignmentMutation, useStartStaffAssignmentMutation, useCompleteStaffAssignmentMutation, useDeleteStaffAssignmentMutation, useReassignStaffAssignmentMutation } from '@/graphql/generated/hooks';
@@ -56,6 +56,22 @@ const ALL_STATUS = '__all__';
 
 const inputClass = 'w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none';
 
+function ElapsedTime({ since }: { since: string }) {
+  const getElapsed = () => {
+    const diff = Date.now() - new Date(since).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return '< 1 min';
+    const hrs = Math.floor(mins / 60);
+    return hrs > 0 ? `${hrs}h ${mins % 60}m` : `${mins} min`;
+  };
+  const [label, setLabel] = useState(getElapsed);
+  useEffect(() => {
+    const id = setInterval(() => setLabel(getElapsed()), 30000);
+    return () => clearInterval(id);
+  }, [since]);
+  return <span className="ml-2 text-xs text-blue-500">{label}</span>;
+}
+
 export default function Appointments() {
   const { data, refetch } = useAppointmentsQuery();
   const [createAppointment] = useCreateAppointmentMutation();
@@ -71,6 +87,8 @@ export default function Appointments() {
   const [editBay, setEditBay] = useState('');
   const [newAssignmentStaffId, setNewAssignmentStaffId] = useState('');
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [reassigningId, setReassigningId] = useState<string | null>(null);
+  const [reassignTargetId, setReassignTargetId] = useState('');
 
   const { data: staffData } = useStaffListQuery();
   const { data: assignData, refetch: refetchAssign } = useStaffAssignmentsQuery({
@@ -112,8 +130,7 @@ export default function Appointments() {
         a.vehicleMake.toLowerCase().includes(q) ||
         a.vehicleModel.toLowerCase().includes(q) ||
         a.vehiclePlate?.toLowerCase().includes(q) ||
-        a.serviceType.toLowerCase().includes(q) ||
-        a.assignedMechanic?.toLowerCase().includes(q),
+        a.serviceType.toLowerCase().includes(q),
       );
     }
     return filtered;
@@ -174,6 +191,8 @@ export default function Appointments() {
     setSelectedAppt(a);
     setEditBay(a.bay ?? '');
     setNewAssignmentStaffId('');
+    setReassigningId(null);
+    setReassignTargetId('');
     setError('');
   };
 
@@ -263,6 +282,28 @@ export default function Appointments() {
     }
   };
 
+  const handleReassign = async (assignmentId: string) => {
+    if (!reassignTargetId) return;
+    setError('');
+    setSubmitting(true);
+    try {
+      const res = await reassignAssignment({
+        variables: { id: assignmentId, targetAppointmentId: reassignTargetId },
+      });
+      if (!res.data?.reassignStaffAssignment) {
+        setError(res.errors?.[0]?.message || 'Failed to reassign');
+        return;
+      }
+      setReassigningId(null);
+      setReassignTargetId('');
+      refetchAssign();
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const columns: Column<(typeof appointments)[0]>[] = [
     { key: 'customerName', header: 'Customer' },
     {
@@ -281,7 +322,6 @@ export default function Appointments() {
       render: (a) => <span className="text-sm">{a.timeRange}</span>,
     },
     { key: 'contact', header: 'Contact' },
-    { key: 'assignedMechanic', header: 'Mechanic' },
     { key: 'shopId', header: 'Shop' },
     {
       key: 'status', header: 'Status',
@@ -385,35 +425,59 @@ export default function Appointments() {
                 {assignments.length === 0 && <p className="text-xs text-gray-400">No mechanics assigned</p>}
                 <div className="space-y-2">
                   {assignments.map((a) => (
-                    <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
-                      <div>
-                        <span className="text-sm font-medium">{a.staffName}</span>
-                        <span className="ml-2 text-xs text-gray-400">{a.role}</span>
-                        <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${
-                          a.status === 'assigned' ? 'bg-yellow-100 text-yellow-700' :
-                          a.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
-                          {a.status.replace('_', ' ')}
-                        </span>
-                        {a.totalMinutes != null && a.totalMinutes > 0 && (
-                          <span className="ml-2 text-xs text-gray-500">{a.totalMinutes} min</span>
-                        )}
+                    <div key={a.id}>
+                      <div className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
+                        <div>
+                          <span className="text-sm font-medium">{a.staffName}</span>
+                          <span className="ml-2 text-xs text-gray-400">{a.role}</span>
+                          <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${
+                            a.status === 'assigned' ? 'bg-yellow-100 text-yellow-700' :
+                            a.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                            'bg-green-100 text-green-700'
+                          }`}>
+                            {a.status.replace('_', ' ')}
+                          </span>
+                          {a.totalMinutes != null && a.totalMinutes > 0 ? (
+                            <span className="ml-2 text-xs text-gray-500">{a.totalMinutes} min</span>
+                          ) : a.status === 'in_progress' && a.startedAt && (
+                            <ElapsedTime since={a.startedAt} />
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          {a.status === 'assigned' && (
+                            <button onClick={() => handleStartAssignment(a.id)}
+                              className="text-xs text-blue-600 hover:underline cursor-pointer">Start</button>
+                          )}
+                          {a.status === 'in_progress' && (
+                            <button onClick={() => handleCompleteAssignment(a.id)}
+                              className="text-xs text-green-600 hover:underline cursor-pointer"
+                              disabled={completingId === a.id}>{completingId === a.id ? 'Completing...' : 'Complete'}</button>
+                          )}
+                          {(a.status === 'assigned' || a.status === 'completed') && (
+                            <>
+                              <button onClick={() => setReassigningId(reassigningId === a.id ? null : a.id)}
+                                className="text-xs text-purple-600 hover:underline cursor-pointer">Reassign</button>
+                              <button onClick={() => handleRemoveAssignment(a.id)}
+                                className="text-xs text-red-600 hover:underline cursor-pointer">Remove</button>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex gap-1">
-                        {a.status === 'assigned' && (
-                          <button onClick={() => handleStartAssignment(a.id)}
-                            className="text-xs text-blue-600 hover:underline cursor-pointer">Start</button>
-                        )}
-                        {a.status === 'in_progress' && (
-                          <button onClick={() => handleCompleteAssignment(a.id)}
-                            className="text-xs text-green-600 hover:underline cursor-pointer">Complete</button>
-                        )}
-                        {(a.status === 'assigned' || a.status === 'completed') && (
-                          <button onClick={() => handleRemoveAssignment(a.id)}
-                            className="text-xs text-red-600 hover:underline cursor-pointer">Remove</button>
-                        )}
-                      </div>
+                      {reassigningId === a.id && (
+                        <div className="flex gap-2 mt-1 mb-1 px-3 py-2 bg-gray-100 rounded">
+                          <select value={reassignTargetId} onChange={(e) => setReassignTargetId(e.target.value)}
+                            className="flex-1 rounded border border-gray-300 px-3 py-1.5 text-xs focus:border-blue-500 focus:outline-none">
+                            <option value="">Select target appointment...</option>
+                            {allAppointments.filter((apt) => apt.id !== selectedAppt?.id).map((apt) => (
+                              <option key={apt.id} value={apt.id}>{apt.customerName} - {apt.vehicleLabel}</option>
+                            ))}
+                          </select>
+                          <button onClick={() => handleReassign(a.id)} disabled={submitting || !reassignTargetId}
+                            className="text-xs bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 disabled:opacity-50 cursor-pointer">Confirm</button>
+                          <button onClick={() => setReassigningId(null)}
+                            className="text-xs text-gray-500 hover:underline cursor-pointer">Cancel</button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
