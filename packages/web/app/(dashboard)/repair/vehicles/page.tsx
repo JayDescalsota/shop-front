@@ -10,6 +10,7 @@ export default function Vehicles() {
       showOwner
       linkToDetail
       detailPrefix="/repair/vehicles/"
+      showAddAppointment
     />
   );
 }

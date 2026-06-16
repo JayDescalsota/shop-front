@@ -134,11 +134,48 @@ export type CreateInventoryItemInput = {
   unitPrice: Scalars['Float']['input'];
 };
 
+export type CreatePartBatchInput = {
+  partId: Scalars['ID']['input'];
+  quantity: Scalars['Int']['input'];
+  unitCost: Scalars['Float']['input'];
+};
+
 export type CreatePurchaseOrderInput = {
   expectedDate?: InputMaybe<Scalars['String']['input']>;
   items: Array<PurchaseOrderItemInput>;
   notes?: InputMaybe<Scalars['String']['input']>;
   supplierId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type CreateShopPartInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  locationId?: InputMaybe<Scalars['String']['input']>;
+  makeId?: InputMaybe<Scalars['String']['input']>;
+  modelId?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  sku?: InputMaybe<Scalars['String']['input']>;
+  tenantId: Scalars['ID']['input'];
+  unitPrice?: InputMaybe<Scalars['Float']['input']>;
+  year?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type CreateShopServiceInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  estimatedHours?: InputMaybe<Scalars['Float']['input']>;
+  name: Scalars['String']['input'];
+  serviceTypeId: Scalars['ID']['input'];
+  system?: InputMaybe<Scalars['String']['input']>;
+  tenantId: Scalars['ID']['input'];
+};
+
+export type CreateShopToolInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  tenantId: Scalars['ID']['input'];
 };
 
 export type CreateStaffAssignmentInput = {
@@ -293,17 +330,28 @@ export type LoginInput = {
   password: Scalars['String']['input'];
 };
 
+export type LookupPart = {
+  __typename?: 'LookupPart';
+  category?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addDocument: VehicleDocument;
   addExpense: VehicleExpense;
   addMaintenance: VehicleMaintenance;
+  addPartBatch: PartBatch;
   adjustStock: InventoryItem;
   completeStaffAssignment: StaffAssignment;
   createAppointment: Appointment;
   createCustomer: Customer;
   createInventoryItem: InventoryItem;
   createPurchaseOrder: PurchaseOrder;
+  createShopPart: ShopPart;
+  createShopService: ShopService;
+  createShopTool: ShopTool;
   createStaff: Staff;
   createStaffAssignment: StaffAssignment;
   createSupplier: Supplier;
@@ -311,6 +359,10 @@ export type Mutation = {
   createVehicle: Vehicle;
   deleteAppointment: Scalars['Boolean']['output'];
   deleteCustomer: Scalars['Boolean']['output'];
+  deletePartBatch: Scalars['Boolean']['output'];
+  deleteShopPart: Scalars['Boolean']['output'];
+  deleteShopService: Scalars['Boolean']['output'];
+  deleteShopTool: Scalars['Boolean']['output'];
   deleteStaff: Scalars['Boolean']['output'];
   deleteStaffAssignment: Scalars['Boolean']['output'];
   deleteVehicle: Scalars['Boolean']['output'];
@@ -329,7 +381,10 @@ export type Mutation = {
   updateAppointmentStatus: Appointment;
   updateCustomer: Customer;
   updateInventoryItem: InventoryItem;
+  updatePartBatch: PartBatch;
   updateProfile: UserProfile;
+  updateShopPart: ShopPart;
+  updateShopTool: ShopTool;
   updateStaff: Staff;
   updateStaffAssignment: StaffAssignment;
   updateTenant: Tenant;
@@ -350,6 +405,11 @@ export type MutationAddExpenseArgs = {
 
 export type MutationAddMaintenanceArgs = {
   input: AddMaintenanceInput;
+};
+
+
+export type MutationAddPartBatchArgs = {
+  input: CreatePartBatchInput;
 };
 
 
@@ -386,6 +446,21 @@ export type MutationCreatePurchaseOrderArgs = {
 };
 
 
+export type MutationCreateShopPartArgs = {
+  input: CreateShopPartInput;
+};
+
+
+export type MutationCreateShopServiceArgs = {
+  input: CreateShopServiceInput;
+};
+
+
+export type MutationCreateShopToolArgs = {
+  input: CreateShopToolInput;
+};
+
+
 export type MutationCreateStaffArgs = {
   input: CreateStaffInput;
 };
@@ -417,6 +492,26 @@ export type MutationDeleteAppointmentArgs = {
 
 
 export type MutationDeleteCustomerArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePartBatchArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteShopPartArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteShopServiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteShopToolArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -519,8 +614,26 @@ export type MutationUpdateInventoryItemArgs = {
 };
 
 
+export type MutationUpdatePartBatchArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePartBatchInput;
+};
+
+
 export type MutationUpdateProfileArgs = {
   input: UpdateProfileInput;
+};
+
+
+export type MutationUpdateShopPartArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateShopPartInput;
+};
+
+
+export type MutationUpdateShopToolArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateShopToolInput;
 };
 
 
@@ -550,6 +663,16 @@ export type MutationUpdateTenantSettingsArgs = {
 export type MutationUpdateVehicleArgs = {
   id: Scalars['ID']['input'];
   input: UpdateVehicleInput;
+};
+
+export type PartBatch = {
+  __typename?: 'PartBatch';
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  partId: Scalars['ID']['output'];
+  quantity: Scalars['Int']['output'];
+  unitCost: Scalars['Float']['output'];
+  updatedAt: Scalars['String']['output'];
 };
 
 export type Permission = {
@@ -617,16 +740,21 @@ export type Query = {
   myContext: UserContext;
   myProfile?: Maybe<UserProfile>;
   myTenant?: Maybe<Tenant>;
+  partNames: Array<LookupPart>;
   permissions: Array<Permission>;
   purchaseOrder?: Maybe<PurchaseOrder>;
   purchaseOrders: PurchaseOrderConnection;
   roles: Array<Role>;
   serviceType?: Maybe<ServiceType>;
   serviceTypes: Array<ServiceType>;
+  shopParts: ShopPartConnection;
+  shopServices: ShopServiceConnection;
+  shopTools: ShopToolConnection;
   staff?: Maybe<Staff>;
   staffActiveAssignments: Array<StaffAssignment>;
   staffAssignments: Array<StaffAssignment>;
   staffList: StaffConnection;
+  storageLocations: Array<StorageLocation>;
   supplier?: Maybe<Supplier>;
   suppliers: Array<Supplier>;
   tenant?: Maybe<Tenant>;
@@ -708,6 +836,21 @@ export type QueryServiceTypeArgs = {
 export type QueryServiceTypesArgs = {
   category?: InputMaybe<Scalars['String']['input']>;
   isGlobal?: InputMaybe<Scalars['Boolean']['input']>;
+  tenantId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryShopPartsArgs = {
+  tenantId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryShopServicesArgs = {
+  tenantId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryShopToolsArgs = {
   tenantId?: InputMaybe<Scalars['ID']['input']>;
 };
 
@@ -837,6 +980,69 @@ export type ServiceType = {
   system: Scalars['String']['output'];
 };
 
+export type ShopPart = {
+  __typename?: 'ShopPart';
+  batches: Array<PartBatch>;
+  createdAt: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  locationId?: Maybe<Scalars['String']['output']>;
+  makeId?: Maybe<Scalars['String']['output']>;
+  modelId?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  sku?: Maybe<Scalars['String']['output']>;
+  tenantId: Scalars['ID']['output'];
+  unitPrice?: Maybe<Scalars['Float']['output']>;
+  updatedAt: Scalars['String']['output'];
+  year?: Maybe<Scalars['Int']['output']>;
+};
+
+export type ShopPartConnection = {
+  __typename?: 'ShopPartConnection';
+  items: Array<ShopPart>;
+  total: Scalars['Int']['output'];
+};
+
+export type ShopService = {
+  __typename?: 'ShopService';
+  category?: Maybe<Scalars['String']['output']>;
+  code?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
+  estimatedHours?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  serviceTypeId: Scalars['ID']['output'];
+  system?: Maybe<Scalars['String']['output']>;
+  tenantId: Scalars['ID']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
+export type ShopServiceConnection = {
+  __typename?: 'ShopServiceConnection';
+  items: Array<ShopService>;
+  total: Scalars['Int']['output'];
+};
+
+export type ShopTool = {
+  __typename?: 'ShopTool';
+  createdAt: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  status: Scalars['String']['output'];
+  tenantId: Scalars['ID']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
+export type ShopToolConnection = {
+  __typename?: 'ShopToolConnection';
+  items: Array<ShopTool>;
+  total: Scalars['Int']['output'];
+};
+
 export type Staff = {
   __typename?: 'Staff';
   address?: Maybe<Scalars['String']['output']>;
@@ -880,6 +1086,13 @@ export type StaffConnection = {
   __typename?: 'StaffConnection';
   items: Array<Staff>;
   total: Scalars['Int']['output'];
+};
+
+export type StorageLocation = {
+  __typename?: 'StorageLocation';
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Supplier = {
@@ -981,12 +1194,36 @@ export type UpdateInventoryItemInput = {
   unitPrice?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type UpdatePartBatchInput = {
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  unitCost?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type UpdateProfileInput = {
   department?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   notificationPrefs?: InputMaybe<Scalars['JSON']['input']>;
   timezone?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateShopPartInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  locationId?: InputMaybe<Scalars['String']['input']>;
+  makeId?: InputMaybe<Scalars['String']['input']>;
+  modelId?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  sku?: InputMaybe<Scalars['String']['input']>;
+  unitPrice?: InputMaybe<Scalars['Float']['input']>;
+  year?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UpdateShopToolInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateStaffAssignmentInput = {

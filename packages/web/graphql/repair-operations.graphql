@@ -259,3 +259,121 @@ mutation UpdateAppointment($id: ID!, $input: UpdateAppointmentInput!) {
         shopId
     }
 }
+
+query ShopServices {
+    shopServices {
+        items {
+            id
+            name
+            code
+            system
+            category
+            estimatedHours
+            isActive
+        }
+        total
+    }
+}
+
+mutation CreateShopService($input: CreateShopServiceInput!) {
+    createShopService(input: $input) {
+        id
+        name
+    }
+}
+
+mutation DeleteShopService($id: ID!) {
+    deleteShopService(id: $id)
+}
+
+query ShopParts {
+    shopParts {
+        items {
+            id
+            name
+            sku
+            description
+            quantity
+            unitPrice
+            makeId
+            modelId
+            year
+            locationId
+            batches {
+                id
+                quantity
+                unitCost
+            }
+        }
+        total
+    }
+}
+
+mutation CreateShopPart($input: CreateShopPartInput!) {
+    createShopPart(input: $input) {
+        id
+        name
+    }
+}
+
+mutation UpdateShopPart($id: ID!, $input: UpdateShopPartInput!) {
+    updateShopPart(id: $id, input: $input) {
+        id
+        name
+        sku
+        description
+        quantity
+        unitPrice
+    }
+}
+
+mutation DeleteShopPart($id: ID!) {
+    deleteShopPart(id: $id)
+}
+
+mutation AddPartBatch($input: CreatePartBatchInput!) {
+    addPartBatch(input: $input) {
+        id
+        partId
+        quantity
+        unitCost
+    }
+}
+
+mutation DeletePartBatch($id: ID!) {
+    deletePartBatch(id: $id)
+}
+
+query ShopTools {
+    shopTools {
+        items {
+            id
+            name
+            description
+            quantity
+            status
+        }
+        total
+    }
+}
+
+mutation CreateShopTool($input: CreateShopToolInput!) {
+    createShopTool(input: $input) {
+        id
+        name
+    }
+}
+
+mutation UpdateShopTool($id: ID!, $input: UpdateShopToolInput!) {
+    updateShopTool(id: $id, input: $input) {
+        id
+        name
+        description
+        quantity
+        status
+    }
+}
+
+mutation DeleteShopTool($id: ID!) {
+    deleteShopTool(id: $id)
+}

@@ -9,6 +9,7 @@ import type { CreateVehicleInput, UpdateVehicleInput } from '@/graphql/generated
 import VehicleModal from './VehicleModal';
 import type { VehicleForm } from './VehicleModal';
 import SendToShopModal from './SendToShopModal';
+import AppointmentModal from './AppointmentModal';
 
 interface VehicleListProps {
   title: string;
@@ -16,6 +17,7 @@ interface VehicleListProps {
   showOwner?: boolean;
   hideOwnerModal?: boolean;
   showSendToShop?: boolean;
+  showAddAppointment?: boolean;
   linkToDetail?: boolean;
   detailPrefix?: string;
   defaultCustomerId?: string;
@@ -27,6 +29,7 @@ export default function VehicleList({
   showOwner = true,
   hideOwnerModal = false,
   showSendToShop = false,
+  showAddAppointment = false,
   linkToDetail = false,
   detailPrefix = '',
   defaultCustomerId = '',
@@ -42,6 +45,8 @@ export default function VehicleList({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [sendOpen, setSendOpen] = useState(false);
   const [sendingVehicleId, setSendingVehicleId] = useState<string | null>(null);
+  const [apptOpen, setApptOpen] = useState(false);
+  const [apptVehicleId, setApptVehicleId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -77,6 +82,11 @@ export default function VehicleList({
     if (!sendingVehicleId) return null;
     return allVehicles.find((v) => v.id === sendingVehicleId) ?? null;
   }, [sendingVehicleId, allVehicles]);
+
+  const apptVehicle = useMemo(() => {
+    if (!apptVehicleId) return null;
+    return allVehicles.find((v) => v.id === apptVehicleId) ?? null;
+  }, [apptVehicleId, allVehicles]);
 
   const vehicles = useMemo(() => {
     if (!search) return allVehicles;
@@ -158,10 +168,13 @@ export default function VehicleList({
     {
       key: 'actions', header: 'Actions',
       render: (v) => (
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-1 items-start">
           <button onClick={() => { setEditingId(v.id); setError(''); setEditOpen(true); }} className="text-accent hover:underline text-xs font-semibold cursor-pointer">Details</button>
           {showSendToShop && (
             <button onClick={() => { setSendingVehicleId(v.id); setSendOpen(true); }} className="text-accent hover:underline text-xs font-semibold cursor-pointer">Send to Shop</button>
+          )}
+          {showAddAppointment && (
+            <button onClick={() => { setApptVehicleId(v.id); setApptOpen(true); }} className="text-accent hover:underline text-xs font-semibold cursor-pointer">Add Appointment</button>
           )}
         </div>
       ),
@@ -183,6 +196,7 @@ export default function VehicleList({
       {showSendToShop && (
         <SendToShopModal open={sendOpen} onClose={() => { setSendOpen(false); setSendingVehicleId(null); }} vehicle={sendingVehicle} />
       )}
+      <AppointmentModal open={apptOpen} onClose={() => { setApptOpen(false); setApptVehicleId(null); }} vehicle={apptVehicle} />
     </>
   );
 }

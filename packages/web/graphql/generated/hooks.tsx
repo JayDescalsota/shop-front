@@ -37,6 +37,43 @@ export type CreateCustomerInput = {
   zip?: string | null | undefined;
 };
 
+export type CreatePartBatchInput = {
+  partId: string | number;
+  quantity: number;
+  unitCost: number;
+};
+
+export type CreateShopPartInput = {
+  description?: string | null | undefined;
+  locationId?: string | null | undefined;
+  makeId?: string | null | undefined;
+  modelId?: string | null | undefined;
+  name: string;
+  quantity?: number | null | undefined;
+  sku?: string | null | undefined;
+  tenantId: string | number;
+  unitPrice?: number | null | undefined;
+  year?: number | null | undefined;
+};
+
+export type CreateShopServiceInput = {
+  category?: string | null | undefined;
+  code?: string | null | undefined;
+  estimatedHours?: number | null | undefined;
+  name: string;
+  serviceTypeId: string | number;
+  system?: string | null | undefined;
+  tenantId: string | number;
+};
+
+export type CreateShopToolInput = {
+  description?: string | null | undefined;
+  name: string;
+  quantity?: number | null | undefined;
+  status?: string | null | undefined;
+  tenantId: string | number;
+};
+
 export type CreateStaffAssignmentInput = {
   appointmentId: string | number;
   notes?: string | null | undefined;
@@ -114,6 +151,25 @@ export type UpdateCustomerInput = {
   zip?: string | null | undefined;
 };
 
+export type UpdateShopPartInput = {
+  description?: string | null | undefined;
+  locationId?: string | null | undefined;
+  makeId?: string | null | undefined;
+  modelId?: string | null | undefined;
+  name?: string | null | undefined;
+  quantity?: number | null | undefined;
+  sku?: string | null | undefined;
+  unitPrice?: number | null | undefined;
+  year?: number | null | undefined;
+};
+
+export type UpdateShopToolInput = {
+  description?: string | null | undefined;
+  name?: string | null | undefined;
+  quantity?: number | null | undefined;
+  status?: string | null | undefined;
+};
+
 export type UpdateStaffAssignmentInput = {
   notes?: string | null | undefined;
   status?: string | null | undefined;
@@ -167,6 +223,16 @@ export type ServiceTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ServiceTypesQuery = { serviceTypes: Array<{ id: string, name: string, code: string, category: string, system: string, estimatedHours: number | null, isActive: boolean }> };
+
+export type PartNamesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PartNamesQuery = { partNames: Array<{ id: string, name: string, category: string | null }> };
+
+export type StorageLocationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type StorageLocationsQuery = { storageLocations: Array<{ id: string, name: string, code: string }> };
 
 export type AppointmentsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -307,6 +373,93 @@ export type UpdateAppointmentMutationVariables = Exact<{
 
 
 export type UpdateAppointmentMutation = { updateAppointment: { id: string, customerName: string, customerPhone: string | null, customerEmail: string | null, vehicleMake: string, vehicleModel: string, vehicleYear: number | null, vehiclePlate: string | null, serviceType: string, description: string | null, scheduledDate: string, startTime: string, endTime: string | null, status: string, assignedMechanic: string | null, bay: string | null, notes: string | null, shopId: string | null } };
+
+export type ShopServicesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ShopServicesQuery = { shopServices: { total: number, items: Array<{ id: string, name: string, code: string | null, system: string | null, category: string | null, estimatedHours: number | null, isActive: boolean }> } };
+
+export type CreateShopServiceMutationVariables = Exact<{
+  input: CreateShopServiceInput;
+}>;
+
+
+export type CreateShopServiceMutation = { createShopService: { id: string, name: string } };
+
+export type DeleteShopServiceMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+
+export type DeleteShopServiceMutation = { deleteShopService: boolean };
+
+export type ShopPartsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ShopPartsQuery = { shopParts: { total: number, items: Array<{ id: string, name: string, sku: string | null, description: string | null, quantity: number, unitPrice: number | null, makeId: string | null, modelId: string | null, year: number | null, locationId: string | null, batches: Array<{ id: string, quantity: number, unitCost: number }> }> } };
+
+export type CreateShopPartMutationVariables = Exact<{
+  input: CreateShopPartInput;
+}>;
+
+
+export type CreateShopPartMutation = { createShopPart: { id: string, name: string } };
+
+export type UpdateShopPartMutationVariables = Exact<{
+  id: string | number;
+  input: UpdateShopPartInput;
+}>;
+
+
+export type UpdateShopPartMutation = { updateShopPart: { id: string, name: string, sku: string | null, description: string | null, quantity: number, unitPrice: number | null } };
+
+export type DeleteShopPartMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+
+export type DeleteShopPartMutation = { deleteShopPart: boolean };
+
+export type AddPartBatchMutationVariables = Exact<{
+  input: CreatePartBatchInput;
+}>;
+
+
+export type AddPartBatchMutation = { addPartBatch: { id: string, partId: string, quantity: number, unitCost: number } };
+
+export type DeletePartBatchMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+
+export type DeletePartBatchMutation = { deletePartBatch: boolean };
+
+export type ShopToolsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ShopToolsQuery = { shopTools: { total: number, items: Array<{ id: string, name: string, description: string | null, quantity: number, status: string }> } };
+
+export type CreateShopToolMutationVariables = Exact<{
+  input: CreateShopToolInput;
+}>;
+
+
+export type CreateShopToolMutation = { createShopTool: { id: string, name: string } };
+
+export type UpdateShopToolMutationVariables = Exact<{
+  id: string | number;
+  input: UpdateShopToolInput;
+}>;
+
+
+export type UpdateShopToolMutation = { updateShopTool: { id: string, name: string, description: string | null, quantity: number, status: string } };
+
+export type DeleteShopToolMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+
+export type DeleteShopToolMutation = { deleteShopTool: boolean };
 
 export type StaffListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -483,6 +636,94 @@ export type ServiceTypesQueryHookResult = ReturnType<typeof useServiceTypesQuery
 export type ServiceTypesLazyQueryHookResult = ReturnType<typeof useServiceTypesLazyQuery>;
 export type ServiceTypesSuspenseQueryHookResult = ReturnType<typeof useServiceTypesSuspenseQuery>;
 export type ServiceTypesQueryResult = Apollo.QueryResult<ServiceTypesQuery, ServiceTypesQueryVariables>;
+export const PartNamesDocument = gql`
+    query PartNames {
+  partNames {
+    id
+    name
+    category
+  }
+}
+    `;
+
+/**
+ * __usePartNamesQuery__
+ *
+ * To run a query within a React component, call `usePartNamesQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePartNamesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePartNamesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePartNamesQuery(baseOptions?: Apollo.QueryHookOptions<PartNamesQuery, PartNamesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PartNamesQuery, PartNamesQueryVariables>(PartNamesDocument, options);
+      }
+export function usePartNamesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PartNamesQuery, PartNamesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PartNamesQuery, PartNamesQueryVariables>(PartNamesDocument, options);
+        }
+// @ts-ignore
+export function usePartNamesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PartNamesQuery, PartNamesQueryVariables>): Apollo.UseSuspenseQueryResult<PartNamesQuery, PartNamesQueryVariables>;
+export function usePartNamesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PartNamesQuery, PartNamesQueryVariables>): Apollo.UseSuspenseQueryResult<PartNamesQuery | undefined, PartNamesQueryVariables>;
+export function usePartNamesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PartNamesQuery, PartNamesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PartNamesQuery, PartNamesQueryVariables>(PartNamesDocument, options);
+        }
+export type PartNamesQueryHookResult = ReturnType<typeof usePartNamesQuery>;
+export type PartNamesLazyQueryHookResult = ReturnType<typeof usePartNamesLazyQuery>;
+export type PartNamesSuspenseQueryHookResult = ReturnType<typeof usePartNamesSuspenseQuery>;
+export type PartNamesQueryResult = Apollo.QueryResult<PartNamesQuery, PartNamesQueryVariables>;
+export const StorageLocationsDocument = gql`
+    query StorageLocations {
+  storageLocations {
+    id
+    name
+    code
+  }
+}
+    `;
+
+/**
+ * __useStorageLocationsQuery__
+ *
+ * To run a query within a React component, call `useStorageLocationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useStorageLocationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useStorageLocationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useStorageLocationsQuery(baseOptions?: Apollo.QueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<StorageLocationsQuery, StorageLocationsQueryVariables>(StorageLocationsDocument, options);
+      }
+export function useStorageLocationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<StorageLocationsQuery, StorageLocationsQueryVariables>(StorageLocationsDocument, options);
+        }
+// @ts-ignore
+export function useStorageLocationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>): Apollo.UseSuspenseQueryResult<StorageLocationsQuery, StorageLocationsQueryVariables>;
+export function useStorageLocationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>): Apollo.UseSuspenseQueryResult<StorageLocationsQuery | undefined, StorageLocationsQueryVariables>;
+export function useStorageLocationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<StorageLocationsQuery, StorageLocationsQueryVariables>(StorageLocationsDocument, options);
+        }
+export type StorageLocationsQueryHookResult = ReturnType<typeof useStorageLocationsQuery>;
+export type StorageLocationsLazyQueryHookResult = ReturnType<typeof useStorageLocationsLazyQuery>;
+export type StorageLocationsSuspenseQueryHookResult = ReturnType<typeof useStorageLocationsSuspenseQuery>;
+export type StorageLocationsQueryResult = Apollo.QueryResult<StorageLocationsQuery, StorageLocationsQueryVariables>;
 export const AppointmentsDocument = gql`
     query Appointments {
   appointments {
@@ -1348,6 +1589,504 @@ export function useUpdateAppointmentMutation(baseOptions?: Apollo.MutationHookOp
 export type UpdateAppointmentMutationHookResult = ReturnType<typeof useUpdateAppointmentMutation>;
 export type UpdateAppointmentMutationResult = Apollo.MutationResult<UpdateAppointmentMutation>;
 export type UpdateAppointmentMutationOptions = Apollo.BaseMutationOptions<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>;
+export const ShopServicesDocument = gql`
+    query ShopServices {
+  shopServices {
+    items {
+      id
+      name
+      code
+      system
+      category
+      estimatedHours
+      isActive
+    }
+    total
+  }
+}
+    `;
+
+/**
+ * __useShopServicesQuery__
+ *
+ * To run a query within a React component, call `useShopServicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useShopServicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useShopServicesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useShopServicesQuery(baseOptions?: Apollo.QueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ShopServicesQuery, ShopServicesQueryVariables>(ShopServicesDocument, options);
+      }
+export function useShopServicesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ShopServicesQuery, ShopServicesQueryVariables>(ShopServicesDocument, options);
+        }
+// @ts-ignore
+export function useShopServicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>): Apollo.UseSuspenseQueryResult<ShopServicesQuery, ShopServicesQueryVariables>;
+export function useShopServicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>): Apollo.UseSuspenseQueryResult<ShopServicesQuery | undefined, ShopServicesQueryVariables>;
+export function useShopServicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ShopServicesQuery, ShopServicesQueryVariables>(ShopServicesDocument, options);
+        }
+export type ShopServicesQueryHookResult = ReturnType<typeof useShopServicesQuery>;
+export type ShopServicesLazyQueryHookResult = ReturnType<typeof useShopServicesLazyQuery>;
+export type ShopServicesSuspenseQueryHookResult = ReturnType<typeof useShopServicesSuspenseQuery>;
+export type ShopServicesQueryResult = Apollo.QueryResult<ShopServicesQuery, ShopServicesQueryVariables>;
+export const CreateShopServiceDocument = gql`
+    mutation CreateShopService($input: CreateShopServiceInput!) {
+  createShopService(input: $input) {
+    id
+    name
+  }
+}
+    `;
+export type CreateShopServiceMutationFn = Apollo.MutationFunction<CreateShopServiceMutation, CreateShopServiceMutationVariables>;
+
+/**
+ * __useCreateShopServiceMutation__
+ *
+ * To run a mutation, you first call `useCreateShopServiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateShopServiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createShopServiceMutation, { data, loading, error }] = useCreateShopServiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateShopServiceMutation(baseOptions?: Apollo.MutationHookOptions<CreateShopServiceMutation, CreateShopServiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateShopServiceMutation, CreateShopServiceMutationVariables>(CreateShopServiceDocument, options);
+      }
+export type CreateShopServiceMutationHookResult = ReturnType<typeof useCreateShopServiceMutation>;
+export type CreateShopServiceMutationResult = Apollo.MutationResult<CreateShopServiceMutation>;
+export type CreateShopServiceMutationOptions = Apollo.BaseMutationOptions<CreateShopServiceMutation, CreateShopServiceMutationVariables>;
+export const DeleteShopServiceDocument = gql`
+    mutation DeleteShopService($id: ID!) {
+  deleteShopService(id: $id)
+}
+    `;
+export type DeleteShopServiceMutationFn = Apollo.MutationFunction<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>;
+
+/**
+ * __useDeleteShopServiceMutation__
+ *
+ * To run a mutation, you first call `useDeleteShopServiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteShopServiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteShopServiceMutation, { data, loading, error }] = useDeleteShopServiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteShopServiceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>(DeleteShopServiceDocument, options);
+      }
+export type DeleteShopServiceMutationHookResult = ReturnType<typeof useDeleteShopServiceMutation>;
+export type DeleteShopServiceMutationResult = Apollo.MutationResult<DeleteShopServiceMutation>;
+export type DeleteShopServiceMutationOptions = Apollo.BaseMutationOptions<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>;
+export const ShopPartsDocument = gql`
+    query ShopParts {
+  shopParts {
+    items {
+      id
+      name
+      sku
+      description
+      quantity
+      unitPrice
+      makeId
+      modelId
+      year
+      locationId
+      batches {
+        id
+        quantity
+        unitCost
+      }
+    }
+    total
+  }
+}
+    `;
+
+/**
+ * __useShopPartsQuery__
+ *
+ * To run a query within a React component, call `useShopPartsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useShopPartsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useShopPartsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useShopPartsQuery(baseOptions?: Apollo.QueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ShopPartsQuery, ShopPartsQueryVariables>(ShopPartsDocument, options);
+      }
+export function useShopPartsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ShopPartsQuery, ShopPartsQueryVariables>(ShopPartsDocument, options);
+        }
+// @ts-ignore
+export function useShopPartsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>): Apollo.UseSuspenseQueryResult<ShopPartsQuery, ShopPartsQueryVariables>;
+export function useShopPartsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>): Apollo.UseSuspenseQueryResult<ShopPartsQuery | undefined, ShopPartsQueryVariables>;
+export function useShopPartsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ShopPartsQuery, ShopPartsQueryVariables>(ShopPartsDocument, options);
+        }
+export type ShopPartsQueryHookResult = ReturnType<typeof useShopPartsQuery>;
+export type ShopPartsLazyQueryHookResult = ReturnType<typeof useShopPartsLazyQuery>;
+export type ShopPartsSuspenseQueryHookResult = ReturnType<typeof useShopPartsSuspenseQuery>;
+export type ShopPartsQueryResult = Apollo.QueryResult<ShopPartsQuery, ShopPartsQueryVariables>;
+export const CreateShopPartDocument = gql`
+    mutation CreateShopPart($input: CreateShopPartInput!) {
+  createShopPart(input: $input) {
+    id
+    name
+  }
+}
+    `;
+export type CreateShopPartMutationFn = Apollo.MutationFunction<CreateShopPartMutation, CreateShopPartMutationVariables>;
+
+/**
+ * __useCreateShopPartMutation__
+ *
+ * To run a mutation, you first call `useCreateShopPartMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateShopPartMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createShopPartMutation, { data, loading, error }] = useCreateShopPartMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateShopPartMutation(baseOptions?: Apollo.MutationHookOptions<CreateShopPartMutation, CreateShopPartMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateShopPartMutation, CreateShopPartMutationVariables>(CreateShopPartDocument, options);
+      }
+export type CreateShopPartMutationHookResult = ReturnType<typeof useCreateShopPartMutation>;
+export type CreateShopPartMutationResult = Apollo.MutationResult<CreateShopPartMutation>;
+export type CreateShopPartMutationOptions = Apollo.BaseMutationOptions<CreateShopPartMutation, CreateShopPartMutationVariables>;
+export const UpdateShopPartDocument = gql`
+    mutation UpdateShopPart($id: ID!, $input: UpdateShopPartInput!) {
+  updateShopPart(id: $id, input: $input) {
+    id
+    name
+    sku
+    description
+    quantity
+    unitPrice
+  }
+}
+    `;
+export type UpdateShopPartMutationFn = Apollo.MutationFunction<UpdateShopPartMutation, UpdateShopPartMutationVariables>;
+
+/**
+ * __useUpdateShopPartMutation__
+ *
+ * To run a mutation, you first call `useUpdateShopPartMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateShopPartMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateShopPartMutation, { data, loading, error }] = useUpdateShopPartMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateShopPartMutation(baseOptions?: Apollo.MutationHookOptions<UpdateShopPartMutation, UpdateShopPartMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateShopPartMutation, UpdateShopPartMutationVariables>(UpdateShopPartDocument, options);
+      }
+export type UpdateShopPartMutationHookResult = ReturnType<typeof useUpdateShopPartMutation>;
+export type UpdateShopPartMutationResult = Apollo.MutationResult<UpdateShopPartMutation>;
+export type UpdateShopPartMutationOptions = Apollo.BaseMutationOptions<UpdateShopPartMutation, UpdateShopPartMutationVariables>;
+export const DeleteShopPartDocument = gql`
+    mutation DeleteShopPart($id: ID!) {
+  deleteShopPart(id: $id)
+}
+    `;
+export type DeleteShopPartMutationFn = Apollo.MutationFunction<DeleteShopPartMutation, DeleteShopPartMutationVariables>;
+
+/**
+ * __useDeleteShopPartMutation__
+ *
+ * To run a mutation, you first call `useDeleteShopPartMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteShopPartMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteShopPartMutation, { data, loading, error }] = useDeleteShopPartMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteShopPartMutation(baseOptions?: Apollo.MutationHookOptions<DeleteShopPartMutation, DeleteShopPartMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteShopPartMutation, DeleteShopPartMutationVariables>(DeleteShopPartDocument, options);
+      }
+export type DeleteShopPartMutationHookResult = ReturnType<typeof useDeleteShopPartMutation>;
+export type DeleteShopPartMutationResult = Apollo.MutationResult<DeleteShopPartMutation>;
+export type DeleteShopPartMutationOptions = Apollo.BaseMutationOptions<DeleteShopPartMutation, DeleteShopPartMutationVariables>;
+export const AddPartBatchDocument = gql`
+    mutation AddPartBatch($input: CreatePartBatchInput!) {
+  addPartBatch(input: $input) {
+    id
+    partId
+    quantity
+    unitCost
+  }
+}
+    `;
+export type AddPartBatchMutationFn = Apollo.MutationFunction<AddPartBatchMutation, AddPartBatchMutationVariables>;
+
+/**
+ * __useAddPartBatchMutation__
+ *
+ * To run a mutation, you first call `useAddPartBatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPartBatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPartBatchMutation, { data, loading, error }] = useAddPartBatchMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddPartBatchMutation(baseOptions?: Apollo.MutationHookOptions<AddPartBatchMutation, AddPartBatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPartBatchMutation, AddPartBatchMutationVariables>(AddPartBatchDocument, options);
+      }
+export type AddPartBatchMutationHookResult = ReturnType<typeof useAddPartBatchMutation>;
+export type AddPartBatchMutationResult = Apollo.MutationResult<AddPartBatchMutation>;
+export type AddPartBatchMutationOptions = Apollo.BaseMutationOptions<AddPartBatchMutation, AddPartBatchMutationVariables>;
+export const DeletePartBatchDocument = gql`
+    mutation DeletePartBatch($id: ID!) {
+  deletePartBatch(id: $id)
+}
+    `;
+export type DeletePartBatchMutationFn = Apollo.MutationFunction<DeletePartBatchMutation, DeletePartBatchMutationVariables>;
+
+/**
+ * __useDeletePartBatchMutation__
+ *
+ * To run a mutation, you first call `useDeletePartBatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePartBatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePartBatchMutation, { data, loading, error }] = useDeletePartBatchMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePartBatchMutation(baseOptions?: Apollo.MutationHookOptions<DeletePartBatchMutation, DeletePartBatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePartBatchMutation, DeletePartBatchMutationVariables>(DeletePartBatchDocument, options);
+      }
+export type DeletePartBatchMutationHookResult = ReturnType<typeof useDeletePartBatchMutation>;
+export type DeletePartBatchMutationResult = Apollo.MutationResult<DeletePartBatchMutation>;
+export type DeletePartBatchMutationOptions = Apollo.BaseMutationOptions<DeletePartBatchMutation, DeletePartBatchMutationVariables>;
+export const ShopToolsDocument = gql`
+    query ShopTools {
+  shopTools {
+    items {
+      id
+      name
+      description
+      quantity
+      status
+    }
+    total
+  }
+}
+    `;
+
+/**
+ * __useShopToolsQuery__
+ *
+ * To run a query within a React component, call `useShopToolsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useShopToolsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useShopToolsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useShopToolsQuery(baseOptions?: Apollo.QueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ShopToolsQuery, ShopToolsQueryVariables>(ShopToolsDocument, options);
+      }
+export function useShopToolsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ShopToolsQuery, ShopToolsQueryVariables>(ShopToolsDocument, options);
+        }
+// @ts-ignore
+export function useShopToolsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>): Apollo.UseSuspenseQueryResult<ShopToolsQuery, ShopToolsQueryVariables>;
+export function useShopToolsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>): Apollo.UseSuspenseQueryResult<ShopToolsQuery | undefined, ShopToolsQueryVariables>;
+export function useShopToolsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ShopToolsQuery, ShopToolsQueryVariables>(ShopToolsDocument, options);
+        }
+export type ShopToolsQueryHookResult = ReturnType<typeof useShopToolsQuery>;
+export type ShopToolsLazyQueryHookResult = ReturnType<typeof useShopToolsLazyQuery>;
+export type ShopToolsSuspenseQueryHookResult = ReturnType<typeof useShopToolsSuspenseQuery>;
+export type ShopToolsQueryResult = Apollo.QueryResult<ShopToolsQuery, ShopToolsQueryVariables>;
+export const CreateShopToolDocument = gql`
+    mutation CreateShopTool($input: CreateShopToolInput!) {
+  createShopTool(input: $input) {
+    id
+    name
+  }
+}
+    `;
+export type CreateShopToolMutationFn = Apollo.MutationFunction<CreateShopToolMutation, CreateShopToolMutationVariables>;
+
+/**
+ * __useCreateShopToolMutation__
+ *
+ * To run a mutation, you first call `useCreateShopToolMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateShopToolMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createShopToolMutation, { data, loading, error }] = useCreateShopToolMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateShopToolMutation(baseOptions?: Apollo.MutationHookOptions<CreateShopToolMutation, CreateShopToolMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateShopToolMutation, CreateShopToolMutationVariables>(CreateShopToolDocument, options);
+      }
+export type CreateShopToolMutationHookResult = ReturnType<typeof useCreateShopToolMutation>;
+export type CreateShopToolMutationResult = Apollo.MutationResult<CreateShopToolMutation>;
+export type CreateShopToolMutationOptions = Apollo.BaseMutationOptions<CreateShopToolMutation, CreateShopToolMutationVariables>;
+export const UpdateShopToolDocument = gql`
+    mutation UpdateShopTool($id: ID!, $input: UpdateShopToolInput!) {
+  updateShopTool(id: $id, input: $input) {
+    id
+    name
+    description
+    quantity
+    status
+  }
+}
+    `;
+export type UpdateShopToolMutationFn = Apollo.MutationFunction<UpdateShopToolMutation, UpdateShopToolMutationVariables>;
+
+/**
+ * __useUpdateShopToolMutation__
+ *
+ * To run a mutation, you first call `useUpdateShopToolMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateShopToolMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateShopToolMutation, { data, loading, error }] = useUpdateShopToolMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateShopToolMutation(baseOptions?: Apollo.MutationHookOptions<UpdateShopToolMutation, UpdateShopToolMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateShopToolMutation, UpdateShopToolMutationVariables>(UpdateShopToolDocument, options);
+      }
+export type UpdateShopToolMutationHookResult = ReturnType<typeof useUpdateShopToolMutation>;
+export type UpdateShopToolMutationResult = Apollo.MutationResult<UpdateShopToolMutation>;
+export type UpdateShopToolMutationOptions = Apollo.BaseMutationOptions<UpdateShopToolMutation, UpdateShopToolMutationVariables>;
+export const DeleteShopToolDocument = gql`
+    mutation DeleteShopTool($id: ID!) {
+  deleteShopTool(id: $id)
+}
+    `;
+export type DeleteShopToolMutationFn = Apollo.MutationFunction<DeleteShopToolMutation, DeleteShopToolMutationVariables>;
+
+/**
+ * __useDeleteShopToolMutation__
+ *
+ * To run a mutation, you first call `useDeleteShopToolMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteShopToolMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteShopToolMutation, { data, loading, error }] = useDeleteShopToolMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteShopToolMutation(baseOptions?: Apollo.MutationHookOptions<DeleteShopToolMutation, DeleteShopToolMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteShopToolMutation, DeleteShopToolMutationVariables>(DeleteShopToolDocument, options);
+      }
+export type DeleteShopToolMutationHookResult = ReturnType<typeof useDeleteShopToolMutation>;
+export type DeleteShopToolMutationResult = Apollo.MutationResult<DeleteShopToolMutation>;
+export type DeleteShopToolMutationOptions = Apollo.BaseMutationOptions<DeleteShopToolMutation, DeleteShopToolMutationVariables>;
 export const StaffListDocument = gql`
     query StaffList {
   staffList {

@@ -28,3 +28,19 @@ query ServiceTypes {
         isActive
     }
 }
+
+query PartNames {
+    partNames {
+        id
+        name
+        category
+    }
+}
+
+query StorageLocations {
+    storageLocations {
+        id
+        name
+        code
+    }
+}

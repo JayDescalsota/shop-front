@@ -36,6 +36,18 @@ type ServiceType {
     isActive: Boolean!
 }
 
+type LookupPart {
+  id: ID!
+  name: String!
+  category: String
+}
+
+type StorageLocation {
+  id: ID!
+  name: String!
+  code: String!
+}
+
 type Query {
   vehicleMakes(search: String, isActive: Boolean): [VehicleMake!]!
   vehicleMake(id: ID!): VehicleMake
@@ -43,4 +55,6 @@ type Query {
   vehicleModel(id: ID!): VehicleModel
   serviceTypes(category: String, isGlobal: Boolean, tenantId: ID): [ServiceType!]!
   serviceType(id: ID!): ServiceType
+  partNames: [LookupPart!]!
+  storageLocations: [StorageLocation!]!
 }
