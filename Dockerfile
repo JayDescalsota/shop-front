@@ -19,7 +19,7 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/package.json /app/package-lock.json ./
 COPY --from=builder /app/packages/web/package.json packages/web/
-COPY --from=builder /app/packages/web/public packages/web/public
+# COPY --from=builder /app/packages/web/public packages/web/public
 COPY --from=builder /app/packages/web/.next packages/web/.next
 COPY --from=builder /app/node_modules node_modules
 
