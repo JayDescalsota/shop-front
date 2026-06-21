@@ -5,4 +5,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GRAPHQL_URL: ${GRAPHQL_URL:-http://172.17.0.1:4000/graphql/query}
+      GRAPHQL_URL: ${GRAPHQL_URL:-http://gateway:8080/graphql/query}
+    networks:
+      - shop_default
+
+networks:
+  shop_default:
+    external: true
