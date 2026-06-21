@@ -8,6 +8,7 @@ interface AppointmentRow {
   assignedMechanic?: string | null;
   bay?: string | null;
   status: string;
+  shopId?: string | null;
 }
 
 interface Column<T> {
