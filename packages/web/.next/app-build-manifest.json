@@ -35,6 +35,21 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(dashboard)/repair/invoices/page.js"
+    ],
+    "/(dashboard)/repair/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/repair/page.js"
+    ],
+    "/(dashboard)/repair/appointments/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/repair/appointments/page.js"
+    ],
+    "/(dashboard)/repair/staff/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/repair/staff/page.js"
     ]
   }
 }
