@@ -377,3 +377,28 @@ mutation UpdateShopTool($id: ID!, $input: UpdateShopToolInput!) {
 mutation DeleteShopTool($id: ID!) {
     deleteShopTool(id: $id)
 }
+
+query AppointmentParts($appointmentId: ID!) {
+    appointmentParts(appointmentId: $appointmentId) {
+        id
+        appointmentId
+        partId
+        partName
+        quantity
+        unitPrice
+        createdAt
+    }
+}
+
+mutation AddAppointmentPart($input: AddAppointmentPartInput!) {
+    addAppointmentPart(input: $input) {
+        id
+        partName
+        quantity
+        unitPrice
+    }
+}
+
+mutation DeleteAppointmentPart($id: ID!) {
+    deleteAppointmentPart(id: $id)
+}

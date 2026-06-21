@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Card, DataTable, StatusBadge, PageHeader, Button, Modal, Field, FieldSet, FormActions, ErrorBanner } from '@autocare/ui';
 import type { Column } from '@autocare/ui';
-import { useAppointmentsQuery, useCreateAppointmentMutation, useUpdateAppointmentMutation, useStaffListQuery, useStaffAssignmentsQuery, useCreateStaffAssignmentMutation, useStartStaffAssignmentMutation, useCompleteStaffAssignmentMutation, useDeleteStaffAssignmentMutation, useReassignStaffAssignmentMutation } from '@/graphql/generated/hooks';
+import { useAppointmentsQuery, useCreateAppointmentMutation, useUpdateAppointmentMutation, useStaffListQuery, useStaffAssignmentsQuery, useCreateStaffAssignmentMutation, useStartStaffAssignmentMutation, useCompleteStaffAssignmentMutation, useDeleteStaffAssignmentMutation, useReassignStaffAssignmentMutation, useAppointmentPartsQuery, useShopPartsQuery, useAddAppointmentPartMutation, useDeleteAppointmentPartMutation } from '@/graphql/generated/hooks';
 import type { CreateAppointmentInput, UpdateAppointmentInput } from '@/graphql/generated/index';
 
 interface AppointmentForm {
@@ -56,6 +56,9 @@ const ALL_STATUS = '__all__';
 
 const inputClass = 'w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none';
 
+const TABS = ['Details', 'Mechanic', 'Items', 'Billing'] as const;
+type Tab = (typeof TABS)[number];
+
 function ElapsedTime({ since }: { since: string }) {
   const getElapsed = () => {
     const diff = Date.now() - new Date(since).getTime();
@@ -89,6 +92,7 @@ export default function Appointments() {
   const [completingId, setCompletingId] = useState<string | null>(null);
   const [reassigningId, setReassigningId] = useState<string | null>(null);
   const [reassignTargetId, setReassignTargetId] = useState('');
+  const [activeTab, setActiveTab] = useState<Tab>('Details');
 
   const { data: staffData } = useStaffListQuery();
   const { data: assignData, refetch: refetchAssign } = useStaffAssignmentsQuery({
@@ -101,12 +105,25 @@ export default function Appointments() {
   const [deleteAssignment] = useDeleteStaffAssignmentMutation();
   const [reassignAssignment] = useReassignStaffAssignmentMutation();
 
+  const { data: partsData, refetch: refetchParts } = useAppointmentPartsQuery({
+    variables: { appointmentId: selectedAppt?.id ?? '' },
+    skip: !selectedAppt,
+  });
+  const { data: shopPartsData } = useShopPartsQuery();
+  const [addApptPart] = useAddAppointmentPartMutation();
+  const [deleteApptPart] = useDeleteAppointmentPartMutation();
+
+  const [newPartId, setNewPartId] = useState('');
+  const [newPartQty, setNewPartQty] = useState(1);
+  const [newPartPrice, setNewPartPrice] = useState('');
+
   const mechanics = useMemo(() =>
     staffData?.staffList?.items?.filter((s) => s.role === 'mechanic' && s.status === 'active') ?? [],
     [staffData],
   );
 
   const assignments = assignData?.staffAssignments ?? [];
+  const appointmentParts = partsData?.appointmentParts ?? [];
 
   const allAppointments = useMemo(() =>
     (data?.appointments?.items ?? []).map((a) => ({
@@ -193,7 +210,11 @@ export default function Appointments() {
     setNewAssignmentStaffId('');
     setReassigningId(null);
     setReassignTargetId('');
+    setActiveTab('Details');
     setError('');
+    setNewPartId('');
+    setNewPartQty(1);
+    setNewPartPrice('');
   };
 
   const handleUpdateAppt = async (status?: string) => {
@@ -304,6 +325,45 @@ export default function Appointments() {
     }
   };
 
+  const handleAddPart = async () => {
+    if (!selectedAppt || !newPartId || newPartQty < 1) return;
+    setError('');
+    setSubmitting(true);
+    try {
+      const res = await addApptPart({
+        variables: {
+          input: {
+            appointmentId: selectedAppt.id,
+            partId: newPartId,
+            quantity: newPartQty,
+            unitPrice: newPartPrice ? parseFloat(newPartPrice) : null,
+          },
+        },
+      });
+      if (!res.data?.addAppointmentPart) {
+        setError(res.errors?.[0]?.message || 'Failed to add part');
+        return;
+      }
+      setNewPartId('');
+      setNewPartQty(1);
+      setNewPartPrice('');
+      refetchParts();
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeletePart = async (id: string) => {
+    try {
+      await deleteApptPart({ variables: { id } });
+      refetchParts();
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove part');
+    }
+  };
+
   const columns: Column<(typeof appointments)[0]>[] = [
     { key: 'customerName', header: 'Customer' },
     {
@@ -340,6 +400,8 @@ export default function Appointments() {
     return [...s].sort();
   }, [allAppointments]);
 
+  const totalParts = appointmentParts.reduce((sum, p) => sum + p.quantity * p.unitPrice, 0);
+
   return (
     <>
       <PageHeader title="Appointments" description="Schedule and manage service appointments" />
@@ -366,166 +428,292 @@ export default function Appointments() {
         {selectedAppt && (
           <div className="space-y-4">
             <ErrorBanner message={error} />
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-semibold text-gray-500">Customer:</span>
-                <p>{selectedAppt.customerName}</p>
-                {selectedAppt.customerPhone && <p className="text-gray-400">{selectedAppt.customerPhone}</p>}
-                {selectedAppt.customerEmail && <p className="text-gray-400">{selectedAppt.customerEmail}</p>}
-              </div>
-              <div>
-                <span className="font-semibold text-gray-500">Vehicle:</span>
-                <p>{selectedAppt.vehicleMake} {selectedAppt.vehicleModel}</p>
-                {selectedAppt.vehicleYear && <p className="text-gray-400">{selectedAppt.vehicleYear}</p>}
-                {selectedAppt.vehiclePlate && <p className="text-gray-400">{selectedAppt.vehiclePlate}</p>}
-              </div>
-              <div>
-                <span className="font-semibold text-gray-500">Service:</span>
-                <p>{selectedAppt.serviceType}</p>
-                {selectedAppt.description && <p className="text-gray-400">{selectedAppt.description}</p>}
-              </div>
-              <div>
-                <span className="font-semibold text-gray-500">Schedule:</span>
-                <p>{selectedAppt.scheduledDate}</p>
-                <p className="text-gray-400">{selectedAppt.timeRange}</p>
-              </div>
-              <div>
-                <span className="font-semibold text-gray-500">Status:</span>
-                <StatusBadge status={selectedAppt.status} />
-              </div>
-              {selectedAppt.shopId && (
-                <div>
-                  <span className="font-semibold text-gray-500">Shop:</span>
-                  <p>{selectedAppt.shopId}</p>
-                </div>
-              )}
-              {selectedAppt.notes && (
-                <div className="col-span-2">
-                  <span className="font-semibold text-gray-500">Notes:</span>
-                  <p className="text-gray-400">{selectedAppt.notes}</p>
-                </div>
-              )}
+            <div className="flex gap-1 border-b border-gray-200">
+              {TABS.map((tab) => (
+                <button key={tab} onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 text-sm font-medium cursor-pointer border-b-2 transition-colors ${
+                    activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}>{tab}</button>
+              ))}
             </div>
 
-            <div className="border-t border-gray-200 pt-4">
-              <h4 className="text-sm font-semibold mb-3">Bay &amp; Assignment</h4>
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1">Bay</label>
-                  <input type="text" value={editBay} onChange={(e) => setEditBay(e.target.value)}
-                    placeholder="e.g. Bay 3" className={inputClass} />
-                </div>
-              </div>
-              <div className="flex justify-end mb-3">
-                <Button onClick={() => handleUpdateAppt()} disabled={submitting}>Save Bay</Button>
-              </div>
-
-              <div className="border-t border-gray-100 pt-3">
-                <h5 className="text-xs font-semibold text-gray-500 mb-2">Assigned Mechanics/Technicians</h5>
-                {assignments.length === 0 && <p className="text-xs text-gray-400">No mechanics assigned</p>}
-                <div className="space-y-2">
-                  {assignments.map((a) => (
-                    <div key={a.id}>
-                      <div className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
-                        <div>
-                          <span className="text-sm font-medium">{a.staffName}</span>
-                          <span className="ml-2 text-xs text-gray-400">{a.role}</span>
-                          <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${
-                            a.status === 'assigned' ? 'bg-yellow-100 text-yellow-700' :
-                            a.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                            'bg-green-100 text-green-700'
-                          }`}>
-                            {a.status.replace('_', ' ')}
-                          </span>
-                          {a.totalMinutes != null && a.totalMinutes > 0 ? (
-                            <span className="ml-2 text-xs text-gray-500">{a.totalMinutes} min</span>
-                          ) : a.status === 'in_progress' && a.startedAt && (
-                            <ElapsedTime since={a.startedAt} />
-                          )}
-                        </div>
-                        <div className="flex gap-1">
-                          {a.status === 'assigned' && (
-                            <button onClick={() => handleStartAssignment(a.id)}
-                              className="text-xs text-blue-600 hover:underline cursor-pointer">Start</button>
-                          )}
-                          {a.status === 'in_progress' && (
-                            <button onClick={() => handleCompleteAssignment(a.id)}
-                              className="text-xs text-green-600 hover:underline cursor-pointer"
-                              disabled={completingId === a.id}>{completingId === a.id ? 'Completing...' : 'Complete'}</button>
-                          )}
-                          {(a.status === 'assigned' || a.status === 'completed') && (
-                            <>
-                              <button onClick={() => setReassigningId(reassigningId === a.id ? null : a.id)}
-                                className="text-xs text-purple-600 hover:underline cursor-pointer">Reassign</button>
-                              <button onClick={() => handleRemoveAssignment(a.id)}
-                                className="text-xs text-red-600 hover:underline cursor-pointer">Remove</button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      {reassigningId === a.id && (
-                        <div className="flex gap-2 mt-1 mb-1 px-3 py-2 bg-gray-100 rounded">
-                          <select value={reassignTargetId} onChange={(e) => setReassignTargetId(e.target.value)}
-                            className="flex-1 rounded border border-gray-300 px-3 py-1.5 text-xs focus:border-blue-500 focus:outline-none">
-                            <option value="">Select target appointment...</option>
-                            {allAppointments.filter((apt) => apt.id !== selectedAppt?.id).map((apt) => (
-                              <option key={apt.id} value={apt.id}>{apt.customerName} - {apt.vehicleLabel}</option>
-                            ))}
-                          </select>
-                          <button onClick={() => handleReassign(a.id)} disabled={submitting || !reassignTargetId}
-                            className="text-xs bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 disabled:opacity-50 cursor-pointer">Confirm</button>
-                          <button onClick={() => setReassigningId(null)}
-                            className="text-xs text-gray-500 hover:underline cursor-pointer">Cancel</button>
-                        </div>
-                      )}
+            {activeTab === 'Details' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-semibold text-gray-500">Customer:</span>
+                    <p>{selectedAppt.customerName}</p>
+                    {selectedAppt.customerPhone && <p className="text-gray-400">{selectedAppt.customerPhone}</p>}
+                    {selectedAppt.customerEmail && <p className="text-gray-400">{selectedAppt.customerEmail}</p>}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-500">Vehicle:</span>
+                    <p>{selectedAppt.vehicleMake} {selectedAppt.vehicleModel}</p>
+                    {selectedAppt.vehicleYear && <p className="text-gray-400">{selectedAppt.vehicleYear}</p>}
+                    {selectedAppt.vehiclePlate && <p className="text-gray-400">{selectedAppt.vehiclePlate}</p>}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-500">Service:</span>
+                    <p>{selectedAppt.serviceType}</p>
+                    {selectedAppt.description && <p className="text-gray-400">{selectedAppt.description}</p>}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-500">Schedule:</span>
+                    <p>{selectedAppt.scheduledDate}</p>
+                    <p className="text-gray-400">{selectedAppt.timeRange}</p>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-500">Status:</span>
+                    <StatusBadge status={selectedAppt.status} />
+                  </div>
+                  {selectedAppt.shopId && (
+                    <div>
+                      <span className="font-semibold text-gray-500">Shop:</span>
+                      <p>{selectedAppt.shopId}</p>
                     </div>
-                  ))}
+                  )}
+                  {selectedAppt.notes && (
+                    <div className="col-span-2">
+                      <span className="font-semibold text-gray-500">Notes:</span>
+                      <p className="text-gray-400">{selectedAppt.notes}</p>
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-2 mt-3">
-                  <select value={newAssignmentStaffId} onChange={(e) => setNewAssignmentStaffId(e.target.value)}
-                    className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                    <option value="">Select mechanic/technician...</option>
-                    {mechanics.filter((m) => !assignments.some((a) => a.staffId === m.id)).map((m) => (
-                      <option key={m.id} value={m.id}>{m.name}</option>
-                    ))}
-                  </select>
-                  <Button onClick={handleAddAssignment} disabled={submitting || !newAssignmentStaffId}>Assign</Button>
-                </div>
-              </div>
-            </div>
 
-            <div className="border-t border-gray-200 pt-4">
-              <h4 className="text-sm font-semibold mb-3">Update Status</h4>
-              <div className="flex flex-wrap gap-2">
-                {selectedAppt.status !== 'queued' && (
-                  <Button onClick={() => handleUpdateAppt('queued')} disabled={submitting}>{STATUS_LABELS.queued}</Button>
+                <div className="border-t border-gray-200 pt-4">
+                  <h4 className="text-sm font-semibold mb-3">Update Status</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedAppt.status !== 'queued' && (
+                      <Button onClick={() => handleUpdateAppt('queued')} disabled={submitting}>{STATUS_LABELS.queued}</Button>
+                    )}
+                    {selectedAppt.status !== 'on_going' && (
+                      <Button onClick={() => handleUpdateAppt('on_going')} disabled={submitting}>{STATUS_LABELS.on_going}</Button>
+                    )}
+                    {selectedAppt.status !== 'road_test' && (
+                      <Button onClick={() => handleUpdateAppt('road_test')} disabled={submitting}>{STATUS_LABELS.road_test}</Button>
+                    )}
+                    {selectedAppt.status !== 'repaired' && (
+                      <Button onClick={() => handleUpdateAppt('repaired')} disabled={submitting}>{STATUS_LABELS.repaired}</Button>
+                    )}
+                    {selectedAppt.status !== 'waiting_parts' && (
+                      <Button onClick={() => handleUpdateAppt('waiting_parts')} disabled={submitting}>{STATUS_LABELS.waiting_parts}</Button>
+                    )}
+                    {selectedAppt.status !== 'waiting_pickup' && (
+                      <Button onClick={() => handleUpdateAppt('waiting_pickup')} disabled={submitting}>{STATUS_LABELS.waiting_pickup}</Button>
+                    )}
+                    {selectedAppt.status !== 'completed' && (
+                      <Button onClick={() => handleUpdateAppt('completed')} disabled={submitting}>{STATUS_LABELS.completed}</Button>
+                    )}
+                    {selectedAppt.status !== 'cancelled' && (
+                      <Button onClick={() => handleUpdateAppt('cancelled')} disabled={submitting}>{STATUS_LABELS.cancelled}</Button>
+                    )}
+                    {selectedAppt.status !== 'no_show' && (
+                      <Button onClick={() => handleUpdateAppt('no_show')} disabled={submitting}>{STATUS_LABELS.no_show}</Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'Mechanic' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">Bay</label>
+                    <input type="text" value={editBay} onChange={(e) => setEditBay(e.target.value)}
+                      placeholder="e.g. Bay 3" className={inputClass} />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button onClick={() => handleUpdateAppt()} disabled={submitting}>Save Bay</Button>
+                </div>
+
+                <div className="border-t border-gray-100 pt-3">
+                  <h5 className="text-xs font-semibold text-gray-500 mb-2">Assigned Mechanics/Technicians</h5>
+                  {assignments.length === 0 && <p className="text-xs text-gray-400">No mechanics assigned</p>}
+                  <div className="space-y-2">
+                    {assignments.map((a) => (
+                      <div key={a.id}>
+                        <div className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
+                          <div>
+                            <span className="text-sm font-medium">{a.staffName}</span>
+                            <span className="ml-2 text-xs text-gray-400">{a.role}</span>
+                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${
+                              a.status === 'assigned' ? 'bg-yellow-100 text-yellow-700' :
+                              a.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                              'bg-green-100 text-green-700'
+                            }`}>
+                              {a.status.replace('_', ' ')}
+                            </span>
+                            {a.totalMinutes != null && a.totalMinutes > 0 ? (
+                              <span className="ml-2 text-xs text-gray-500">{a.totalMinutes} min</span>
+                            ) : a.status === 'in_progress' && a.startedAt && (
+                              <ElapsedTime since={a.startedAt} />
+                            )}
+                          </div>
+                          <div className="flex gap-1">
+                            {a.status === 'assigned' && (
+                              <button onClick={() => handleStartAssignment(a.id)}
+                                className="text-xs text-blue-600 hover:underline cursor-pointer">Start</button>
+                            )}
+                            {a.status === 'in_progress' && (
+                              <button onClick={() => handleCompleteAssignment(a.id)}
+                                className="text-xs text-green-600 hover:underline cursor-pointer"
+                                disabled={completingId === a.id}>{completingId === a.id ? 'Completing...' : 'Complete'}</button>
+                            )}
+                            {(a.status === 'assigned' || a.status === 'completed') && (
+                              <>
+                                <button onClick={() => setReassigningId(reassigningId === a.id ? null : a.id)}
+                                  className="text-xs text-purple-600 hover:underline cursor-pointer">Reassign</button>
+                                <button onClick={() => handleRemoveAssignment(a.id)}
+                                  className="text-xs text-red-600 hover:underline cursor-pointer">Remove</button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        {reassigningId === a.id && (
+                          <div className="flex gap-2 mt-1 mb-1 px-3 py-2 bg-gray-100 rounded">
+                            <select value={reassignTargetId} onChange={(e) => setReassignTargetId(e.target.value)}
+                              className="flex-1 rounded border border-gray-300 px-3 py-1.5 text-xs focus:border-blue-500 focus:outline-none">
+                              <option value="">Select target appointment...</option>
+                              {allAppointments.filter((apt) => apt.id !== selectedAppt?.id).map((apt) => (
+                                <option key={apt.id} value={apt.id}>{apt.customerName} - {apt.vehicleLabel}</option>
+                              ))}
+                            </select>
+                            <button onClick={() => handleReassign(a.id)} disabled={submitting || !reassignTargetId}
+                              className="text-xs bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 disabled:opacity-50 cursor-pointer">Confirm</button>
+                            <button onClick={() => setReassigningId(null)}
+                              className="text-xs text-gray-500 hover:underline cursor-pointer">Cancel</button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <select value={newAssignmentStaffId} onChange={(e) => setNewAssignmentStaffId(e.target.value)}
+                      className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                      <option value="">Select mechanic/technician...</option>
+                      {mechanics.filter((m) => !assignments.some((a) => a.staffId === m.id)).map((m) => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
+                    <Button onClick={handleAddAssignment} disabled={submitting || !newAssignmentStaffId}>Assign</Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'Items' && (
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold">Parts Dispensed</h4>
+                {appointmentParts.length === 0 ? (
+                  <p className="text-sm text-gray-400">No parts dispensed yet.</p>
+                ) : (
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                        <th className="pb-2 font-semibold">Part</th>
+                        <th className="pb-2 font-semibold">Qty</th>
+                        <th className="pb-2 font-semibold">Unit Price</th>
+                        <th className="pb-2 font-semibold">Total</th>
+                        <th className="pb-2"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {appointmentParts.map((p) => (
+                        <tr key={p.id} className="border-b border-gray-100">
+                          <td className="py-2">{p.partName}</td>
+                          <td className="py-2">{p.quantity}</td>
+                          <td className="py-2">${p.unitPrice.toFixed(2)}</td>
+                          <td className="py-2">${(p.quantity * p.unitPrice).toFixed(2)}</td>
+                          <td className="py-2">
+                            <button onClick={() => handleDeletePart(p.id)}
+                              className="text-xs text-red-600 hover:underline cursor-pointer">Remove</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
-                {selectedAppt.status !== 'on_going' && (
-                  <Button onClick={() => handleUpdateAppt('on_going')} disabled={submitting}>{STATUS_LABELS.on_going}</Button>
-                )}
-                {selectedAppt.status !== 'road_test' && (
-                  <Button onClick={() => handleUpdateAppt('road_test')} disabled={submitting}>{STATUS_LABELS.road_test}</Button>
-                )}
-                {selectedAppt.status !== 'repaired' && (
-                  <Button onClick={() => handleUpdateAppt('repaired')} disabled={submitting}>{STATUS_LABELS.repaired}</Button>
-                )}
-                {selectedAppt.status !== 'waiting_parts' && (
-                  <Button onClick={() => handleUpdateAppt('waiting_parts')} disabled={submitting}>{STATUS_LABELS.waiting_parts}</Button>
-                )}
-                {selectedAppt.status !== 'waiting_pickup' && (
-                  <Button onClick={() => handleUpdateAppt('waiting_pickup')} disabled={submitting}>{STATUS_LABELS.waiting_pickup}</Button>
-                )}
-                {selectedAppt.status !== 'completed' && (
-                  <Button onClick={() => handleUpdateAppt('completed')} disabled={submitting}>{STATUS_LABELS.completed}</Button>
-                )}
-                {selectedAppt.status !== 'cancelled' && (
-                  <Button onClick={() => handleUpdateAppt('cancelled')} disabled={submitting}>{STATUS_LABELS.cancelled}</Button>
-                )}
-                {selectedAppt.status !== 'no_show' && (
-                  <Button onClick={() => handleUpdateAppt('no_show')} disabled={submitting}>{STATUS_LABELS.no_show}</Button>
+
+                <div className="border-t border-gray-200 pt-4">
+                  <h5 className="text-xs font-semibold text-gray-500 mb-2">Dispense Part</h5>
+                  <div className="grid grid-cols-4 gap-3 items-end">
+                    <div className="col-span-2">
+                      <label className="block text-xs text-gray-500 mb-1">Part</label>
+                      <select value={newPartId} onChange={(e) => {
+                        setNewPartId(e.target.value);
+                        const part = shopPartsData?.shopParts?.items?.find((p) => p.id === e.target.value);
+                        if (part && part.unitPrice) setNewPartPrice(part.unitPrice.toString());
+                      }}
+                        className={inputClass}>
+                        <option value="">Select part...</option>
+                        {shopPartsData?.shopParts?.items?.map((p) => (
+                          <option key={p.id} value={p.id}>{p.name} (Stock: {p.quantity})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Qty</label>
+                      <input type="number" min={1} value={newPartQty} onChange={(e) => setNewPartQty(parseInt(e.target.value) || 1)}
+                        className={inputClass} />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Unit Price</label>
+                      <input type="number" step="0.01" min={0} value={newPartPrice}
+                        onChange={(e) => setNewPartPrice(e.target.value)} placeholder="0.00" className={inputClass} />
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-3">
+                    <Button onClick={handleAddPart} disabled={submitting || !newPartId || newPartQty < 1}>Dispense</Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'Billing' && (
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold">Bill Summary</h4>
+                {appointmentParts.length === 0 ? (
+                  <p className="text-sm text-gray-400">No items billed yet. Add parts in the Items tab.</p>
+                ) : (
+                  <div>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                          <th className="pb-2 font-semibold">Item</th>
+                          <th className="pb-2 font-semibold">Type</th>
+                          <th className="pb-2 font-semibold">Qty</th>
+                          <th className="pb-2 font-semibold">Unit Price</th>
+                          <th className="pb-2 font-semibold text-right">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {appointmentParts.map((p) => (
+                          <tr key={p.id} className="border-b border-gray-100">
+                            <td className="py-2">{p.partName}</td>
+                            <td className="py-2 text-xs text-gray-500">Part</td>
+                            <td className="py-2">{p.quantity}</td>
+                            <td className="py-2">${p.unitPrice.toFixed(2)}</td>
+                            <td className="py-2 text-right">${(p.quantity * p.unitPrice).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div className="mt-4 space-y-1 text-sm border-t border-gray-200 pt-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Subtotal</span>
+                        <span>${totalParts.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-lg font-bold">
+                        <span>Total</span>
+                        <span>${totalParts.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
+            )}
 
             <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
               <Button onClick={() => setSelectedAppt(null)}>Close</Button>

@@ -10,6 +10,13 @@ export type Scalars = {
   JSON: { input: unknown; output: unknown; }
 };
 
+export type AddAppointmentPartInput = {
+  appointmentId: Scalars['ID']['input'];
+  partId: Scalars['ID']['input'];
+  quantity: Scalars['Int']['input'];
+  unitPrice?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type AddDocumentInput = {
   docType: Scalars['String']['input'];
   expiryDate?: InputMaybe<Scalars['String']['input']>;
@@ -68,6 +75,18 @@ export type AppointmentConnection = {
   __typename?: 'AppointmentConnection';
   items: Array<Appointment>;
   total: Scalars['Int']['output'];
+};
+
+export type AppointmentPart = {
+  __typename?: 'AppointmentPart';
+  appointmentId: Scalars['ID']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  partId: Scalars['ID']['output'];
+  partName: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  unitPrice: Scalars['Float']['output'];
+  updatedAt: Scalars['String']['output'];
 };
 
 export type AuthResponse = {
@@ -339,6 +358,7 @@ export type LookupPart = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addAppointmentPart: AppointmentPart;
   addDocument: VehicleDocument;
   addExpense: VehicleExpense;
   addMaintenance: VehicleMaintenance;
@@ -358,6 +378,7 @@ export type Mutation = {
   createTenant: Tenant;
   createVehicle: Vehicle;
   deleteAppointment: Scalars['Boolean']['output'];
+  deleteAppointmentPart: Scalars['Boolean']['output'];
   deleteCustomer: Scalars['Boolean']['output'];
   deletePartBatch: Scalars['Boolean']['output'];
   deleteShopPart: Scalars['Boolean']['output'];
@@ -390,6 +411,11 @@ export type Mutation = {
   updateTenant: Tenant;
   updateTenantSettings: TenantSettings;
   updateVehicle: Vehicle;
+};
+
+
+export type MutationAddAppointmentPartArgs = {
+  input: AddAppointmentPartInput;
 };
 
 
@@ -487,6 +513,11 @@ export type MutationCreateVehicleArgs = {
 
 
 export type MutationDeleteAppointmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteAppointmentPartArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -726,6 +757,7 @@ export type PurchaseOrderItemInput = {
 export type Query = {
   __typename?: 'Query';
   appointment?: Maybe<Appointment>;
+  appointmentParts: Array<AppointmentPart>;
   appointments: AppointmentConnection;
   customer?: Maybe<Customer>;
   customers: CustomerConnection;
@@ -775,6 +807,11 @@ export type Query = {
 
 export type QueryAppointmentArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryAppointmentPartsArgs = {
+  appointmentId: Scalars['ID']['input'];
 };
 
 
