@@ -6,7 +6,7 @@ services:
       - "3000:3000"
     environment:
       GRAPHQL_URL: ${GRAPHQL_URL:-http://gateway:8080/graphql/query}
-      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:-http://auth:8081/query}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:-http://auth:8080/query}
     networks:
       - shop_default
 
