@@ -21,8 +21,8 @@ export default function StaffDetailPage() {
   const router = useRouter();
   const staffId = params.id as string;
 
-  const { data, loading, refetch } = useStaffDetailQuery({ variables: { id: staffId }, skip: !staffId });
-  const [updateStaff, { loading: updating }] = useUpdateStaffMutation();
+  const { data, isLoading, refetch } = useStaffDetailQuery({ id: staffId }, { enabled: !!staffId });
+  const { mutateAsync: updateStaff, isPending: updating } = useUpdateStaffMutation();
 
   const [activeTab, setActiveTab] = useState('details');
 
@@ -30,24 +30,21 @@ export default function StaffDetailPage() {
 
   const handleSave = async (form: StaffForm) => {
     const res = await updateStaff({
-      variables: {
-        id: staffId,
-        input: {
-          name: form.name || null, role: form.role || null, email: form.email || null, phone: form.phone || null,
-          licenseNumber: form.licenseNumber || null, licenseClass: form.licenseClass || null,
-          licenseExpiry: form.licenseExpiry || null, dateOfBirth: form.dateOfBirth || null,
-          address: form.address || null, emergencyContact: form.emergencyContact || null,
-          emergencyPhone: form.emergencyPhone || null, status: form.status || null,
-          notes: form.notes || null, hireDate: form.hireDate || null,
-        },
+      id: staffId,
+      input: {
+        name: form.name || null, role: form.role || null, email: form.email || null, phone: form.phone || null,
+        licenseNumber: form.licenseNumber || null, licenseClass: form.licenseClass || null,
+        licenseExpiry: form.licenseExpiry || null, dateOfBirth: form.dateOfBirth || null,
+        address: form.address || null, emergencyContact: form.emergencyContact || null,
+        emergencyPhone: form.emergencyPhone || null, status: form.status || null,
+        notes: form.notes || null, hireDate: form.hireDate || null,
       },
-      errorPolicy: 'all',
     });
-    if (!res.data?.updateStaff) throw new Error(res.errors?.[0]?.message || 'Failed to update staff');
+    if (!res?.updateStaff) throw new Error('Failed to update staff');
     refetch();
   };
 
-  if (loading) {
+  if (isLoading) {
     return <><PageHeader title="Staff Details" description="Loading..." /><Card title="Loading"><p className="text-sm text-muted">Loading staff data...</p></Card></>;
   }
 

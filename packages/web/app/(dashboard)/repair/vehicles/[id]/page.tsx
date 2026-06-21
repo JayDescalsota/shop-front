@@ -20,7 +20,7 @@ export default function RepairVehicleDetailPage() {
   const router = useRouter();
   const vehicleId = params.id as string;
 
-  const { data: vehicleData, loading } = useVehicleQuery({ variables: { id: vehicleId }, skip: !vehicleId });
+  const { data: vehicleData, isLoading } = useVehicleQuery({ id: vehicleId }, { enabled: !!vehicleId });
   const { data: customerData } = useCustomersQuery();
   const { data: apptData } = useAppointmentsQuery();
 
@@ -33,7 +33,7 @@ export default function RepairVehicleDetailPage() {
     (a.vehiclePlate === vehicle?.licensePlate || !vehicle?.licensePlate)
   ) ?? [];
 
-  if (loading) {
+  if (isLoading) {
     return <><PageHeader title="Vehicle Details" description="Loading..." /><Card title="Loading"><p className="text-sm text-muted">Loading vehicle data...</p></Card></>;
   }
 

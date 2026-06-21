@@ -1,0 +1,10 @@
+services:
+  frontend:
+    container_name: frontend
+    image: ghcr.io/${REPO_OWNER?REPO_OWNER not set}/frontend:${IMAGE_TAG:-latest}
+    ports:
+      - "3000:3000"
+    environment:
+      GRAPHQL_URL: ${GRAPHQL_URL:-http://host.docker.internal:4000/graphql}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

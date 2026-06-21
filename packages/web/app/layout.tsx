@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Poppins, Open_Sans } from 'next/font/google';
-import { ApolloProvider } from '@/lib/apollo-provider';
+import { Providers } from '@/lib/providers';
 import '@autocare/ui/styles/globals.css';
 
 const inter = Inter({
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable} ${openSans.variable}`}>
-      <body><ApolloProvider>{children}</ApolloProvider></body>
+      <body><Providers>{children}</Providers></body>
     </html>
   );
 }

@@ -29,10 +29,10 @@ export default function StaffPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const { data, loading, refetch } = useStaffListQuery();
-  const [createStaff] = useCreateStaffMutation();
-  const [updateStaff] = useUpdateStaffMutation();
-  const [deleteStaff] = useDeleteStaffMutation();
+  const { data, isLoading, refetch } = useStaffListQuery();
+  const { mutateAsync: createStaff } = useCreateStaffMutation();
+  const { mutateAsync: updateStaff } = useUpdateStaffMutation();
+  const { mutateAsync: deleteStaff } = useDeleteStaffMutation();
 
   const staff = (data?.staffList?.items ?? []).filter((d) => {
     if (!search) return true;
@@ -46,11 +46,8 @@ export default function StaffPage() {
   const handleAddSubmit = async (form: DriverForm) => {
     setError(''); setSubmitting(true);
     try {
-      const res = await createStaff({
-        variables: { input: { tenantId, name: form.name, role: form.role || null, email: form.email || null, phone: form.phone || null, licenseNumber: form.licenseNumber || null, licenseClass: form.licenseClass || null, licenseExpiry: form.licenseExpiry || null, dateOfBirth: form.dateOfBirth || null, address: form.address || null, emergencyContact: form.emergencyContact || null, emergencyPhone: form.emergencyPhone || null, status: form.status || null, notes: form.notes || null, hireDate: form.hireDate || null } },
-        errorPolicy: 'all',
-      });
-      if (!res.data?.createStaff) { setError(res.errors?.[0]?.message || 'Failed to create staff'); return; }
+      const res = await createStaff({ input: { tenantId, name: form.name, role: form.role || null, email: form.email || null, phone: form.phone || null, licenseNumber: form.licenseNumber || null, licenseClass: form.licenseClass || null, licenseExpiry: form.licenseExpiry || null, dateOfBirth: form.dateOfBirth || null, address: form.address || null, emergencyContact: form.emergencyContact || null, emergencyPhone: form.emergencyPhone || null, status: form.status || null, notes: form.notes || null, hireDate: form.hireDate || null } });
+      if (!res?.createStaff) { setError('Failed to create staff'); return; }
       setAddOpen(false); refetch();
     } catch (err: any) { setError(err.message); }
     finally { setSubmitting(false); }
@@ -60,11 +57,8 @@ export default function StaffPage() {
     if (!editingStaff) return;
     setError(''); setSubmitting(true);
     try {
-      const res = await updateStaff({
-        variables: { id: editingStaff.id, input: { name: form.name || null, role: form.role || null, email: form.email || null, phone: form.phone || null, licenseNumber: form.licenseNumber || null, licenseClass: form.licenseClass || null, licenseExpiry: form.licenseExpiry || null, dateOfBirth: form.dateOfBirth || null, address: form.address || null, emergencyContact: form.emergencyContact || null, emergencyPhone: form.emergencyPhone || null, status: form.status || null, notes: form.notes || null, hireDate: form.hireDate || null } },
-        errorPolicy: 'all',
-      });
-      if (!res.data?.updateStaff) { setError(res.errors?.[0]?.message || 'Failed to update staff'); return; }
+      const res = await updateStaff({ id: editingStaff.id, input: { name: form.name || null, role: form.role || null, email: form.email || null, phone: form.phone || null, licenseNumber: form.licenseNumber || null, licenseClass: form.licenseClass || null, licenseExpiry: form.licenseExpiry || null, dateOfBirth: form.dateOfBirth || null, address: form.address || null, emergencyContact: form.emergencyContact || null, emergencyPhone: form.emergencyPhone || null, status: form.status || null, notes: form.notes || null, hireDate: form.hireDate || null } });
+      if (!res?.updateStaff) { setError('Failed to update staff'); return; }
       setEditOpen(false); setEditingStaff(null); refetch();
     } catch (err: any) { setError(err.message); }
     finally { setSubmitting(false); }
@@ -72,7 +66,7 @@ export default function StaffPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this staff member?')) return;
-    await deleteStaff({ variables: { id } });
+    await deleteStaff({ id });
     refetch();
   };
 
@@ -100,7 +94,7 @@ export default function StaffPage() {
         <div className="mb-4">
           <Field.Input placeholder="Search staff..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        {loading ? (
+        {isLoading ? (
           <p className="text-sm text-muted">Loading staff...</p>
         ) : (
           <DataTable columns={columns} data={staff} keyExtractor={(d) => d.id} />

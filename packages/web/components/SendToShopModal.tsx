@@ -80,10 +80,10 @@ export default function SendToShopModal({ open, onClose, vehicle }: SendToShopMo
   const [selectedName, setSelectedName] = useState('');
   const [newItemNote, setNewItemNote] = useState('');
 
-  const [createAppointment] = useCreateAppointmentMutation();
-  const [createRepairVehicle] = useCreateVehicleMutation();
-  const [updateVehicle] = useUpdateVehicleMutation();
-  const { data: svcTypesData } = useServiceTypesQuery({ fetchPolicy: 'cache-first' });
+  const { mutateAsync: createAppointment } = useCreateAppointmentMutation();
+  const { mutateAsync: createRepairVehicle } = useCreateVehicleMutation();
+  const { mutateAsync: updateVehicle } = useUpdateVehicleMutation();
+  const { data: svcTypesData } = useServiceTypesQuery();
 
   const serviceTypes = svcTypesData?.serviceTypes ?? [];
   const repairTenants = useMemo(() => getRepairTenants(), [open]);
@@ -183,11 +183,7 @@ export default function SendToShopModal({ open, onClose, vehicle }: SendToShopMo
         notes: form.notes || null,
         shopId: form.shopId || null,
       };
-      const apptRes = await createAppointment({ variables: { input } });
-      if (!apptRes.data?.createAppointment) {
-        setError(apptRes.errors?.[0]?.message || 'Failed to create appointment');
-        return;
-      }
+      await createAppointment({ input });
       const repairVehicleInput: CreateVehicleInput = {
         tenantId: selectedShop.id as any,
         customerId: null,
@@ -197,15 +193,12 @@ export default function SendToShopModal({ open, onClose, vehicle }: SendToShopMo
         licensePlate: vehicle.licensePlate || null,
         notes: `Source vehicle: ${vehicle.id} | ${vehicle.make} ${vehicle.model}`,
       } as CreateVehicleInput;
-      const existingRes = await createRepairVehicle({ variables: { input: repairVehicleInput } });
-      if (!existingRes.data?.createVehicle) {
-        console.warn('Could not create repair vehicle record');
-      }
+      try { await createRepairVehicle({ input: repairVehicleInput }); } catch {}
       const vehicleInput: UpdateVehicleInput = {
         status: 'under_maintenance',
         repairStatus: 'in_progress',
       } as UpdateVehicleInput;
-      await updateVehicle({ variables: { id: vehicle.id, input: vehicleInput } });
+      await updateVehicle({ id: vehicle.id, input: vehicleInput });
       onClose();
     } catch (err: any) {
       setError(err.message || 'An error occurred');

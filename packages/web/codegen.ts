@@ -10,9 +10,15 @@ const config: CodegenConfig = {
     './graphql/generated/hooks.tsx': {
       schema: './graphql/*-schema.graphql',
       documents: './graphql/*-operations.graphql',
-      plugins: ['typescript-operations', 'typescript-react-apollo'],
+      plugins: ['typescript-operations', 'typescript-react-query'],
       config: {
-        withHooks: true,
+        reactQueryVersion: 5,
+        exposeFetcher: true,
+        exposeQueryKeys: true,
+        fetcher: {
+          func: '../../lib/fetcher#request',
+          isReactHook: false,
+        },
       },
     },
   },

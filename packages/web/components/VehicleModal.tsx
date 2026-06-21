@@ -41,13 +41,9 @@ export default function VehicleModal({ open, onClose, onSubmit, title, submitLab
   const [selectedMakeId, setSelectedMakeId] = useState('');
   const [selectedModelId, setSelectedModelId] = useState('');
 
-  const { data: makesData } = useVehicleMakesQuery({ fetchPolicy: 'cache-first' });
-  const { data: modelsData } = useVehicleModelsQuery({
-    variables: { makeId: selectedMakeId },
-    skip: !selectedMakeId,
-    fetchPolicy: 'cache-first',
-  });
-  const { data: custData } = useCustomersQuery({ skip: !open });
+  const { data: makesData } = useVehicleMakesQuery();
+  const { data: modelsData } = useVehicleModelsQuery({ makeId: selectedMakeId }, { enabled: !!selectedMakeId });
+  const { data: custData } = useCustomersQuery(undefined, { enabled: !!open });
 
   const makes = makesData?.vehicleMakes ?? [];
   const models = modelsData?.vehicleModels ?? [];

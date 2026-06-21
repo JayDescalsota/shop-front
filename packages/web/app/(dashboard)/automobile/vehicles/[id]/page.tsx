@@ -25,9 +25,9 @@ export default function VehicleDetailPage() {
   const router = useRouter();
   const vehicleId = params.id as string;
 
-  const { data: vehicleData, loading: vehicleLoading, refetch } = useVehicleQuery({ variables: { id: vehicleId }, skip: !vehicleId });
+  const { data: vehicleData, isLoading: vehicleLoading, refetch } = useVehicleQuery({ id: vehicleId }, { enabled: !!vehicleId });
   const { data: apptData } = useAppointmentsQuery();
-  const [updateVehicle, { loading: updating }] = useUpdateVehicleMutation();
+  const { mutateAsync: updateVehicle, isPending: updating } = useUpdateVehicleMutation();
 
   const [activeTab, setActiveTab] = useState('details');
   const [editing, setEditing] = useState(false);
@@ -68,8 +68,8 @@ export default function VehicleDetailPage() {
         color: form.color || null, notes: form.notes || null,
         status: form.status || null, repairStatus: form.repairStatus || null,
       } as UpdateVehicleInput;
-      const res = await updateVehicle({ variables: { id: vehicleId, input } });
-      if (!res.data?.updateVehicle) { setSaveError(res.errors?.[0]?.message || 'Failed to update vehicle'); return; }
+      const res = await updateVehicle({ id: vehicleId, input });
+      if (!res?.updateVehicle) { setSaveError('Failed to update vehicle'); return; }
       setEditing(false); refetch();
     } catch (err: any) { setSaveError(err.message || 'An error occurred'); }
   };

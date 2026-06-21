@@ -22,7 +22,7 @@ interface AppointmentModalProps {
 }
 
 export default function AppointmentModal({ open, onClose, vehicle }: AppointmentModalProps) {
-  const [createAppointment] = useCreateAppointmentMutation();
+  const { mutateAsync: createAppointment } = useCreateAppointmentMutation();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -87,11 +87,7 @@ export default function AppointmentModal({ open, onClose, vehicle }: Appointment
     };
 
     try {
-      const res = await createAppointment({ variables: { input } });
-      if (!res.data?.createAppointment) {
-        setError(res.errors?.[0]?.message || 'Failed to create appointment');
-        return;
-      }
+      await createAppointment({ input });
       onClose();
     } catch (err: any) {
       setError(err.message || 'An error occurred');

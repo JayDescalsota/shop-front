@@ -10,8 +10,8 @@ import type { CustomerForm } from '@/components/CustomerModal';
 
 export default function Customers() {
   const { data, refetch } = useCustomersQuery();
-  const [createCustomer] = useCreateCustomerMutation();
-  const [updateCustomer] = useUpdateCustomerMutation();
+  const { mutateAsync: createCustomer } = useCreateCustomerMutation();
+  const { mutateAsync: updateCustomer } = useUpdateCustomerMutation();
 
   const [search, setSearch] = useState('');
   const [addOpen, setAddOpen] = useState(false);
@@ -65,9 +65,9 @@ export default function Customers() {
     } as CreateCustomerInput;
 
     try {
-      const res = await createCustomer({ variables: { input } });
-      if (!res.data?.createCustomer) {
-        setError(res.errors?.[0]?.message || 'Failed to create customer');
+      const res = await createCustomer({ input });
+      if (!res?.createCustomer) {
+        setError('Failed to create customer');
         return;
       }
       setAddOpen(false);
@@ -96,9 +96,9 @@ export default function Customers() {
     } as UpdateCustomerInput;
 
     try {
-      const res = await updateCustomer({ variables: { id: editingId, input } });
-      if (!res.data?.updateCustomer) {
-        setError(res.errors?.[0]?.message || 'Failed to update customer');
+      const res = await updateCustomer({ id: editingId, input });
+      if (!res?.updateCustomer) {
+        setError('Failed to update customer');
         return;
       }
       setEditOpen(false);

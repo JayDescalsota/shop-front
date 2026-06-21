@@ -2,9 +2,9 @@
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 /** Internal type. DO NOT USE DIRECTLY. */
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
-const defaultOptions = {} as const;
+import { DocumentTypeDecoration } from '@graphql-typed-document-node/core';
+import { useQuery, useMutation, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
+import { request } from '../../lib/fetcher';
 export type AddAppointmentPartInput = {
   appointmentId: string | number;
   partId: string | number;
@@ -524,7 +524,26 @@ export type DeleteStaffMutationVariables = Exact<{
 export type DeleteStaffMutation = { deleteStaff: boolean };
 
 
-export const VehicleMakesDocument = gql`
+export class TypedDocumentString<TResult, TVariables>
+  extends String
+  implements DocumentTypeDecoration<TResult, TVariables>
+{
+  __apiType?: NonNullable<DocumentTypeDecoration<TResult, TVariables>['__apiType']>;
+  private value: string;
+  public __meta__?: Record<string, any> | undefined;
+
+  constructor(value: string, __meta__?: Record<string, any> | undefined) {
+    super(value);
+    this.value = value;
+    this.__meta__ = __meta__;
+  }
+
+  override toString(): string & DocumentTypeDecoration<TResult, TVariables> {
+    return this.value;
+  }
+}
+
+export const VehicleMakesDocument = new TypedDocumentString(`
     query VehicleMakes {
   vehicleMakes {
     id
@@ -532,43 +551,30 @@ export const VehicleMakesDocument = gql`
     slug
   }
 }
-    `;
+    `);
 
-/**
- * __useVehicleMakesQuery__
- *
- * To run a query within a React component, call `useVehicleMakesQuery` and pass it any options that fit your needs.
- * When your component renders, `useVehicleMakesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVehicleMakesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useVehicleMakesQuery(baseOptions?: Apollo.QueryHookOptions<VehicleMakesQuery, VehicleMakesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<VehicleMakesQuery, VehicleMakesQueryVariables>(VehicleMakesDocument, options);
-      }
-export function useVehicleMakesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VehicleMakesQuery, VehicleMakesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<VehicleMakesQuery, VehicleMakesQueryVariables>(VehicleMakesDocument, options);
-        }
-// @ts-ignore
-export function useVehicleMakesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VehicleMakesQuery, VehicleMakesQueryVariables>): Apollo.UseSuspenseQueryResult<VehicleMakesQuery, VehicleMakesQueryVariables>;
-export function useVehicleMakesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehicleMakesQuery, VehicleMakesQueryVariables>): Apollo.UseSuspenseQueryResult<VehicleMakesQuery | undefined, VehicleMakesQueryVariables>;
-export function useVehicleMakesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehicleMakesQuery, VehicleMakesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<VehicleMakesQuery, VehicleMakesQueryVariables>(VehicleMakesDocument, options);
-        }
-export type VehicleMakesQueryHookResult = ReturnType<typeof useVehicleMakesQuery>;
-export type VehicleMakesLazyQueryHookResult = ReturnType<typeof useVehicleMakesLazyQuery>;
-export type VehicleMakesSuspenseQueryHookResult = ReturnType<typeof useVehicleMakesSuspenseQuery>;
-export type VehicleMakesQueryResult = Apollo.QueryResult<VehicleMakesQuery, VehicleMakesQueryVariables>;
-export const VehicleModelsDocument = gql`
+export const useVehicleMakesQuery = <
+      TData = VehicleMakesQuery,
+      TError = unknown
+    >(
+      variables?: VehicleMakesQueryVariables,
+      options?: Omit<UseQueryOptions<VehicleMakesQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<VehicleMakesQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<VehicleMakesQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['VehicleMakes'] : ['VehicleMakes', variables],
+    queryFn: request<VehicleMakesQuery, VehicleMakesQueryVariables>(VehicleMakesDocument, variables),
+    ...options
+  }
+    )};
+
+useVehicleMakesQuery.getKey = (variables?: VehicleMakesQueryVariables) => variables === undefined ? ['VehicleMakes'] : ['VehicleMakes', variables];
+
+
+useVehicleMakesQuery.fetcher = (variables?: VehicleMakesQueryVariables, options?: RequestInit['headers']) => request<VehicleMakesQuery, VehicleMakesQueryVariables>(VehicleMakesDocument, variables, options);
+
+export const VehicleModelsDocument = new TypedDocumentString(`
     query VehicleModels($makeId: ID!) {
   vehicleModels(makeId: $makeId) {
     id
@@ -579,44 +585,30 @@ export const VehicleModelsDocument = gql`
     vehicleType
   }
 }
-    `;
+    `);
 
-/**
- * __useVehicleModelsQuery__
- *
- * To run a query within a React component, call `useVehicleModelsQuery` and pass it any options that fit your needs.
- * When your component renders, `useVehicleModelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVehicleModelsQuery({
- *   variables: {
- *      makeId: // value for 'makeId'
- *   },
- * });
- */
-export function useVehicleModelsQuery(baseOptions: Apollo.QueryHookOptions<VehicleModelsQuery, VehicleModelsQueryVariables> & ({ variables: VehicleModelsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<VehicleModelsQuery, VehicleModelsQueryVariables>(VehicleModelsDocument, options);
-      }
-export function useVehicleModelsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VehicleModelsQuery, VehicleModelsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<VehicleModelsQuery, VehicleModelsQueryVariables>(VehicleModelsDocument, options);
-        }
-// @ts-ignore
-export function useVehicleModelsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VehicleModelsQuery, VehicleModelsQueryVariables>): Apollo.UseSuspenseQueryResult<VehicleModelsQuery, VehicleModelsQueryVariables>;
-export function useVehicleModelsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehicleModelsQuery, VehicleModelsQueryVariables>): Apollo.UseSuspenseQueryResult<VehicleModelsQuery | undefined, VehicleModelsQueryVariables>;
-export function useVehicleModelsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehicleModelsQuery, VehicleModelsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<VehicleModelsQuery, VehicleModelsQueryVariables>(VehicleModelsDocument, options);
-        }
-export type VehicleModelsQueryHookResult = ReturnType<typeof useVehicleModelsQuery>;
-export type VehicleModelsLazyQueryHookResult = ReturnType<typeof useVehicleModelsLazyQuery>;
-export type VehicleModelsSuspenseQueryHookResult = ReturnType<typeof useVehicleModelsSuspenseQuery>;
-export type VehicleModelsQueryResult = Apollo.QueryResult<VehicleModelsQuery, VehicleModelsQueryVariables>;
-export const ServiceTypesDocument = gql`
+export const useVehicleModelsQuery = <
+      TData = VehicleModelsQuery,
+      TError = unknown
+    >(
+      variables: VehicleModelsQueryVariables,
+      options?: Omit<UseQueryOptions<VehicleModelsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<VehicleModelsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<VehicleModelsQuery, TError, TData>(
+      {
+    queryKey: ['VehicleModels', variables],
+    queryFn: request<VehicleModelsQuery, VehicleModelsQueryVariables>(VehicleModelsDocument, variables),
+    ...options
+  }
+    )};
+
+useVehicleModelsQuery.getKey = (variables: VehicleModelsQueryVariables) => ['VehicleModels', variables];
+
+
+useVehicleModelsQuery.fetcher = (variables: VehicleModelsQueryVariables, options?: RequestInit['headers']) => request<VehicleModelsQuery, VehicleModelsQueryVariables>(VehicleModelsDocument, variables, options);
+
+export const ServiceTypesDocument = new TypedDocumentString(`
     query ServiceTypes {
   serviceTypes {
     id
@@ -628,43 +620,30 @@ export const ServiceTypesDocument = gql`
     isActive
   }
 }
-    `;
+    `);
 
-/**
- * __useServiceTypesQuery__
- *
- * To run a query within a React component, call `useServiceTypesQuery` and pass it any options that fit your needs.
- * When your component renders, `useServiceTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useServiceTypesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useServiceTypesQuery(baseOptions?: Apollo.QueryHookOptions<ServiceTypesQuery, ServiceTypesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ServiceTypesQuery, ServiceTypesQueryVariables>(ServiceTypesDocument, options);
-      }
-export function useServiceTypesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ServiceTypesQuery, ServiceTypesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ServiceTypesQuery, ServiceTypesQueryVariables>(ServiceTypesDocument, options);
-        }
-// @ts-ignore
-export function useServiceTypesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ServiceTypesQuery, ServiceTypesQueryVariables>): Apollo.UseSuspenseQueryResult<ServiceTypesQuery, ServiceTypesQueryVariables>;
-export function useServiceTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ServiceTypesQuery, ServiceTypesQueryVariables>): Apollo.UseSuspenseQueryResult<ServiceTypesQuery | undefined, ServiceTypesQueryVariables>;
-export function useServiceTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ServiceTypesQuery, ServiceTypesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ServiceTypesQuery, ServiceTypesQueryVariables>(ServiceTypesDocument, options);
-        }
-export type ServiceTypesQueryHookResult = ReturnType<typeof useServiceTypesQuery>;
-export type ServiceTypesLazyQueryHookResult = ReturnType<typeof useServiceTypesLazyQuery>;
-export type ServiceTypesSuspenseQueryHookResult = ReturnType<typeof useServiceTypesSuspenseQuery>;
-export type ServiceTypesQueryResult = Apollo.QueryResult<ServiceTypesQuery, ServiceTypesQueryVariables>;
-export const PartNamesDocument = gql`
+export const useServiceTypesQuery = <
+      TData = ServiceTypesQuery,
+      TError = unknown
+    >(
+      variables?: ServiceTypesQueryVariables,
+      options?: Omit<UseQueryOptions<ServiceTypesQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<ServiceTypesQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<ServiceTypesQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['ServiceTypes'] : ['ServiceTypes', variables],
+    queryFn: request<ServiceTypesQuery, ServiceTypesQueryVariables>(ServiceTypesDocument, variables),
+    ...options
+  }
+    )};
+
+useServiceTypesQuery.getKey = (variables?: ServiceTypesQueryVariables) => variables === undefined ? ['ServiceTypes'] : ['ServiceTypes', variables];
+
+
+useServiceTypesQuery.fetcher = (variables?: ServiceTypesQueryVariables, options?: RequestInit['headers']) => request<ServiceTypesQuery, ServiceTypesQueryVariables>(ServiceTypesDocument, variables, options);
+
+export const PartNamesDocument = new TypedDocumentString(`
     query PartNames {
   partNames {
     id
@@ -672,43 +651,30 @@ export const PartNamesDocument = gql`
     category
   }
 }
-    `;
+    `);
 
-/**
- * __usePartNamesQuery__
- *
- * To run a query within a React component, call `usePartNamesQuery` and pass it any options that fit your needs.
- * When your component renders, `usePartNamesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePartNamesQuery({
- *   variables: {
- *   },
- * });
- */
-export function usePartNamesQuery(baseOptions?: Apollo.QueryHookOptions<PartNamesQuery, PartNamesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PartNamesQuery, PartNamesQueryVariables>(PartNamesDocument, options);
-      }
-export function usePartNamesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PartNamesQuery, PartNamesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PartNamesQuery, PartNamesQueryVariables>(PartNamesDocument, options);
-        }
-// @ts-ignore
-export function usePartNamesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PartNamesQuery, PartNamesQueryVariables>): Apollo.UseSuspenseQueryResult<PartNamesQuery, PartNamesQueryVariables>;
-export function usePartNamesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PartNamesQuery, PartNamesQueryVariables>): Apollo.UseSuspenseQueryResult<PartNamesQuery | undefined, PartNamesQueryVariables>;
-export function usePartNamesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PartNamesQuery, PartNamesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PartNamesQuery, PartNamesQueryVariables>(PartNamesDocument, options);
-        }
-export type PartNamesQueryHookResult = ReturnType<typeof usePartNamesQuery>;
-export type PartNamesLazyQueryHookResult = ReturnType<typeof usePartNamesLazyQuery>;
-export type PartNamesSuspenseQueryHookResult = ReturnType<typeof usePartNamesSuspenseQuery>;
-export type PartNamesQueryResult = Apollo.QueryResult<PartNamesQuery, PartNamesQueryVariables>;
-export const StorageLocationsDocument = gql`
+export const usePartNamesQuery = <
+      TData = PartNamesQuery,
+      TError = unknown
+    >(
+      variables?: PartNamesQueryVariables,
+      options?: Omit<UseQueryOptions<PartNamesQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<PartNamesQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<PartNamesQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['PartNames'] : ['PartNames', variables],
+    queryFn: request<PartNamesQuery, PartNamesQueryVariables>(PartNamesDocument, variables),
+    ...options
+  }
+    )};
+
+usePartNamesQuery.getKey = (variables?: PartNamesQueryVariables) => variables === undefined ? ['PartNames'] : ['PartNames', variables];
+
+
+usePartNamesQuery.fetcher = (variables?: PartNamesQueryVariables, options?: RequestInit['headers']) => request<PartNamesQuery, PartNamesQueryVariables>(PartNamesDocument, variables, options);
+
+export const StorageLocationsDocument = new TypedDocumentString(`
     query StorageLocations {
   storageLocations {
     id
@@ -716,43 +682,30 @@ export const StorageLocationsDocument = gql`
     code
   }
 }
-    `;
+    `);
 
-/**
- * __useStorageLocationsQuery__
- *
- * To run a query within a React component, call `useStorageLocationsQuery` and pass it any options that fit your needs.
- * When your component renders, `useStorageLocationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useStorageLocationsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useStorageLocationsQuery(baseOptions?: Apollo.QueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<StorageLocationsQuery, StorageLocationsQueryVariables>(StorageLocationsDocument, options);
-      }
-export function useStorageLocationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<StorageLocationsQuery, StorageLocationsQueryVariables>(StorageLocationsDocument, options);
-        }
-// @ts-ignore
-export function useStorageLocationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>): Apollo.UseSuspenseQueryResult<StorageLocationsQuery, StorageLocationsQueryVariables>;
-export function useStorageLocationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>): Apollo.UseSuspenseQueryResult<StorageLocationsQuery | undefined, StorageLocationsQueryVariables>;
-export function useStorageLocationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StorageLocationsQuery, StorageLocationsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<StorageLocationsQuery, StorageLocationsQueryVariables>(StorageLocationsDocument, options);
-        }
-export type StorageLocationsQueryHookResult = ReturnType<typeof useStorageLocationsQuery>;
-export type StorageLocationsLazyQueryHookResult = ReturnType<typeof useStorageLocationsLazyQuery>;
-export type StorageLocationsSuspenseQueryHookResult = ReturnType<typeof useStorageLocationsSuspenseQuery>;
-export type StorageLocationsQueryResult = Apollo.QueryResult<StorageLocationsQuery, StorageLocationsQueryVariables>;
-export const AppointmentsDocument = gql`
+export const useStorageLocationsQuery = <
+      TData = StorageLocationsQuery,
+      TError = unknown
+    >(
+      variables?: StorageLocationsQueryVariables,
+      options?: Omit<UseQueryOptions<StorageLocationsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<StorageLocationsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<StorageLocationsQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['StorageLocations'] : ['StorageLocations', variables],
+    queryFn: request<StorageLocationsQuery, StorageLocationsQueryVariables>(StorageLocationsDocument, variables),
+    ...options
+  }
+    )};
+
+useStorageLocationsQuery.getKey = (variables?: StorageLocationsQueryVariables) => variables === undefined ? ['StorageLocations'] : ['StorageLocations', variables];
+
+
+useStorageLocationsQuery.fetcher = (variables?: StorageLocationsQueryVariables, options?: RequestInit['headers']) => request<StorageLocationsQuery, StorageLocationsQueryVariables>(StorageLocationsDocument, variables, options);
+
+export const AppointmentsDocument = new TypedDocumentString(`
     query Appointments {
   appointments {
     items {
@@ -778,43 +731,30 @@ export const AppointmentsDocument = gql`
     total
   }
 }
-    `;
+    `);
 
-/**
- * __useAppointmentsQuery__
- *
- * To run a query within a React component, call `useAppointmentsQuery` and pass it any options that fit your needs.
- * When your component renders, `useAppointmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAppointmentsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useAppointmentsQuery(baseOptions?: Apollo.QueryHookOptions<AppointmentsQuery, AppointmentsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AppointmentsQuery, AppointmentsQueryVariables>(AppointmentsDocument, options);
-      }
-export function useAppointmentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AppointmentsQuery, AppointmentsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AppointmentsQuery, AppointmentsQueryVariables>(AppointmentsDocument, options);
-        }
-// @ts-ignore
-export function useAppointmentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AppointmentsQuery, AppointmentsQueryVariables>): Apollo.UseSuspenseQueryResult<AppointmentsQuery, AppointmentsQueryVariables>;
-export function useAppointmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AppointmentsQuery, AppointmentsQueryVariables>): Apollo.UseSuspenseQueryResult<AppointmentsQuery | undefined, AppointmentsQueryVariables>;
-export function useAppointmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AppointmentsQuery, AppointmentsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<AppointmentsQuery, AppointmentsQueryVariables>(AppointmentsDocument, options);
-        }
-export type AppointmentsQueryHookResult = ReturnType<typeof useAppointmentsQuery>;
-export type AppointmentsLazyQueryHookResult = ReturnType<typeof useAppointmentsLazyQuery>;
-export type AppointmentsSuspenseQueryHookResult = ReturnType<typeof useAppointmentsSuspenseQuery>;
-export type AppointmentsQueryResult = Apollo.QueryResult<AppointmentsQuery, AppointmentsQueryVariables>;
-export const CustomersDocument = gql`
+export const useAppointmentsQuery = <
+      TData = AppointmentsQuery,
+      TError = unknown
+    >(
+      variables?: AppointmentsQueryVariables,
+      options?: Omit<UseQueryOptions<AppointmentsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<AppointmentsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<AppointmentsQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['Appointments'] : ['Appointments', variables],
+    queryFn: request<AppointmentsQuery, AppointmentsQueryVariables>(AppointmentsDocument, variables),
+    ...options
+  }
+    )};
+
+useAppointmentsQuery.getKey = (variables?: AppointmentsQueryVariables) => variables === undefined ? ['Appointments'] : ['Appointments', variables];
+
+
+useAppointmentsQuery.fetcher = (variables?: AppointmentsQueryVariables, options?: RequestInit['headers']) => request<AppointmentsQuery, AppointmentsQueryVariables>(AppointmentsDocument, variables, options);
+
+export const CustomersDocument = new TypedDocumentString(`
     query Customers {
   customers {
     items {
@@ -838,43 +778,30 @@ export const CustomersDocument = gql`
     total
   }
 }
-    `;
+    `);
 
-/**
- * __useCustomersQuery__
- *
- * To run a query within a React component, call `useCustomersQuery` and pass it any options that fit your needs.
- * When your component renders, `useCustomersQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCustomersQuery({
- *   variables: {
- *   },
- * });
- */
-export function useCustomersQuery(baseOptions?: Apollo.QueryHookOptions<CustomersQuery, CustomersQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<CustomersQuery, CustomersQueryVariables>(CustomersDocument, options);
-      }
-export function useCustomersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomersQuery, CustomersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<CustomersQuery, CustomersQueryVariables>(CustomersDocument, options);
-        }
-// @ts-ignore
-export function useCustomersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomersQuery, CustomersQueryVariables>): Apollo.UseSuspenseQueryResult<CustomersQuery, CustomersQueryVariables>;
-export function useCustomersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomersQuery, CustomersQueryVariables>): Apollo.UseSuspenseQueryResult<CustomersQuery | undefined, CustomersQueryVariables>;
-export function useCustomersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomersQuery, CustomersQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<CustomersQuery, CustomersQueryVariables>(CustomersDocument, options);
-        }
-export type CustomersQueryHookResult = ReturnType<typeof useCustomersQuery>;
-export type CustomersLazyQueryHookResult = ReturnType<typeof useCustomersLazyQuery>;
-export type CustomersSuspenseQueryHookResult = ReturnType<typeof useCustomersSuspenseQuery>;
-export type CustomersQueryResult = Apollo.QueryResult<CustomersQuery, CustomersQueryVariables>;
-export const CreateCustomerDocument = gql`
+export const useCustomersQuery = <
+      TData = CustomersQuery,
+      TError = unknown
+    >(
+      variables?: CustomersQueryVariables,
+      options?: Omit<UseQueryOptions<CustomersQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<CustomersQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<CustomersQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['Customers'] : ['Customers', variables],
+    queryFn: request<CustomersQuery, CustomersQueryVariables>(CustomersDocument, variables),
+    ...options
+  }
+    )};
+
+useCustomersQuery.getKey = (variables?: CustomersQueryVariables) => variables === undefined ? ['Customers'] : ['Customers', variables];
+
+
+useCustomersQuery.fetcher = (variables?: CustomersQueryVariables, options?: RequestInit['headers']) => request<CustomersQuery, CustomersQueryVariables>(CustomersDocument, variables, options);
+
+export const CreateCustomerDocument = new TypedDocumentString(`
     mutation CreateCustomer($input: CreateCustomerInput!) {
   createCustomer(input: $input) {
     id
@@ -884,34 +811,25 @@ export const CreateCustomerDocument = gql`
     status
   }
 }
-    `;
-export type CreateCustomerMutationFn = Apollo.MutationFunction<CreateCustomerMutation, CreateCustomerMutationVariables>;
+    `);
 
-/**
- * __useCreateCustomerMutation__
- *
- * To run a mutation, you first call `useCreateCustomerMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateCustomerMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createCustomerMutation, { data, loading, error }] = useCreateCustomerMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateCustomerMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerMutation, CreateCustomerMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateCustomerMutation, CreateCustomerMutationVariables>(CreateCustomerDocument, options);
-      }
-export type CreateCustomerMutationHookResult = ReturnType<typeof useCreateCustomerMutation>;
-export type CreateCustomerMutationResult = Apollo.MutationResult<CreateCustomerMutation>;
-export type CreateCustomerMutationOptions = Apollo.BaseMutationOptions<CreateCustomerMutation, CreateCustomerMutationVariables>;
-export const UpdateCustomerDocument = gql`
+export const useCreateCustomerMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateCustomerMutation, TError, CreateCustomerMutationVariables, TContext>) => {
+    
+    return useMutation<CreateCustomerMutation, TError, CreateCustomerMutationVariables, TContext>(
+      {
+    mutationKey: ['CreateCustomer'],
+    mutationFn: (variables?: CreateCustomerMutationVariables) => request<CreateCustomerMutation, CreateCustomerMutationVariables>(CreateCustomerDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCreateCustomerMutation.fetcher = (variables: CreateCustomerMutationVariables, options?: RequestInit['headers']) => request<CreateCustomerMutation, CreateCustomerMutationVariables>(CreateCustomerDocument, variables, options);
+
+export const UpdateCustomerDocument = new TypedDocumentString(`
     mutation UpdateCustomer($id: ID!, $input: UpdateCustomerInput!) {
   updateCustomer(id: $id, input: $input) {
     id
@@ -921,66 +839,47 @@ export const UpdateCustomerDocument = gql`
     status
   }
 }
-    `;
-export type UpdateCustomerMutationFn = Apollo.MutationFunction<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+    `);
 
-/**
- * __useUpdateCustomerMutation__
- *
- * To run a mutation, you first call `useUpdateCustomerMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCustomerMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCustomerMutation, { data, loading, error }] = useUpdateCustomerMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCustomerMutation, UpdateCustomerMutationVariables>(UpdateCustomerDocument, options);
-      }
-export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
-export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
-export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
-export const DeleteCustomerDocument = gql`
+export const useUpdateCustomerMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateCustomerMutation, TError, UpdateCustomerMutationVariables, TContext>) => {
+    
+    return useMutation<UpdateCustomerMutation, TError, UpdateCustomerMutationVariables, TContext>(
+      {
+    mutationKey: ['UpdateCustomer'],
+    mutationFn: (variables?: UpdateCustomerMutationVariables) => request<UpdateCustomerMutation, UpdateCustomerMutationVariables>(UpdateCustomerDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useUpdateCustomerMutation.fetcher = (variables: UpdateCustomerMutationVariables, options?: RequestInit['headers']) => request<UpdateCustomerMutation, UpdateCustomerMutationVariables>(UpdateCustomerDocument, variables, options);
+
+export const DeleteCustomerDocument = new TypedDocumentString(`
     mutation DeleteCustomer($id: ID!) {
   deleteCustomer(id: $id)
 }
-    `;
-export type DeleteCustomerMutationFn = Apollo.MutationFunction<DeleteCustomerMutation, DeleteCustomerMutationVariables>;
+    `);
 
-/**
- * __useDeleteCustomerMutation__
- *
- * To run a mutation, you first call `useDeleteCustomerMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteCustomerMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteCustomerMutation, { data, loading, error }] = useDeleteCustomerMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteCustomerMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomerMutation, DeleteCustomerMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteCustomerMutation, DeleteCustomerMutationVariables>(DeleteCustomerDocument, options);
-      }
-export type DeleteCustomerMutationHookResult = ReturnType<typeof useDeleteCustomerMutation>;
-export type DeleteCustomerMutationResult = Apollo.MutationResult<DeleteCustomerMutation>;
-export type DeleteCustomerMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerMutation, DeleteCustomerMutationVariables>;
-export const VehiclesDocument = gql`
+export const useDeleteCustomerMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteCustomerMutation, TError, DeleteCustomerMutationVariables, TContext>) => {
+    
+    return useMutation<DeleteCustomerMutation, TError, DeleteCustomerMutationVariables, TContext>(
+      {
+    mutationKey: ['DeleteCustomer'],
+    mutationFn: (variables?: DeleteCustomerMutationVariables) => request<DeleteCustomerMutation, DeleteCustomerMutationVariables>(DeleteCustomerDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeleteCustomerMutation.fetcher = (variables: DeleteCustomerMutationVariables, options?: RequestInit['headers']) => request<DeleteCustomerMutation, DeleteCustomerMutationVariables>(DeleteCustomerDocument, variables, options);
+
+export const VehiclesDocument = new TypedDocumentString(`
     query Vehicles {
   vehicles {
     items {
@@ -999,43 +898,30 @@ export const VehiclesDocument = gql`
     total
   }
 }
-    `;
+    `);
 
-/**
- * __useVehiclesQuery__
- *
- * To run a query within a React component, call `useVehiclesQuery` and pass it any options that fit your needs.
- * When your component renders, `useVehiclesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVehiclesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useVehiclesQuery(baseOptions?: Apollo.QueryHookOptions<VehiclesQuery, VehiclesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<VehiclesQuery, VehiclesQueryVariables>(VehiclesDocument, options);
-      }
-export function useVehiclesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VehiclesQuery, VehiclesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<VehiclesQuery, VehiclesQueryVariables>(VehiclesDocument, options);
-        }
-// @ts-ignore
-export function useVehiclesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VehiclesQuery, VehiclesQueryVariables>): Apollo.UseSuspenseQueryResult<VehiclesQuery, VehiclesQueryVariables>;
-export function useVehiclesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehiclesQuery, VehiclesQueryVariables>): Apollo.UseSuspenseQueryResult<VehiclesQuery | undefined, VehiclesQueryVariables>;
-export function useVehiclesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehiclesQuery, VehiclesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<VehiclesQuery, VehiclesQueryVariables>(VehiclesDocument, options);
-        }
-export type VehiclesQueryHookResult = ReturnType<typeof useVehiclesQuery>;
-export type VehiclesLazyQueryHookResult = ReturnType<typeof useVehiclesLazyQuery>;
-export type VehiclesSuspenseQueryHookResult = ReturnType<typeof useVehiclesSuspenseQuery>;
-export type VehiclesQueryResult = Apollo.QueryResult<VehiclesQuery, VehiclesQueryVariables>;
-export const VehicleDocument = gql`
+export const useVehiclesQuery = <
+      TData = VehiclesQuery,
+      TError = unknown
+    >(
+      variables?: VehiclesQueryVariables,
+      options?: Omit<UseQueryOptions<VehiclesQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<VehiclesQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<VehiclesQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['Vehicles'] : ['Vehicles', variables],
+    queryFn: request<VehiclesQuery, VehiclesQueryVariables>(VehiclesDocument, variables),
+    ...options
+  }
+    )};
+
+useVehiclesQuery.getKey = (variables?: VehiclesQueryVariables) => variables === undefined ? ['Vehicles'] : ['Vehicles', variables];
+
+
+useVehiclesQuery.fetcher = (variables?: VehiclesQueryVariables, options?: RequestInit['headers']) => request<VehiclesQuery, VehiclesQueryVariables>(VehiclesDocument, variables, options);
+
+export const VehicleDocument = new TypedDocumentString(`
     query Vehicle($id: ID!) {
   vehicle(id: $id) {
     id
@@ -1054,44 +940,30 @@ export const VehicleDocument = gql`
     updatedAt
   }
 }
-    `;
+    `);
 
-/**
- * __useVehicleQuery__
- *
- * To run a query within a React component, call `useVehicleQuery` and pass it any options that fit your needs.
- * When your component renders, `useVehicleQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVehicleQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useVehicleQuery(baseOptions: Apollo.QueryHookOptions<VehicleQuery, VehicleQueryVariables> & ({ variables: VehicleQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<VehicleQuery, VehicleQueryVariables>(VehicleDocument, options);
-      }
-export function useVehicleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VehicleQuery, VehicleQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<VehicleQuery, VehicleQueryVariables>(VehicleDocument, options);
-        }
-// @ts-ignore
-export function useVehicleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VehicleQuery, VehicleQueryVariables>): Apollo.UseSuspenseQueryResult<VehicleQuery, VehicleQueryVariables>;
-export function useVehicleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehicleQuery, VehicleQueryVariables>): Apollo.UseSuspenseQueryResult<VehicleQuery | undefined, VehicleQueryVariables>;
-export function useVehicleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VehicleQuery, VehicleQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<VehicleQuery, VehicleQueryVariables>(VehicleDocument, options);
-        }
-export type VehicleQueryHookResult = ReturnType<typeof useVehicleQuery>;
-export type VehicleLazyQueryHookResult = ReturnType<typeof useVehicleLazyQuery>;
-export type VehicleSuspenseQueryHookResult = ReturnType<typeof useVehicleSuspenseQuery>;
-export type VehicleQueryResult = Apollo.QueryResult<VehicleQuery, VehicleQueryVariables>;
-export const CreateVehicleDocument = gql`
+export const useVehicleQuery = <
+      TData = VehicleQuery,
+      TError = unknown
+    >(
+      variables: VehicleQueryVariables,
+      options?: Omit<UseQueryOptions<VehicleQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<VehicleQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<VehicleQuery, TError, TData>(
+      {
+    queryKey: ['Vehicle', variables],
+    queryFn: request<VehicleQuery, VehicleQueryVariables>(VehicleDocument, variables),
+    ...options
+  }
+    )};
+
+useVehicleQuery.getKey = (variables: VehicleQueryVariables) => ['Vehicle', variables];
+
+
+useVehicleQuery.fetcher = (variables: VehicleQueryVariables, options?: RequestInit['headers']) => request<VehicleQuery, VehicleQueryVariables>(VehicleDocument, variables, options);
+
+export const CreateVehicleDocument = new TypedDocumentString(`
     mutation CreateVehicle($input: CreateVehicleInput!) {
   createVehicle(input: $input) {
     id
@@ -1105,34 +977,25 @@ export const CreateVehicleDocument = gql`
     repairStatus
   }
 }
-    `;
-export type CreateVehicleMutationFn = Apollo.MutationFunction<CreateVehicleMutation, CreateVehicleMutationVariables>;
+    `);
 
-/**
- * __useCreateVehicleMutation__
- *
- * To run a mutation, you first call `useCreateVehicleMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateVehicleMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createVehicleMutation, { data, loading, error }] = useCreateVehicleMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateVehicleMutation(baseOptions?: Apollo.MutationHookOptions<CreateVehicleMutation, CreateVehicleMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateVehicleMutation, CreateVehicleMutationVariables>(CreateVehicleDocument, options);
-      }
-export type CreateVehicleMutationHookResult = ReturnType<typeof useCreateVehicleMutation>;
-export type CreateVehicleMutationResult = Apollo.MutationResult<CreateVehicleMutation>;
-export type CreateVehicleMutationOptions = Apollo.BaseMutationOptions<CreateVehicleMutation, CreateVehicleMutationVariables>;
-export const UpdateVehicleDocument = gql`
+export const useCreateVehicleMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateVehicleMutation, TError, CreateVehicleMutationVariables, TContext>) => {
+    
+    return useMutation<CreateVehicleMutation, TError, CreateVehicleMutationVariables, TContext>(
+      {
+    mutationKey: ['CreateVehicle'],
+    mutationFn: (variables?: CreateVehicleMutationVariables) => request<CreateVehicleMutation, CreateVehicleMutationVariables>(CreateVehicleDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCreateVehicleMutation.fetcher = (variables: CreateVehicleMutationVariables, options?: RequestInit['headers']) => request<CreateVehicleMutation, CreateVehicleMutationVariables>(CreateVehicleDocument, variables, options);
+
+export const UpdateVehicleDocument = new TypedDocumentString(`
     mutation UpdateVehicle($id: ID!, $input: UpdateVehicleInput!) {
   updateVehicle(id: $id, input: $input) {
     id
@@ -1147,66 +1010,47 @@ export const UpdateVehicleDocument = gql`
     repairStatus
   }
 }
-    `;
-export type UpdateVehicleMutationFn = Apollo.MutationFunction<UpdateVehicleMutation, UpdateVehicleMutationVariables>;
+    `);
 
-/**
- * __useUpdateVehicleMutation__
- *
- * To run a mutation, you first call `useUpdateVehicleMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateVehicleMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateVehicleMutation, { data, loading, error }] = useUpdateVehicleMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateVehicleMutation(baseOptions?: Apollo.MutationHookOptions<UpdateVehicleMutation, UpdateVehicleMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateVehicleMutation, UpdateVehicleMutationVariables>(UpdateVehicleDocument, options);
-      }
-export type UpdateVehicleMutationHookResult = ReturnType<typeof useUpdateVehicleMutation>;
-export type UpdateVehicleMutationResult = Apollo.MutationResult<UpdateVehicleMutation>;
-export type UpdateVehicleMutationOptions = Apollo.BaseMutationOptions<UpdateVehicleMutation, UpdateVehicleMutationVariables>;
-export const DeleteVehicleDocument = gql`
+export const useUpdateVehicleMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateVehicleMutation, TError, UpdateVehicleMutationVariables, TContext>) => {
+    
+    return useMutation<UpdateVehicleMutation, TError, UpdateVehicleMutationVariables, TContext>(
+      {
+    mutationKey: ['UpdateVehicle'],
+    mutationFn: (variables?: UpdateVehicleMutationVariables) => request<UpdateVehicleMutation, UpdateVehicleMutationVariables>(UpdateVehicleDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useUpdateVehicleMutation.fetcher = (variables: UpdateVehicleMutationVariables, options?: RequestInit['headers']) => request<UpdateVehicleMutation, UpdateVehicleMutationVariables>(UpdateVehicleDocument, variables, options);
+
+export const DeleteVehicleDocument = new TypedDocumentString(`
     mutation DeleteVehicle($id: ID!) {
   deleteVehicle(id: $id)
 }
-    `;
-export type DeleteVehicleMutationFn = Apollo.MutationFunction<DeleteVehicleMutation, DeleteVehicleMutationVariables>;
+    `);
 
-/**
- * __useDeleteVehicleMutation__
- *
- * To run a mutation, you first call `useDeleteVehicleMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteVehicleMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteVehicleMutation, { data, loading, error }] = useDeleteVehicleMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteVehicleMutation(baseOptions?: Apollo.MutationHookOptions<DeleteVehicleMutation, DeleteVehicleMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteVehicleMutation, DeleteVehicleMutationVariables>(DeleteVehicleDocument, options);
-      }
-export type DeleteVehicleMutationHookResult = ReturnType<typeof useDeleteVehicleMutation>;
-export type DeleteVehicleMutationResult = Apollo.MutationResult<DeleteVehicleMutation>;
-export type DeleteVehicleMutationOptions = Apollo.BaseMutationOptions<DeleteVehicleMutation, DeleteVehicleMutationVariables>;
-export const CreateAppointmentDocument = gql`
+export const useDeleteVehicleMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteVehicleMutation, TError, DeleteVehicleMutationVariables, TContext>) => {
+    
+    return useMutation<DeleteVehicleMutation, TError, DeleteVehicleMutationVariables, TContext>(
+      {
+    mutationKey: ['DeleteVehicle'],
+    mutationFn: (variables?: DeleteVehicleMutationVariables) => request<DeleteVehicleMutation, DeleteVehicleMutationVariables>(DeleteVehicleDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeleteVehicleMutation.fetcher = (variables: DeleteVehicleMutationVariables, options?: RequestInit['headers']) => request<DeleteVehicleMutation, DeleteVehicleMutationVariables>(DeleteVehicleDocument, variables, options);
+
+export const CreateAppointmentDocument = new TypedDocumentString(`
     mutation CreateAppointment($input: CreateAppointmentInput!) {
   createAppointment(input: $input) {
     id
@@ -1223,34 +1067,25 @@ export const CreateAppointmentDocument = gql`
     assignedMechanic
   }
 }
-    `;
-export type CreateAppointmentMutationFn = Apollo.MutationFunction<CreateAppointmentMutation, CreateAppointmentMutationVariables>;
+    `);
 
-/**
- * __useCreateAppointmentMutation__
- *
- * To run a mutation, you first call `useCreateAppointmentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateAppointmentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createAppointmentMutation, { data, loading, error }] = useCreateAppointmentMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateAppointmentMutation(baseOptions?: Apollo.MutationHookOptions<CreateAppointmentMutation, CreateAppointmentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateAppointmentMutation, CreateAppointmentMutationVariables>(CreateAppointmentDocument, options);
-      }
-export type CreateAppointmentMutationHookResult = ReturnType<typeof useCreateAppointmentMutation>;
-export type CreateAppointmentMutationResult = Apollo.MutationResult<CreateAppointmentMutation>;
-export type CreateAppointmentMutationOptions = Apollo.BaseMutationOptions<CreateAppointmentMutation, CreateAppointmentMutationVariables>;
-export const StaffAssignmentsDocument = gql`
+export const useCreateAppointmentMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateAppointmentMutation, TError, CreateAppointmentMutationVariables, TContext>) => {
+    
+    return useMutation<CreateAppointmentMutation, TError, CreateAppointmentMutationVariables, TContext>(
+      {
+    mutationKey: ['CreateAppointment'],
+    mutationFn: (variables?: CreateAppointmentMutationVariables) => request<CreateAppointmentMutation, CreateAppointmentMutationVariables>(CreateAppointmentDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCreateAppointmentMutation.fetcher = (variables: CreateAppointmentMutationVariables, options?: RequestInit['headers']) => request<CreateAppointmentMutation, CreateAppointmentMutationVariables>(CreateAppointmentDocument, variables, options);
+
+export const StaffAssignmentsDocument = new TypedDocumentString(`
     query StaffAssignments($appointmentId: ID!) {
   staffAssignments(appointmentId: $appointmentId) {
     id
@@ -1266,44 +1101,30 @@ export const StaffAssignmentsDocument = gql`
     notes
   }
 }
-    `;
+    `);
 
-/**
- * __useStaffAssignmentsQuery__
- *
- * To run a query within a React component, call `useStaffAssignmentsQuery` and pass it any options that fit your needs.
- * When your component renders, `useStaffAssignmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useStaffAssignmentsQuery({
- *   variables: {
- *      appointmentId: // value for 'appointmentId'
- *   },
- * });
- */
-export function useStaffAssignmentsQuery(baseOptions: Apollo.QueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables> & ({ variables: StaffAssignmentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>(StaffAssignmentsDocument, options);
-      }
-export function useStaffAssignmentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>(StaffAssignmentsDocument, options);
-        }
-// @ts-ignore
-export function useStaffAssignmentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>): Apollo.UseSuspenseQueryResult<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>;
-export function useStaffAssignmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>): Apollo.UseSuspenseQueryResult<StaffAssignmentsQuery | undefined, StaffAssignmentsQueryVariables>;
-export function useStaffAssignmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>(StaffAssignmentsDocument, options);
-        }
-export type StaffAssignmentsQueryHookResult = ReturnType<typeof useStaffAssignmentsQuery>;
-export type StaffAssignmentsLazyQueryHookResult = ReturnType<typeof useStaffAssignmentsLazyQuery>;
-export type StaffAssignmentsSuspenseQueryHookResult = ReturnType<typeof useStaffAssignmentsSuspenseQuery>;
-export type StaffAssignmentsQueryResult = Apollo.QueryResult<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>;
-export const CreateStaffAssignmentDocument = gql`
+export const useStaffAssignmentsQuery = <
+      TData = StaffAssignmentsQuery,
+      TError = unknown
+    >(
+      variables: StaffAssignmentsQueryVariables,
+      options?: Omit<UseQueryOptions<StaffAssignmentsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<StaffAssignmentsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<StaffAssignmentsQuery, TError, TData>(
+      {
+    queryKey: ['StaffAssignments', variables],
+    queryFn: request<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>(StaffAssignmentsDocument, variables),
+    ...options
+  }
+    )};
+
+useStaffAssignmentsQuery.getKey = (variables: StaffAssignmentsQueryVariables) => ['StaffAssignments', variables];
+
+
+useStaffAssignmentsQuery.fetcher = (variables: StaffAssignmentsQueryVariables, options?: RequestInit['headers']) => request<StaffAssignmentsQuery, StaffAssignmentsQueryVariables>(StaffAssignmentsDocument, variables, options);
+
+export const CreateStaffAssignmentDocument = new TypedDocumentString(`
     mutation CreateStaffAssignment($input: CreateStaffAssignmentInput!) {
   createStaffAssignment(input: $input) {
     id
@@ -1316,34 +1137,25 @@ export const CreateStaffAssignmentDocument = gql`
     notes
   }
 }
-    `;
-export type CreateStaffAssignmentMutationFn = Apollo.MutationFunction<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>;
+    `);
 
-/**
- * __useCreateStaffAssignmentMutation__
- *
- * To run a mutation, you first call `useCreateStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateStaffAssignmentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createStaffAssignmentMutation, { data, loading, error }] = useCreateStaffAssignmentMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>(CreateStaffAssignmentDocument, options);
-      }
-export type CreateStaffAssignmentMutationHookResult = ReturnType<typeof useCreateStaffAssignmentMutation>;
-export type CreateStaffAssignmentMutationResult = Apollo.MutationResult<CreateStaffAssignmentMutation>;
-export type CreateStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>;
-export const UpdateStaffAssignmentDocument = gql`
+export const useCreateStaffAssignmentMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateStaffAssignmentMutation, TError, CreateStaffAssignmentMutationVariables, TContext>) => {
+    
+    return useMutation<CreateStaffAssignmentMutation, TError, CreateStaffAssignmentMutationVariables, TContext>(
+      {
+    mutationKey: ['CreateStaffAssignment'],
+    mutationFn: (variables?: CreateStaffAssignmentMutationVariables) => request<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>(CreateStaffAssignmentDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCreateStaffAssignmentMutation.fetcher = (variables: CreateStaffAssignmentMutationVariables, options?: RequestInit['headers']) => request<CreateStaffAssignmentMutation, CreateStaffAssignmentMutationVariables>(CreateStaffAssignmentDocument, variables, options);
+
+export const UpdateStaffAssignmentDocument = new TypedDocumentString(`
     mutation UpdateStaffAssignment($id: ID!, $input: UpdateStaffAssignmentInput!) {
   updateStaffAssignment(id: $id, input: $input) {
     id
@@ -1351,66 +1163,47 @@ export const UpdateStaffAssignmentDocument = gql`
     totalMinutes
   }
 }
-    `;
-export type UpdateStaffAssignmentMutationFn = Apollo.MutationFunction<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>;
+    `);
 
-/**
- * __useUpdateStaffAssignmentMutation__
- *
- * To run a mutation, you first call `useUpdateStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateStaffAssignmentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateStaffAssignmentMutation, { data, loading, error }] = useUpdateStaffAssignmentMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>(UpdateStaffAssignmentDocument, options);
-      }
-export type UpdateStaffAssignmentMutationHookResult = ReturnType<typeof useUpdateStaffAssignmentMutation>;
-export type UpdateStaffAssignmentMutationResult = Apollo.MutationResult<UpdateStaffAssignmentMutation>;
-export type UpdateStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>;
-export const DeleteStaffAssignmentDocument = gql`
+export const useUpdateStaffAssignmentMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateStaffAssignmentMutation, TError, UpdateStaffAssignmentMutationVariables, TContext>) => {
+    
+    return useMutation<UpdateStaffAssignmentMutation, TError, UpdateStaffAssignmentMutationVariables, TContext>(
+      {
+    mutationKey: ['UpdateStaffAssignment'],
+    mutationFn: (variables?: UpdateStaffAssignmentMutationVariables) => request<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>(UpdateStaffAssignmentDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useUpdateStaffAssignmentMutation.fetcher = (variables: UpdateStaffAssignmentMutationVariables, options?: RequestInit['headers']) => request<UpdateStaffAssignmentMutation, UpdateStaffAssignmentMutationVariables>(UpdateStaffAssignmentDocument, variables, options);
+
+export const DeleteStaffAssignmentDocument = new TypedDocumentString(`
     mutation DeleteStaffAssignment($id: ID!) {
   deleteStaffAssignment(id: $id)
 }
-    `;
-export type DeleteStaffAssignmentMutationFn = Apollo.MutationFunction<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>;
+    `);
 
-/**
- * __useDeleteStaffAssignmentMutation__
- *
- * To run a mutation, you first call `useDeleteStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteStaffAssignmentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteStaffAssignmentMutation, { data, loading, error }] = useDeleteStaffAssignmentMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>(DeleteStaffAssignmentDocument, options);
-      }
-export type DeleteStaffAssignmentMutationHookResult = ReturnType<typeof useDeleteStaffAssignmentMutation>;
-export type DeleteStaffAssignmentMutationResult = Apollo.MutationResult<DeleteStaffAssignmentMutation>;
-export type DeleteStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>;
-export const ReassignStaffAssignmentDocument = gql`
+export const useDeleteStaffAssignmentMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteStaffAssignmentMutation, TError, DeleteStaffAssignmentMutationVariables, TContext>) => {
+    
+    return useMutation<DeleteStaffAssignmentMutation, TError, DeleteStaffAssignmentMutationVariables, TContext>(
+      {
+    mutationKey: ['DeleteStaffAssignment'],
+    mutationFn: (variables?: DeleteStaffAssignmentMutationVariables) => request<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>(DeleteStaffAssignmentDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeleteStaffAssignmentMutation.fetcher = (variables: DeleteStaffAssignmentMutationVariables, options?: RequestInit['headers']) => request<DeleteStaffAssignmentMutation, DeleteStaffAssignmentMutationVariables>(DeleteStaffAssignmentDocument, variables, options);
+
+export const ReassignStaffAssignmentDocument = new TypedDocumentString(`
     mutation ReassignStaffAssignment($id: ID!, $targetAppointmentId: ID!) {
   reassignStaffAssignment(id: $id, targetAppointmentId: $targetAppointmentId) {
     id
@@ -1418,35 +1211,25 @@ export const ReassignStaffAssignmentDocument = gql`
     status
   }
 }
-    `;
-export type ReassignStaffAssignmentMutationFn = Apollo.MutationFunction<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>;
+    `);
 
-/**
- * __useReassignStaffAssignmentMutation__
- *
- * To run a mutation, you first call `useReassignStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useReassignStaffAssignmentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [reassignStaffAssignmentMutation, { data, loading, error }] = useReassignStaffAssignmentMutation({
- *   variables: {
- *      id: // value for 'id'
- *      targetAppointmentId: // value for 'targetAppointmentId'
- *   },
- * });
- */
-export function useReassignStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>(ReassignStaffAssignmentDocument, options);
-      }
-export type ReassignStaffAssignmentMutationHookResult = ReturnType<typeof useReassignStaffAssignmentMutation>;
-export type ReassignStaffAssignmentMutationResult = Apollo.MutationResult<ReassignStaffAssignmentMutation>;
-export type ReassignStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>;
-export const StartStaffAssignmentDocument = gql`
+export const useReassignStaffAssignmentMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<ReassignStaffAssignmentMutation, TError, ReassignStaffAssignmentMutationVariables, TContext>) => {
+    
+    return useMutation<ReassignStaffAssignmentMutation, TError, ReassignStaffAssignmentMutationVariables, TContext>(
+      {
+    mutationKey: ['ReassignStaffAssignment'],
+    mutationFn: (variables?: ReassignStaffAssignmentMutationVariables) => request<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>(ReassignStaffAssignmentDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useReassignStaffAssignmentMutation.fetcher = (variables: ReassignStaffAssignmentMutationVariables, options?: RequestInit['headers']) => request<ReassignStaffAssignmentMutation, ReassignStaffAssignmentMutationVariables>(ReassignStaffAssignmentDocument, variables, options);
+
+export const StartStaffAssignmentDocument = new TypedDocumentString(`
     mutation StartStaffAssignment($id: ID!) {
   startStaffAssignment(id: $id) {
     id
@@ -1454,34 +1237,25 @@ export const StartStaffAssignmentDocument = gql`
     startedAt
   }
 }
-    `;
-export type StartStaffAssignmentMutationFn = Apollo.MutationFunction<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>;
+    `);
 
-/**
- * __useStartStaffAssignmentMutation__
- *
- * To run a mutation, you first call `useStartStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useStartStaffAssignmentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [startStaffAssignmentMutation, { data, loading, error }] = useStartStaffAssignmentMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useStartStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>(StartStaffAssignmentDocument, options);
-      }
-export type StartStaffAssignmentMutationHookResult = ReturnType<typeof useStartStaffAssignmentMutation>;
-export type StartStaffAssignmentMutationResult = Apollo.MutationResult<StartStaffAssignmentMutation>;
-export type StartStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>;
-export const CompleteStaffAssignmentDocument = gql`
+export const useStartStaffAssignmentMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<StartStaffAssignmentMutation, TError, StartStaffAssignmentMutationVariables, TContext>) => {
+    
+    return useMutation<StartStaffAssignmentMutation, TError, StartStaffAssignmentMutationVariables, TContext>(
+      {
+    mutationKey: ['StartStaffAssignment'],
+    mutationFn: (variables?: StartStaffAssignmentMutationVariables) => request<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>(StartStaffAssignmentDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useStartStaffAssignmentMutation.fetcher = (variables: StartStaffAssignmentMutationVariables, options?: RequestInit['headers']) => request<StartStaffAssignmentMutation, StartStaffAssignmentMutationVariables>(StartStaffAssignmentDocument, variables, options);
+
+export const CompleteStaffAssignmentDocument = new TypedDocumentString(`
     mutation CompleteStaffAssignment($id: ID!, $totalMinutes: Int!) {
   completeStaffAssignment(id: $id, totalMinutes: $totalMinutes) {
     id
@@ -1490,35 +1264,25 @@ export const CompleteStaffAssignmentDocument = gql`
     totalMinutes
   }
 }
-    `;
-export type CompleteStaffAssignmentMutationFn = Apollo.MutationFunction<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>;
+    `);
 
-/**
- * __useCompleteStaffAssignmentMutation__
- *
- * To run a mutation, you first call `useCompleteStaffAssignmentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCompleteStaffAssignmentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [completeStaffAssignmentMutation, { data, loading, error }] = useCompleteStaffAssignmentMutation({
- *   variables: {
- *      id: // value for 'id'
- *      totalMinutes: // value for 'totalMinutes'
- *   },
- * });
- */
-export function useCompleteStaffAssignmentMutation(baseOptions?: Apollo.MutationHookOptions<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>(CompleteStaffAssignmentDocument, options);
-      }
-export type CompleteStaffAssignmentMutationHookResult = ReturnType<typeof useCompleteStaffAssignmentMutation>;
-export type CompleteStaffAssignmentMutationResult = Apollo.MutationResult<CompleteStaffAssignmentMutation>;
-export type CompleteStaffAssignmentMutationOptions = Apollo.BaseMutationOptions<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>;
-export const StaffActiveAssignmentsDocument = gql`
+export const useCompleteStaffAssignmentMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CompleteStaffAssignmentMutation, TError, CompleteStaffAssignmentMutationVariables, TContext>) => {
+    
+    return useMutation<CompleteStaffAssignmentMutation, TError, CompleteStaffAssignmentMutationVariables, TContext>(
+      {
+    mutationKey: ['CompleteStaffAssignment'],
+    mutationFn: (variables?: CompleteStaffAssignmentMutationVariables) => request<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>(CompleteStaffAssignmentDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCompleteStaffAssignmentMutation.fetcher = (variables: CompleteStaffAssignmentMutationVariables, options?: RequestInit['headers']) => request<CompleteStaffAssignmentMutation, CompleteStaffAssignmentMutationVariables>(CompleteStaffAssignmentDocument, variables, options);
+
+export const StaffActiveAssignmentsDocument = new TypedDocumentString(`
     query StaffActiveAssignments($staffId: ID!) {
   staffActiveAssignments(staffId: $staffId) {
     id
@@ -1529,44 +1293,30 @@ export const StaffActiveAssignmentsDocument = gql`
     assignedAt
   }
 }
-    `;
+    `);
 
-/**
- * __useStaffActiveAssignmentsQuery__
- *
- * To run a query within a React component, call `useStaffActiveAssignmentsQuery` and pass it any options that fit your needs.
- * When your component renders, `useStaffActiveAssignmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useStaffActiveAssignmentsQuery({
- *   variables: {
- *      staffId: // value for 'staffId'
- *   },
- * });
- */
-export function useStaffActiveAssignmentsQuery(baseOptions: Apollo.QueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables> & ({ variables: StaffActiveAssignmentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>(StaffActiveAssignmentsDocument, options);
-      }
-export function useStaffActiveAssignmentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>(StaffActiveAssignmentsDocument, options);
-        }
-// @ts-ignore
-export function useStaffActiveAssignmentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>): Apollo.UseSuspenseQueryResult<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>;
-export function useStaffActiveAssignmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>): Apollo.UseSuspenseQueryResult<StaffActiveAssignmentsQuery | undefined, StaffActiveAssignmentsQueryVariables>;
-export function useStaffActiveAssignmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>(StaffActiveAssignmentsDocument, options);
-        }
-export type StaffActiveAssignmentsQueryHookResult = ReturnType<typeof useStaffActiveAssignmentsQuery>;
-export type StaffActiveAssignmentsLazyQueryHookResult = ReturnType<typeof useStaffActiveAssignmentsLazyQuery>;
-export type StaffActiveAssignmentsSuspenseQueryHookResult = ReturnType<typeof useStaffActiveAssignmentsSuspenseQuery>;
-export type StaffActiveAssignmentsQueryResult = Apollo.QueryResult<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>;
-export const UpdateAppointmentDocument = gql`
+export const useStaffActiveAssignmentsQuery = <
+      TData = StaffActiveAssignmentsQuery,
+      TError = unknown
+    >(
+      variables: StaffActiveAssignmentsQueryVariables,
+      options?: Omit<UseQueryOptions<StaffActiveAssignmentsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<StaffActiveAssignmentsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<StaffActiveAssignmentsQuery, TError, TData>(
+      {
+    queryKey: ['StaffActiveAssignments', variables],
+    queryFn: request<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>(StaffActiveAssignmentsDocument, variables),
+    ...options
+  }
+    )};
+
+useStaffActiveAssignmentsQuery.getKey = (variables: StaffActiveAssignmentsQueryVariables) => ['StaffActiveAssignments', variables];
+
+
+useStaffActiveAssignmentsQuery.fetcher = (variables: StaffActiveAssignmentsQueryVariables, options?: RequestInit['headers']) => request<StaffActiveAssignmentsQuery, StaffActiveAssignmentsQueryVariables>(StaffActiveAssignmentsDocument, variables, options);
+
+export const UpdateAppointmentDocument = new TypedDocumentString(`
     mutation UpdateAppointment($id: ID!, $input: UpdateAppointmentInput!) {
   updateAppointment(id: $id, input: $input) {
     id
@@ -1589,35 +1339,25 @@ export const UpdateAppointmentDocument = gql`
     shopId
   }
 }
-    `;
-export type UpdateAppointmentMutationFn = Apollo.MutationFunction<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>;
+    `);
 
-/**
- * __useUpdateAppointmentMutation__
- *
- * To run a mutation, you first call `useUpdateAppointmentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateAppointmentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateAppointmentMutation, { data, loading, error }] = useUpdateAppointmentMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateAppointmentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>(UpdateAppointmentDocument, options);
-      }
-export type UpdateAppointmentMutationHookResult = ReturnType<typeof useUpdateAppointmentMutation>;
-export type UpdateAppointmentMutationResult = Apollo.MutationResult<UpdateAppointmentMutation>;
-export type UpdateAppointmentMutationOptions = Apollo.BaseMutationOptions<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>;
-export const ShopServicesDocument = gql`
+export const useUpdateAppointmentMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateAppointmentMutation, TError, UpdateAppointmentMutationVariables, TContext>) => {
+    
+    return useMutation<UpdateAppointmentMutation, TError, UpdateAppointmentMutationVariables, TContext>(
+      {
+    mutationKey: ['UpdateAppointment'],
+    mutationFn: (variables?: UpdateAppointmentMutationVariables) => request<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>(UpdateAppointmentDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useUpdateAppointmentMutation.fetcher = (variables: UpdateAppointmentMutationVariables, options?: RequestInit['headers']) => request<UpdateAppointmentMutation, UpdateAppointmentMutationVariables>(UpdateAppointmentDocument, variables, options);
+
+export const ShopServicesDocument = new TypedDocumentString(`
     query ShopServices {
   shopServices {
     items {
@@ -1632,108 +1372,77 @@ export const ShopServicesDocument = gql`
     total
   }
 }
-    `;
+    `);
 
-/**
- * __useShopServicesQuery__
- *
- * To run a query within a React component, call `useShopServicesQuery` and pass it any options that fit your needs.
- * When your component renders, `useShopServicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useShopServicesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useShopServicesQuery(baseOptions?: Apollo.QueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ShopServicesQuery, ShopServicesQueryVariables>(ShopServicesDocument, options);
-      }
-export function useShopServicesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ShopServicesQuery, ShopServicesQueryVariables>(ShopServicesDocument, options);
-        }
-// @ts-ignore
-export function useShopServicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>): Apollo.UseSuspenseQueryResult<ShopServicesQuery, ShopServicesQueryVariables>;
-export function useShopServicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>): Apollo.UseSuspenseQueryResult<ShopServicesQuery | undefined, ShopServicesQueryVariables>;
-export function useShopServicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopServicesQuery, ShopServicesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ShopServicesQuery, ShopServicesQueryVariables>(ShopServicesDocument, options);
-        }
-export type ShopServicesQueryHookResult = ReturnType<typeof useShopServicesQuery>;
-export type ShopServicesLazyQueryHookResult = ReturnType<typeof useShopServicesLazyQuery>;
-export type ShopServicesSuspenseQueryHookResult = ReturnType<typeof useShopServicesSuspenseQuery>;
-export type ShopServicesQueryResult = Apollo.QueryResult<ShopServicesQuery, ShopServicesQueryVariables>;
-export const CreateShopServiceDocument = gql`
+export const useShopServicesQuery = <
+      TData = ShopServicesQuery,
+      TError = unknown
+    >(
+      variables?: ShopServicesQueryVariables,
+      options?: Omit<UseQueryOptions<ShopServicesQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<ShopServicesQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<ShopServicesQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['ShopServices'] : ['ShopServices', variables],
+    queryFn: request<ShopServicesQuery, ShopServicesQueryVariables>(ShopServicesDocument, variables),
+    ...options
+  }
+    )};
+
+useShopServicesQuery.getKey = (variables?: ShopServicesQueryVariables) => variables === undefined ? ['ShopServices'] : ['ShopServices', variables];
+
+
+useShopServicesQuery.fetcher = (variables?: ShopServicesQueryVariables, options?: RequestInit['headers']) => request<ShopServicesQuery, ShopServicesQueryVariables>(ShopServicesDocument, variables, options);
+
+export const CreateShopServiceDocument = new TypedDocumentString(`
     mutation CreateShopService($input: CreateShopServiceInput!) {
   createShopService(input: $input) {
     id
     name
   }
 }
-    `;
-export type CreateShopServiceMutationFn = Apollo.MutationFunction<CreateShopServiceMutation, CreateShopServiceMutationVariables>;
+    `);
 
-/**
- * __useCreateShopServiceMutation__
- *
- * To run a mutation, you first call `useCreateShopServiceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateShopServiceMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createShopServiceMutation, { data, loading, error }] = useCreateShopServiceMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateShopServiceMutation(baseOptions?: Apollo.MutationHookOptions<CreateShopServiceMutation, CreateShopServiceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateShopServiceMutation, CreateShopServiceMutationVariables>(CreateShopServiceDocument, options);
-      }
-export type CreateShopServiceMutationHookResult = ReturnType<typeof useCreateShopServiceMutation>;
-export type CreateShopServiceMutationResult = Apollo.MutationResult<CreateShopServiceMutation>;
-export type CreateShopServiceMutationOptions = Apollo.BaseMutationOptions<CreateShopServiceMutation, CreateShopServiceMutationVariables>;
-export const DeleteShopServiceDocument = gql`
+export const useCreateShopServiceMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateShopServiceMutation, TError, CreateShopServiceMutationVariables, TContext>) => {
+    
+    return useMutation<CreateShopServiceMutation, TError, CreateShopServiceMutationVariables, TContext>(
+      {
+    mutationKey: ['CreateShopService'],
+    mutationFn: (variables?: CreateShopServiceMutationVariables) => request<CreateShopServiceMutation, CreateShopServiceMutationVariables>(CreateShopServiceDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCreateShopServiceMutation.fetcher = (variables: CreateShopServiceMutationVariables, options?: RequestInit['headers']) => request<CreateShopServiceMutation, CreateShopServiceMutationVariables>(CreateShopServiceDocument, variables, options);
+
+export const DeleteShopServiceDocument = new TypedDocumentString(`
     mutation DeleteShopService($id: ID!) {
   deleteShopService(id: $id)
 }
-    `;
-export type DeleteShopServiceMutationFn = Apollo.MutationFunction<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>;
+    `);
 
-/**
- * __useDeleteShopServiceMutation__
- *
- * To run a mutation, you first call `useDeleteShopServiceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteShopServiceMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteShopServiceMutation, { data, loading, error }] = useDeleteShopServiceMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteShopServiceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>(DeleteShopServiceDocument, options);
-      }
-export type DeleteShopServiceMutationHookResult = ReturnType<typeof useDeleteShopServiceMutation>;
-export type DeleteShopServiceMutationResult = Apollo.MutationResult<DeleteShopServiceMutation>;
-export type DeleteShopServiceMutationOptions = Apollo.BaseMutationOptions<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>;
-export const ShopPartsDocument = gql`
+export const useDeleteShopServiceMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteShopServiceMutation, TError, DeleteShopServiceMutationVariables, TContext>) => {
+    
+    return useMutation<DeleteShopServiceMutation, TError, DeleteShopServiceMutationVariables, TContext>(
+      {
+    mutationKey: ['DeleteShopService'],
+    mutationFn: (variables?: DeleteShopServiceMutationVariables) => request<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>(DeleteShopServiceDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeleteShopServiceMutation.fetcher = (variables: DeleteShopServiceMutationVariables, options?: RequestInit['headers']) => request<DeleteShopServiceMutation, DeleteShopServiceMutationVariables>(DeleteShopServiceDocument, variables, options);
+
+export const ShopPartsDocument = new TypedDocumentString(`
     query ShopParts {
   shopParts {
     items {
@@ -1756,77 +1465,55 @@ export const ShopPartsDocument = gql`
     total
   }
 }
-    `;
+    `);
 
-/**
- * __useShopPartsQuery__
- *
- * To run a query within a React component, call `useShopPartsQuery` and pass it any options that fit your needs.
- * When your component renders, `useShopPartsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useShopPartsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useShopPartsQuery(baseOptions?: Apollo.QueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ShopPartsQuery, ShopPartsQueryVariables>(ShopPartsDocument, options);
-      }
-export function useShopPartsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ShopPartsQuery, ShopPartsQueryVariables>(ShopPartsDocument, options);
-        }
-// @ts-ignore
-export function useShopPartsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>): Apollo.UseSuspenseQueryResult<ShopPartsQuery, ShopPartsQueryVariables>;
-export function useShopPartsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>): Apollo.UseSuspenseQueryResult<ShopPartsQuery | undefined, ShopPartsQueryVariables>;
-export function useShopPartsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopPartsQuery, ShopPartsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ShopPartsQuery, ShopPartsQueryVariables>(ShopPartsDocument, options);
-        }
-export type ShopPartsQueryHookResult = ReturnType<typeof useShopPartsQuery>;
-export type ShopPartsLazyQueryHookResult = ReturnType<typeof useShopPartsLazyQuery>;
-export type ShopPartsSuspenseQueryHookResult = ReturnType<typeof useShopPartsSuspenseQuery>;
-export type ShopPartsQueryResult = Apollo.QueryResult<ShopPartsQuery, ShopPartsQueryVariables>;
-export const CreateShopPartDocument = gql`
+export const useShopPartsQuery = <
+      TData = ShopPartsQuery,
+      TError = unknown
+    >(
+      variables?: ShopPartsQueryVariables,
+      options?: Omit<UseQueryOptions<ShopPartsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<ShopPartsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<ShopPartsQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['ShopParts'] : ['ShopParts', variables],
+    queryFn: request<ShopPartsQuery, ShopPartsQueryVariables>(ShopPartsDocument, variables),
+    ...options
+  }
+    )};
+
+useShopPartsQuery.getKey = (variables?: ShopPartsQueryVariables) => variables === undefined ? ['ShopParts'] : ['ShopParts', variables];
+
+
+useShopPartsQuery.fetcher = (variables?: ShopPartsQueryVariables, options?: RequestInit['headers']) => request<ShopPartsQuery, ShopPartsQueryVariables>(ShopPartsDocument, variables, options);
+
+export const CreateShopPartDocument = new TypedDocumentString(`
     mutation CreateShopPart($input: CreateShopPartInput!) {
   createShopPart(input: $input) {
     id
     name
   }
 }
-    `;
-export type CreateShopPartMutationFn = Apollo.MutationFunction<CreateShopPartMutation, CreateShopPartMutationVariables>;
+    `);
 
-/**
- * __useCreateShopPartMutation__
- *
- * To run a mutation, you first call `useCreateShopPartMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateShopPartMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createShopPartMutation, { data, loading, error }] = useCreateShopPartMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateShopPartMutation(baseOptions?: Apollo.MutationHookOptions<CreateShopPartMutation, CreateShopPartMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateShopPartMutation, CreateShopPartMutationVariables>(CreateShopPartDocument, options);
-      }
-export type CreateShopPartMutationHookResult = ReturnType<typeof useCreateShopPartMutation>;
-export type CreateShopPartMutationResult = Apollo.MutationResult<CreateShopPartMutation>;
-export type CreateShopPartMutationOptions = Apollo.BaseMutationOptions<CreateShopPartMutation, CreateShopPartMutationVariables>;
-export const UpdateShopPartDocument = gql`
+export const useCreateShopPartMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateShopPartMutation, TError, CreateShopPartMutationVariables, TContext>) => {
+    
+    return useMutation<CreateShopPartMutation, TError, CreateShopPartMutationVariables, TContext>(
+      {
+    mutationKey: ['CreateShopPart'],
+    mutationFn: (variables?: CreateShopPartMutationVariables) => request<CreateShopPartMutation, CreateShopPartMutationVariables>(CreateShopPartDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCreateShopPartMutation.fetcher = (variables: CreateShopPartMutationVariables, options?: RequestInit['headers']) => request<CreateShopPartMutation, CreateShopPartMutationVariables>(CreateShopPartDocument, variables, options);
+
+export const UpdateShopPartDocument = new TypedDocumentString(`
     mutation UpdateShopPart($id: ID!, $input: UpdateShopPartInput!) {
   updateShopPart(id: $id, input: $input) {
     id
@@ -1837,66 +1524,47 @@ export const UpdateShopPartDocument = gql`
     unitPrice
   }
 }
-    `;
-export type UpdateShopPartMutationFn = Apollo.MutationFunction<UpdateShopPartMutation, UpdateShopPartMutationVariables>;
+    `);
 
-/**
- * __useUpdateShopPartMutation__
- *
- * To run a mutation, you first call `useUpdateShopPartMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateShopPartMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateShopPartMutation, { data, loading, error }] = useUpdateShopPartMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateShopPartMutation(baseOptions?: Apollo.MutationHookOptions<UpdateShopPartMutation, UpdateShopPartMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateShopPartMutation, UpdateShopPartMutationVariables>(UpdateShopPartDocument, options);
-      }
-export type UpdateShopPartMutationHookResult = ReturnType<typeof useUpdateShopPartMutation>;
-export type UpdateShopPartMutationResult = Apollo.MutationResult<UpdateShopPartMutation>;
-export type UpdateShopPartMutationOptions = Apollo.BaseMutationOptions<UpdateShopPartMutation, UpdateShopPartMutationVariables>;
-export const DeleteShopPartDocument = gql`
+export const useUpdateShopPartMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateShopPartMutation, TError, UpdateShopPartMutationVariables, TContext>) => {
+    
+    return useMutation<UpdateShopPartMutation, TError, UpdateShopPartMutationVariables, TContext>(
+      {
+    mutationKey: ['UpdateShopPart'],
+    mutationFn: (variables?: UpdateShopPartMutationVariables) => request<UpdateShopPartMutation, UpdateShopPartMutationVariables>(UpdateShopPartDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useUpdateShopPartMutation.fetcher = (variables: UpdateShopPartMutationVariables, options?: RequestInit['headers']) => request<UpdateShopPartMutation, UpdateShopPartMutationVariables>(UpdateShopPartDocument, variables, options);
+
+export const DeleteShopPartDocument = new TypedDocumentString(`
     mutation DeleteShopPart($id: ID!) {
   deleteShopPart(id: $id)
 }
-    `;
-export type DeleteShopPartMutationFn = Apollo.MutationFunction<DeleteShopPartMutation, DeleteShopPartMutationVariables>;
+    `);
 
-/**
- * __useDeleteShopPartMutation__
- *
- * To run a mutation, you first call `useDeleteShopPartMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteShopPartMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteShopPartMutation, { data, loading, error }] = useDeleteShopPartMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteShopPartMutation(baseOptions?: Apollo.MutationHookOptions<DeleteShopPartMutation, DeleteShopPartMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteShopPartMutation, DeleteShopPartMutationVariables>(DeleteShopPartDocument, options);
-      }
-export type DeleteShopPartMutationHookResult = ReturnType<typeof useDeleteShopPartMutation>;
-export type DeleteShopPartMutationResult = Apollo.MutationResult<DeleteShopPartMutation>;
-export type DeleteShopPartMutationOptions = Apollo.BaseMutationOptions<DeleteShopPartMutation, DeleteShopPartMutationVariables>;
-export const AddPartBatchDocument = gql`
+export const useDeleteShopPartMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteShopPartMutation, TError, DeleteShopPartMutationVariables, TContext>) => {
+    
+    return useMutation<DeleteShopPartMutation, TError, DeleteShopPartMutationVariables, TContext>(
+      {
+    mutationKey: ['DeleteShopPart'],
+    mutationFn: (variables?: DeleteShopPartMutationVariables) => request<DeleteShopPartMutation, DeleteShopPartMutationVariables>(DeleteShopPartDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeleteShopPartMutation.fetcher = (variables: DeleteShopPartMutationVariables, options?: RequestInit['headers']) => request<DeleteShopPartMutation, DeleteShopPartMutationVariables>(DeleteShopPartDocument, variables, options);
+
+export const AddPartBatchDocument = new TypedDocumentString(`
     mutation AddPartBatch($input: CreatePartBatchInput!) {
   addPartBatch(input: $input) {
     id
@@ -1905,65 +1573,47 @@ export const AddPartBatchDocument = gql`
     unitCost
   }
 }
-    `;
-export type AddPartBatchMutationFn = Apollo.MutationFunction<AddPartBatchMutation, AddPartBatchMutationVariables>;
+    `);
 
-/**
- * __useAddPartBatchMutation__
- *
- * To run a mutation, you first call `useAddPartBatchMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddPartBatchMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addPartBatchMutation, { data, loading, error }] = useAddPartBatchMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useAddPartBatchMutation(baseOptions?: Apollo.MutationHookOptions<AddPartBatchMutation, AddPartBatchMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddPartBatchMutation, AddPartBatchMutationVariables>(AddPartBatchDocument, options);
-      }
-export type AddPartBatchMutationHookResult = ReturnType<typeof useAddPartBatchMutation>;
-export type AddPartBatchMutationResult = Apollo.MutationResult<AddPartBatchMutation>;
-export type AddPartBatchMutationOptions = Apollo.BaseMutationOptions<AddPartBatchMutation, AddPartBatchMutationVariables>;
-export const DeletePartBatchDocument = gql`
+export const useAddPartBatchMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<AddPartBatchMutation, TError, AddPartBatchMutationVariables, TContext>) => {
+    
+    return useMutation<AddPartBatchMutation, TError, AddPartBatchMutationVariables, TContext>(
+      {
+    mutationKey: ['AddPartBatch'],
+    mutationFn: (variables?: AddPartBatchMutationVariables) => request<AddPartBatchMutation, AddPartBatchMutationVariables>(AddPartBatchDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useAddPartBatchMutation.fetcher = (variables: AddPartBatchMutationVariables, options?: RequestInit['headers']) => request<AddPartBatchMutation, AddPartBatchMutationVariables>(AddPartBatchDocument, variables, options);
+
+export const DeletePartBatchDocument = new TypedDocumentString(`
     mutation DeletePartBatch($id: ID!) {
   deletePartBatch(id: $id)
 }
-    `;
-export type DeletePartBatchMutationFn = Apollo.MutationFunction<DeletePartBatchMutation, DeletePartBatchMutationVariables>;
+    `);
 
-/**
- * __useDeletePartBatchMutation__
- *
- * To run a mutation, you first call `useDeletePartBatchMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeletePartBatchMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deletePartBatchMutation, { data, loading, error }] = useDeletePartBatchMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeletePartBatchMutation(baseOptions?: Apollo.MutationHookOptions<DeletePartBatchMutation, DeletePartBatchMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeletePartBatchMutation, DeletePartBatchMutationVariables>(DeletePartBatchDocument, options);
-      }
-export type DeletePartBatchMutationHookResult = ReturnType<typeof useDeletePartBatchMutation>;
-export type DeletePartBatchMutationResult = Apollo.MutationResult<DeletePartBatchMutation>;
-export type DeletePartBatchMutationOptions = Apollo.BaseMutationOptions<DeletePartBatchMutation, DeletePartBatchMutationVariables>;
-export const ShopToolsDocument = gql`
+export const useDeletePartBatchMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeletePartBatchMutation, TError, DeletePartBatchMutationVariables, TContext>) => {
+    
+    return useMutation<DeletePartBatchMutation, TError, DeletePartBatchMutationVariables, TContext>(
+      {
+    mutationKey: ['DeletePartBatch'],
+    mutationFn: (variables?: DeletePartBatchMutationVariables) => request<DeletePartBatchMutation, DeletePartBatchMutationVariables>(DeletePartBatchDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeletePartBatchMutation.fetcher = (variables: DeletePartBatchMutationVariables, options?: RequestInit['headers']) => request<DeletePartBatchMutation, DeletePartBatchMutationVariables>(DeletePartBatchDocument, variables, options);
+
+export const ShopToolsDocument = new TypedDocumentString(`
     query ShopTools {
   shopTools {
     items {
@@ -1976,77 +1626,55 @@ export const ShopToolsDocument = gql`
     total
   }
 }
-    `;
+    `);
 
-/**
- * __useShopToolsQuery__
- *
- * To run a query within a React component, call `useShopToolsQuery` and pass it any options that fit your needs.
- * When your component renders, `useShopToolsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useShopToolsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useShopToolsQuery(baseOptions?: Apollo.QueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ShopToolsQuery, ShopToolsQueryVariables>(ShopToolsDocument, options);
-      }
-export function useShopToolsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ShopToolsQuery, ShopToolsQueryVariables>(ShopToolsDocument, options);
-        }
-// @ts-ignore
-export function useShopToolsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>): Apollo.UseSuspenseQueryResult<ShopToolsQuery, ShopToolsQueryVariables>;
-export function useShopToolsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>): Apollo.UseSuspenseQueryResult<ShopToolsQuery | undefined, ShopToolsQueryVariables>;
-export function useShopToolsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ShopToolsQuery, ShopToolsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ShopToolsQuery, ShopToolsQueryVariables>(ShopToolsDocument, options);
-        }
-export type ShopToolsQueryHookResult = ReturnType<typeof useShopToolsQuery>;
-export type ShopToolsLazyQueryHookResult = ReturnType<typeof useShopToolsLazyQuery>;
-export type ShopToolsSuspenseQueryHookResult = ReturnType<typeof useShopToolsSuspenseQuery>;
-export type ShopToolsQueryResult = Apollo.QueryResult<ShopToolsQuery, ShopToolsQueryVariables>;
-export const CreateShopToolDocument = gql`
+export const useShopToolsQuery = <
+      TData = ShopToolsQuery,
+      TError = unknown
+    >(
+      variables?: ShopToolsQueryVariables,
+      options?: Omit<UseQueryOptions<ShopToolsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<ShopToolsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<ShopToolsQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['ShopTools'] : ['ShopTools', variables],
+    queryFn: request<ShopToolsQuery, ShopToolsQueryVariables>(ShopToolsDocument, variables),
+    ...options
+  }
+    )};
+
+useShopToolsQuery.getKey = (variables?: ShopToolsQueryVariables) => variables === undefined ? ['ShopTools'] : ['ShopTools', variables];
+
+
+useShopToolsQuery.fetcher = (variables?: ShopToolsQueryVariables, options?: RequestInit['headers']) => request<ShopToolsQuery, ShopToolsQueryVariables>(ShopToolsDocument, variables, options);
+
+export const CreateShopToolDocument = new TypedDocumentString(`
     mutation CreateShopTool($input: CreateShopToolInput!) {
   createShopTool(input: $input) {
     id
     name
   }
 }
-    `;
-export type CreateShopToolMutationFn = Apollo.MutationFunction<CreateShopToolMutation, CreateShopToolMutationVariables>;
+    `);
 
-/**
- * __useCreateShopToolMutation__
- *
- * To run a mutation, you first call `useCreateShopToolMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateShopToolMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createShopToolMutation, { data, loading, error }] = useCreateShopToolMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateShopToolMutation(baseOptions?: Apollo.MutationHookOptions<CreateShopToolMutation, CreateShopToolMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateShopToolMutation, CreateShopToolMutationVariables>(CreateShopToolDocument, options);
-      }
-export type CreateShopToolMutationHookResult = ReturnType<typeof useCreateShopToolMutation>;
-export type CreateShopToolMutationResult = Apollo.MutationResult<CreateShopToolMutation>;
-export type CreateShopToolMutationOptions = Apollo.BaseMutationOptions<CreateShopToolMutation, CreateShopToolMutationVariables>;
-export const UpdateShopToolDocument = gql`
+export const useCreateShopToolMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateShopToolMutation, TError, CreateShopToolMutationVariables, TContext>) => {
+    
+    return useMutation<CreateShopToolMutation, TError, CreateShopToolMutationVariables, TContext>(
+      {
+    mutationKey: ['CreateShopTool'],
+    mutationFn: (variables?: CreateShopToolMutationVariables) => request<CreateShopToolMutation, CreateShopToolMutationVariables>(CreateShopToolDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCreateShopToolMutation.fetcher = (variables: CreateShopToolMutationVariables, options?: RequestInit['headers']) => request<CreateShopToolMutation, CreateShopToolMutationVariables>(CreateShopToolDocument, variables, options);
+
+export const UpdateShopToolDocument = new TypedDocumentString(`
     mutation UpdateShopTool($id: ID!, $input: UpdateShopToolInput!) {
   updateShopTool(id: $id, input: $input) {
     id
@@ -2056,66 +1684,47 @@ export const UpdateShopToolDocument = gql`
     status
   }
 }
-    `;
-export type UpdateShopToolMutationFn = Apollo.MutationFunction<UpdateShopToolMutation, UpdateShopToolMutationVariables>;
+    `);
 
-/**
- * __useUpdateShopToolMutation__
- *
- * To run a mutation, you first call `useUpdateShopToolMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateShopToolMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateShopToolMutation, { data, loading, error }] = useUpdateShopToolMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateShopToolMutation(baseOptions?: Apollo.MutationHookOptions<UpdateShopToolMutation, UpdateShopToolMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateShopToolMutation, UpdateShopToolMutationVariables>(UpdateShopToolDocument, options);
-      }
-export type UpdateShopToolMutationHookResult = ReturnType<typeof useUpdateShopToolMutation>;
-export type UpdateShopToolMutationResult = Apollo.MutationResult<UpdateShopToolMutation>;
-export type UpdateShopToolMutationOptions = Apollo.BaseMutationOptions<UpdateShopToolMutation, UpdateShopToolMutationVariables>;
-export const DeleteShopToolDocument = gql`
+export const useUpdateShopToolMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateShopToolMutation, TError, UpdateShopToolMutationVariables, TContext>) => {
+    
+    return useMutation<UpdateShopToolMutation, TError, UpdateShopToolMutationVariables, TContext>(
+      {
+    mutationKey: ['UpdateShopTool'],
+    mutationFn: (variables?: UpdateShopToolMutationVariables) => request<UpdateShopToolMutation, UpdateShopToolMutationVariables>(UpdateShopToolDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useUpdateShopToolMutation.fetcher = (variables: UpdateShopToolMutationVariables, options?: RequestInit['headers']) => request<UpdateShopToolMutation, UpdateShopToolMutationVariables>(UpdateShopToolDocument, variables, options);
+
+export const DeleteShopToolDocument = new TypedDocumentString(`
     mutation DeleteShopTool($id: ID!) {
   deleteShopTool(id: $id)
 }
-    `;
-export type DeleteShopToolMutationFn = Apollo.MutationFunction<DeleteShopToolMutation, DeleteShopToolMutationVariables>;
+    `);
 
-/**
- * __useDeleteShopToolMutation__
- *
- * To run a mutation, you first call `useDeleteShopToolMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteShopToolMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteShopToolMutation, { data, loading, error }] = useDeleteShopToolMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteShopToolMutation(baseOptions?: Apollo.MutationHookOptions<DeleteShopToolMutation, DeleteShopToolMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteShopToolMutation, DeleteShopToolMutationVariables>(DeleteShopToolDocument, options);
-      }
-export type DeleteShopToolMutationHookResult = ReturnType<typeof useDeleteShopToolMutation>;
-export type DeleteShopToolMutationResult = Apollo.MutationResult<DeleteShopToolMutation>;
-export type DeleteShopToolMutationOptions = Apollo.BaseMutationOptions<DeleteShopToolMutation, DeleteShopToolMutationVariables>;
-export const AppointmentPartsDocument = gql`
+export const useDeleteShopToolMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteShopToolMutation, TError, DeleteShopToolMutationVariables, TContext>) => {
+    
+    return useMutation<DeleteShopToolMutation, TError, DeleteShopToolMutationVariables, TContext>(
+      {
+    mutationKey: ['DeleteShopTool'],
+    mutationFn: (variables?: DeleteShopToolMutationVariables) => request<DeleteShopToolMutation, DeleteShopToolMutationVariables>(DeleteShopToolDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeleteShopToolMutation.fetcher = (variables: DeleteShopToolMutationVariables, options?: RequestInit['headers']) => request<DeleteShopToolMutation, DeleteShopToolMutationVariables>(DeleteShopToolDocument, variables, options);
+
+export const AppointmentPartsDocument = new TypedDocumentString(`
     query AppointmentParts($appointmentId: ID!) {
   appointmentParts(appointmentId: $appointmentId) {
     id
@@ -2127,44 +1736,30 @@ export const AppointmentPartsDocument = gql`
     createdAt
   }
 }
-    `;
+    `);
 
-/**
- * __useAppointmentPartsQuery__
- *
- * To run a query within a React component, call `useAppointmentPartsQuery` and pass it any options that fit your needs.
- * When your component renders, `useAppointmentPartsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAppointmentPartsQuery({
- *   variables: {
- *      appointmentId: // value for 'appointmentId'
- *   },
- * });
- */
-export function useAppointmentPartsQuery(baseOptions: Apollo.QueryHookOptions<AppointmentPartsQuery, AppointmentPartsQueryVariables> & ({ variables: AppointmentPartsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AppointmentPartsQuery, AppointmentPartsQueryVariables>(AppointmentPartsDocument, options);
-      }
-export function useAppointmentPartsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AppointmentPartsQuery, AppointmentPartsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AppointmentPartsQuery, AppointmentPartsQueryVariables>(AppointmentPartsDocument, options);
-        }
-// @ts-ignore
-export function useAppointmentPartsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AppointmentPartsQuery, AppointmentPartsQueryVariables>): Apollo.UseSuspenseQueryResult<AppointmentPartsQuery, AppointmentPartsQueryVariables>;
-export function useAppointmentPartsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AppointmentPartsQuery, AppointmentPartsQueryVariables>): Apollo.UseSuspenseQueryResult<AppointmentPartsQuery | undefined, AppointmentPartsQueryVariables>;
-export function useAppointmentPartsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AppointmentPartsQuery, AppointmentPartsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<AppointmentPartsQuery, AppointmentPartsQueryVariables>(AppointmentPartsDocument, options);
-        }
-export type AppointmentPartsQueryHookResult = ReturnType<typeof useAppointmentPartsQuery>;
-export type AppointmentPartsLazyQueryHookResult = ReturnType<typeof useAppointmentPartsLazyQuery>;
-export type AppointmentPartsSuspenseQueryHookResult = ReturnType<typeof useAppointmentPartsSuspenseQuery>;
-export type AppointmentPartsQueryResult = Apollo.QueryResult<AppointmentPartsQuery, AppointmentPartsQueryVariables>;
-export const AddAppointmentPartDocument = gql`
+export const useAppointmentPartsQuery = <
+      TData = AppointmentPartsQuery,
+      TError = unknown
+    >(
+      variables: AppointmentPartsQueryVariables,
+      options?: Omit<UseQueryOptions<AppointmentPartsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<AppointmentPartsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<AppointmentPartsQuery, TError, TData>(
+      {
+    queryKey: ['AppointmentParts', variables],
+    queryFn: request<AppointmentPartsQuery, AppointmentPartsQueryVariables>(AppointmentPartsDocument, variables),
+    ...options
+  }
+    )};
+
+useAppointmentPartsQuery.getKey = (variables: AppointmentPartsQueryVariables) => ['AppointmentParts', variables];
+
+
+useAppointmentPartsQuery.fetcher = (variables: AppointmentPartsQueryVariables, options?: RequestInit['headers']) => request<AppointmentPartsQuery, AppointmentPartsQueryVariables>(AppointmentPartsDocument, variables, options);
+
+export const AddAppointmentPartDocument = new TypedDocumentString(`
     mutation AddAppointmentPart($input: AddAppointmentPartInput!) {
   addAppointmentPart(input: $input) {
     id
@@ -2173,65 +1768,47 @@ export const AddAppointmentPartDocument = gql`
     unitPrice
   }
 }
-    `;
-export type AddAppointmentPartMutationFn = Apollo.MutationFunction<AddAppointmentPartMutation, AddAppointmentPartMutationVariables>;
+    `);
 
-/**
- * __useAddAppointmentPartMutation__
- *
- * To run a mutation, you first call `useAddAppointmentPartMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddAppointmentPartMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addAppointmentPartMutation, { data, loading, error }] = useAddAppointmentPartMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useAddAppointmentPartMutation(baseOptions?: Apollo.MutationHookOptions<AddAppointmentPartMutation, AddAppointmentPartMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddAppointmentPartMutation, AddAppointmentPartMutationVariables>(AddAppointmentPartDocument, options);
-      }
-export type AddAppointmentPartMutationHookResult = ReturnType<typeof useAddAppointmentPartMutation>;
-export type AddAppointmentPartMutationResult = Apollo.MutationResult<AddAppointmentPartMutation>;
-export type AddAppointmentPartMutationOptions = Apollo.BaseMutationOptions<AddAppointmentPartMutation, AddAppointmentPartMutationVariables>;
-export const DeleteAppointmentPartDocument = gql`
+export const useAddAppointmentPartMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<AddAppointmentPartMutation, TError, AddAppointmentPartMutationVariables, TContext>) => {
+    
+    return useMutation<AddAppointmentPartMutation, TError, AddAppointmentPartMutationVariables, TContext>(
+      {
+    mutationKey: ['AddAppointmentPart'],
+    mutationFn: (variables?: AddAppointmentPartMutationVariables) => request<AddAppointmentPartMutation, AddAppointmentPartMutationVariables>(AddAppointmentPartDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useAddAppointmentPartMutation.fetcher = (variables: AddAppointmentPartMutationVariables, options?: RequestInit['headers']) => request<AddAppointmentPartMutation, AddAppointmentPartMutationVariables>(AddAppointmentPartDocument, variables, options);
+
+export const DeleteAppointmentPartDocument = new TypedDocumentString(`
     mutation DeleteAppointmentPart($id: ID!) {
   deleteAppointmentPart(id: $id)
 }
-    `;
-export type DeleteAppointmentPartMutationFn = Apollo.MutationFunction<DeleteAppointmentPartMutation, DeleteAppointmentPartMutationVariables>;
+    `);
 
-/**
- * __useDeleteAppointmentPartMutation__
- *
- * To run a mutation, you first call `useDeleteAppointmentPartMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteAppointmentPartMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteAppointmentPartMutation, { data, loading, error }] = useDeleteAppointmentPartMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteAppointmentPartMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAppointmentPartMutation, DeleteAppointmentPartMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteAppointmentPartMutation, DeleteAppointmentPartMutationVariables>(DeleteAppointmentPartDocument, options);
-      }
-export type DeleteAppointmentPartMutationHookResult = ReturnType<typeof useDeleteAppointmentPartMutation>;
-export type DeleteAppointmentPartMutationResult = Apollo.MutationResult<DeleteAppointmentPartMutation>;
-export type DeleteAppointmentPartMutationOptions = Apollo.BaseMutationOptions<DeleteAppointmentPartMutation, DeleteAppointmentPartMutationVariables>;
-export const StaffListDocument = gql`
+export const useDeleteAppointmentPartMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteAppointmentPartMutation, TError, DeleteAppointmentPartMutationVariables, TContext>) => {
+    
+    return useMutation<DeleteAppointmentPartMutation, TError, DeleteAppointmentPartMutationVariables, TContext>(
+      {
+    mutationKey: ['DeleteAppointmentPart'],
+    mutationFn: (variables?: DeleteAppointmentPartMutationVariables) => request<DeleteAppointmentPartMutation, DeleteAppointmentPartMutationVariables>(DeleteAppointmentPartDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeleteAppointmentPartMutation.fetcher = (variables: DeleteAppointmentPartMutationVariables, options?: RequestInit['headers']) => request<DeleteAppointmentPartMutation, DeleteAppointmentPartMutationVariables>(DeleteAppointmentPartDocument, variables, options);
+
+export const StaffListDocument = new TypedDocumentString(`
     query StaffList {
   staffList {
     items {
@@ -2258,43 +1835,30 @@ export const StaffListDocument = gql`
     total
   }
 }
-    `;
+    `);
 
-/**
- * __useStaffListQuery__
- *
- * To run a query within a React component, call `useStaffListQuery` and pass it any options that fit your needs.
- * When your component renders, `useStaffListQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useStaffListQuery({
- *   variables: {
- *   },
- * });
- */
-export function useStaffListQuery(baseOptions?: Apollo.QueryHookOptions<StaffListQuery, StaffListQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<StaffListQuery, StaffListQueryVariables>(StaffListDocument, options);
-      }
-export function useStaffListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StaffListQuery, StaffListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<StaffListQuery, StaffListQueryVariables>(StaffListDocument, options);
-        }
-// @ts-ignore
-export function useStaffListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StaffListQuery, StaffListQueryVariables>): Apollo.UseSuspenseQueryResult<StaffListQuery, StaffListQueryVariables>;
-export function useStaffListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffListQuery, StaffListQueryVariables>): Apollo.UseSuspenseQueryResult<StaffListQuery | undefined, StaffListQueryVariables>;
-export function useStaffListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffListQuery, StaffListQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<StaffListQuery, StaffListQueryVariables>(StaffListDocument, options);
-        }
-export type StaffListQueryHookResult = ReturnType<typeof useStaffListQuery>;
-export type StaffListLazyQueryHookResult = ReturnType<typeof useStaffListLazyQuery>;
-export type StaffListSuspenseQueryHookResult = ReturnType<typeof useStaffListSuspenseQuery>;
-export type StaffListQueryResult = Apollo.QueryResult<StaffListQuery, StaffListQueryVariables>;
-export const StaffDetailDocument = gql`
+export const useStaffListQuery = <
+      TData = StaffListQuery,
+      TError = unknown
+    >(
+      variables?: StaffListQueryVariables,
+      options?: Omit<UseQueryOptions<StaffListQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<StaffListQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<StaffListQuery, TError, TData>(
+      {
+    queryKey: variables === undefined ? ['StaffList'] : ['StaffList', variables],
+    queryFn: request<StaffListQuery, StaffListQueryVariables>(StaffListDocument, variables),
+    ...options
+  }
+    )};
+
+useStaffListQuery.getKey = (variables?: StaffListQueryVariables) => variables === undefined ? ['StaffList'] : ['StaffList', variables];
+
+
+useStaffListQuery.fetcher = (variables?: StaffListQueryVariables, options?: RequestInit['headers']) => request<StaffListQuery, StaffListQueryVariables>(StaffListDocument, variables, options);
+
+export const StaffDetailDocument = new TypedDocumentString(`
     query StaffDetail($id: ID!) {
   staff(id: $id) {
     id
@@ -2318,44 +1882,30 @@ export const StaffDetailDocument = gql`
     updatedAt
   }
 }
-    `;
+    `);
 
-/**
- * __useStaffDetailQuery__
- *
- * To run a query within a React component, call `useStaffDetailQuery` and pass it any options that fit your needs.
- * When your component renders, `useStaffDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useStaffDetailQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useStaffDetailQuery(baseOptions: Apollo.QueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables> & ({ variables: StaffDetailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<StaffDetailQuery, StaffDetailQueryVariables>(StaffDetailDocument, options);
-      }
-export function useStaffDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<StaffDetailQuery, StaffDetailQueryVariables>(StaffDetailDocument, options);
-        }
-// @ts-ignore
-export function useStaffDetailSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables>): Apollo.UseSuspenseQueryResult<StaffDetailQuery, StaffDetailQueryVariables>;
-export function useStaffDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables>): Apollo.UseSuspenseQueryResult<StaffDetailQuery | undefined, StaffDetailQueryVariables>;
-export function useStaffDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<StaffDetailQuery, StaffDetailQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<StaffDetailQuery, StaffDetailQueryVariables>(StaffDetailDocument, options);
-        }
-export type StaffDetailQueryHookResult = ReturnType<typeof useStaffDetailQuery>;
-export type StaffDetailLazyQueryHookResult = ReturnType<typeof useStaffDetailLazyQuery>;
-export type StaffDetailSuspenseQueryHookResult = ReturnType<typeof useStaffDetailSuspenseQuery>;
-export type StaffDetailQueryResult = Apollo.QueryResult<StaffDetailQuery, StaffDetailQueryVariables>;
-export const CreateStaffDocument = gql`
+export const useStaffDetailQuery = <
+      TData = StaffDetailQuery,
+      TError = unknown
+    >(
+      variables: StaffDetailQueryVariables,
+      options?: Omit<UseQueryOptions<StaffDetailQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<StaffDetailQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<StaffDetailQuery, TError, TData>(
+      {
+    queryKey: ['StaffDetail', variables],
+    queryFn: request<StaffDetailQuery, StaffDetailQueryVariables>(StaffDetailDocument, variables),
+    ...options
+  }
+    )};
+
+useStaffDetailQuery.getKey = (variables: StaffDetailQueryVariables) => ['StaffDetail', variables];
+
+
+useStaffDetailQuery.fetcher = (variables: StaffDetailQueryVariables, options?: RequestInit['headers']) => request<StaffDetailQuery, StaffDetailQueryVariables>(StaffDetailDocument, variables, options);
+
+export const CreateStaffDocument = new TypedDocumentString(`
     mutation CreateStaff($input: CreateStaffInput!) {
   createStaff(input: $input) {
     id
@@ -2364,34 +1914,25 @@ export const CreateStaffDocument = gql`
     createdAt
   }
 }
-    `;
-export type CreateStaffMutationFn = Apollo.MutationFunction<CreateStaffMutation, CreateStaffMutationVariables>;
+    `);
 
-/**
- * __useCreateStaffMutation__
- *
- * To run a mutation, you first call `useCreateStaffMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateStaffMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createStaffMutation, { data, loading, error }] = useCreateStaffMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateStaffMutation(baseOptions?: Apollo.MutationHookOptions<CreateStaffMutation, CreateStaffMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateStaffMutation, CreateStaffMutationVariables>(CreateStaffDocument, options);
-      }
-export type CreateStaffMutationHookResult = ReturnType<typeof useCreateStaffMutation>;
-export type CreateStaffMutationResult = Apollo.MutationResult<CreateStaffMutation>;
-export type CreateStaffMutationOptions = Apollo.BaseMutationOptions<CreateStaffMutation, CreateStaffMutationVariables>;
-export const UpdateStaffDocument = gql`
+export const useCreateStaffMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateStaffMutation, TError, CreateStaffMutationVariables, TContext>) => {
+    
+    return useMutation<CreateStaffMutation, TError, CreateStaffMutationVariables, TContext>(
+      {
+    mutationKey: ['CreateStaff'],
+    mutationFn: (variables?: CreateStaffMutationVariables) => request<CreateStaffMutation, CreateStaffMutationVariables>(CreateStaffDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useCreateStaffMutation.fetcher = (variables: CreateStaffMutationVariables, options?: RequestInit['headers']) => request<CreateStaffMutation, CreateStaffMutationVariables>(CreateStaffDocument, variables, options);
+
+export const UpdateStaffDocument = new TypedDocumentString(`
     mutation UpdateStaff($id: ID!, $input: UpdateStaffInput!) {
   updateStaff(id: $id, input: $input) {
     id
@@ -2400,62 +1941,42 @@ export const UpdateStaffDocument = gql`
     updatedAt
   }
 }
-    `;
-export type UpdateStaffMutationFn = Apollo.MutationFunction<UpdateStaffMutation, UpdateStaffMutationVariables>;
+    `);
 
-/**
- * __useUpdateStaffMutation__
- *
- * To run a mutation, you first call `useUpdateStaffMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateStaffMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateStaffMutation, { data, loading, error }] = useUpdateStaffMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateStaffMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStaffMutation, UpdateStaffMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateStaffMutation, UpdateStaffMutationVariables>(UpdateStaffDocument, options);
-      }
-export type UpdateStaffMutationHookResult = ReturnType<typeof useUpdateStaffMutation>;
-export type UpdateStaffMutationResult = Apollo.MutationResult<UpdateStaffMutation>;
-export type UpdateStaffMutationOptions = Apollo.BaseMutationOptions<UpdateStaffMutation, UpdateStaffMutationVariables>;
-export const DeleteStaffDocument = gql`
+export const useUpdateStaffMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateStaffMutation, TError, UpdateStaffMutationVariables, TContext>) => {
+    
+    return useMutation<UpdateStaffMutation, TError, UpdateStaffMutationVariables, TContext>(
+      {
+    mutationKey: ['UpdateStaff'],
+    mutationFn: (variables?: UpdateStaffMutationVariables) => request<UpdateStaffMutation, UpdateStaffMutationVariables>(UpdateStaffDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useUpdateStaffMutation.fetcher = (variables: UpdateStaffMutationVariables, options?: RequestInit['headers']) => request<UpdateStaffMutation, UpdateStaffMutationVariables>(UpdateStaffDocument, variables, options);
+
+export const DeleteStaffDocument = new TypedDocumentString(`
     mutation DeleteStaff($id: ID!) {
   deleteStaff(id: $id)
 }
-    `;
-export type DeleteStaffMutationFn = Apollo.MutationFunction<DeleteStaffMutation, DeleteStaffMutationVariables>;
+    `);
 
-/**
- * __useDeleteStaffMutation__
- *
- * To run a mutation, you first call `useDeleteStaffMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteStaffMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteStaffMutation, { data, loading, error }] = useDeleteStaffMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteStaffMutation(baseOptions?: Apollo.MutationHookOptions<DeleteStaffMutation, DeleteStaffMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteStaffMutation, DeleteStaffMutationVariables>(DeleteStaffDocument, options);
-      }
-export type DeleteStaffMutationHookResult = ReturnType<typeof useDeleteStaffMutation>;
-export type DeleteStaffMutationResult = Apollo.MutationResult<DeleteStaffMutation>;
-export type DeleteStaffMutationOptions = Apollo.BaseMutationOptions<DeleteStaffMutation, DeleteStaffMutationVariables>;
+export const useDeleteStaffMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteStaffMutation, TError, DeleteStaffMutationVariables, TContext>) => {
+    
+    return useMutation<DeleteStaffMutation, TError, DeleteStaffMutationVariables, TContext>(
+      {
+    mutationKey: ['DeleteStaff'],
+    mutationFn: (variables?: DeleteStaffMutationVariables) => request<DeleteStaffMutation, DeleteStaffMutationVariables>(DeleteStaffDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useDeleteStaffMutation.fetcher = (variables: DeleteStaffMutationVariables, options?: RequestInit['headers']) => request<DeleteStaffMutation, DeleteStaffMutationVariables>(DeleteStaffDocument, variables, options);

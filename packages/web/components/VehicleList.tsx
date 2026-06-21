@@ -36,8 +36,8 @@ export default function VehicleList({
 }: VehicleListProps) {
   const { data, refetch } = useVehiclesQuery();
   const { data: custData } = useCustomersQuery();
-  const [createVehicle] = useCreateVehicleMutation();
-  const [updateVehicle] = useUpdateVehicleMutation();
+  const { mutateAsync: createVehicle } = useCreateVehicleMutation();
+  const { mutateAsync: updateVehicle } = useUpdateVehicleMutation();
 
   const [search, setSearch] = useState('');
   const [addOpen, setAddOpen] = useState(false);
@@ -114,8 +114,7 @@ export default function VehicleList({
       repairStatus: form.repairStatus || null,
     } as CreateVehicleInput;
     try {
-      const res = await createVehicle({ variables: { input } });
-      if (!res.data?.createVehicle) { setError(res.errors?.[0]?.message || 'Failed to create vehicle'); return; }
+      await createVehicle({ input });
       setAddOpen(false); refetch();
     } catch (err: any) { setError(err.message || 'An error occurred'); }
     finally { setSubmitting(false); }
@@ -134,8 +133,7 @@ export default function VehicleList({
       repairStatus: form.repairStatus || null,
     } as UpdateVehicleInput;
     try {
-      const res = await updateVehicle({ variables: { id: editingId, input } });
-      if (!res.data?.updateVehicle) { setError(res.errors?.[0]?.message || 'Failed to update vehicle'); return; }
+      await updateVehicle({ id: editingId, input });
       setEditOpen(false); setEditingId(null); refetch();
     } catch (err: any) { setError(err.message || 'An error occurred'); }
     finally { setSubmitting(false); }

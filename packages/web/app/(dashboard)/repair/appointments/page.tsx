@@ -77,8 +77,8 @@ function ElapsedTime({ since }: { since: string }) {
 
 export default function Appointments() {
   const { data, refetch } = useAppointmentsQuery();
-  const [createAppointment] = useCreateAppointmentMutation();
-  const [updateAppointment] = useUpdateAppointmentMutation();
+  const { mutateAsync: createAppointment } = useCreateAppointmentMutation();
+  const { mutateAsync: updateAppointment } = useUpdateAppointmentMutation();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<AppointmentForm>(emptyForm);
@@ -95,23 +95,23 @@ export default function Appointments() {
   const [activeTab, setActiveTab] = useState<Tab>('Details');
 
   const { data: staffData } = useStaffListQuery();
-  const { data: assignData, refetch: refetchAssign } = useStaffAssignmentsQuery({
-    variables: { appointmentId: selectedAppt?.id ?? '' },
-    skip: !selectedAppt,
-  });
-  const [createAssignment] = useCreateStaffAssignmentMutation();
-  const [startAssignment] = useStartStaffAssignmentMutation();
-  const [completeAssignment] = useCompleteStaffAssignmentMutation();
-  const [deleteAssignment] = useDeleteStaffAssignmentMutation();
-  const [reassignAssignment] = useReassignStaffAssignmentMutation();
+  const { data: assignData, refetch: refetchAssign } = useStaffAssignmentsQuery(
+    { appointmentId: selectedAppt?.id ?? '' },
+    { enabled: !!selectedAppt },
+  );
+  const { mutateAsync: createAssignment } = useCreateStaffAssignmentMutation();
+  const { mutateAsync: startAssignment } = useStartStaffAssignmentMutation();
+  const { mutateAsync: completeAssignment } = useCompleteStaffAssignmentMutation();
+  const { mutateAsync: deleteAssignment } = useDeleteStaffAssignmentMutation();
+  const { mutateAsync: reassignAssignment } = useReassignStaffAssignmentMutation();
 
-  const { data: partsData, refetch: refetchParts } = useAppointmentPartsQuery({
-    variables: { appointmentId: selectedAppt?.id ?? '' },
-    skip: !selectedAppt,
-  });
+  const { data: partsData, refetch: refetchParts } = useAppointmentPartsQuery(
+    { appointmentId: selectedAppt?.id ?? '' },
+    { enabled: !!selectedAppt },
+  );
   const { data: shopPartsData } = useShopPartsQuery();
-  const [addApptPart] = useAddAppointmentPartMutation();
-  const [deleteApptPart] = useDeleteAppointmentPartMutation();
+  const { mutateAsync: addApptPart } = useAddAppointmentPartMutation();
+  const { mutateAsync: deleteApptPart } = useDeleteAppointmentPartMutation();
 
   const [newPartId, setNewPartId] = useState('');
   const [newPartQty, setNewPartQty] = useState(1);
@@ -189,11 +189,7 @@ export default function Appointments() {
     };
 
     try {
-      const res = await createAppointment({ variables: { input } });
-      if (!res.data?.createAppointment) {
-        setError(res.errors?.[0]?.message || 'Failed to create appointment');
-        return;
-      }
+      await createAppointment({ input });
       setModalOpen(false);
       setForm(emptyForm);
       refetch();
@@ -227,11 +223,7 @@ export default function Appointments() {
         assignedMechanic: null,
         status: status ?? null,
       };
-      const res = await updateAppointment({ variables: { id: selectedAppt.id, input } });
-      if (!res.data?.updateAppointment) {
-        setError(res.errors?.[0]?.message || 'Failed to update appointment');
-        return;
-      }
+      await updateAppointment({ id: selectedAppt.id, input });
       setSelectedAppt(null);
       refetch();
     } catch (err: any) {
@@ -249,21 +241,15 @@ export default function Appointments() {
     if (!mechanic) return;
     try {
       const tid = localStorage.getItem('selectedTenantId') || '';
-      const res = await createAssignment({
-        variables: {
-          input: {
-            tenantId: tid,
-            appointmentId: selectedAppt.id,
-            staffId: mechanic.id,
-            staffName: mechanic.name,
-            role: mechanic.role,
-          },
+      await createAssignment({
+        input: {
+          tenantId: tid,
+          appointmentId: selectedAppt.id,
+          staffId: mechanic.id,
+          staffName: mechanic.name,
+          role: mechanic.role,
         },
       });
-      if (!res.data?.createStaffAssignment) {
-        setError(res.errors?.[0]?.message || 'Failed to assign mechanic');
-        return;
-      }
       setNewAssignmentStaffId('');
       refetchAssign();
     } catch (err: any) {
@@ -275,8 +261,8 @@ export default function Appointments() {
 
   const handleStartAssignment = async (id: string) => {
     try {
-      const res = await startAssignment({ variables: { id } });
-      if (res.data?.startStaffAssignment) refetchAssign();
+      await startAssignment({ id });
+      refetchAssign();
     } catch (err: any) {
       setError(err.message || 'Failed to start assignment');
     }
@@ -285,8 +271,8 @@ export default function Appointments() {
   const handleCompleteAssignment = async (id: string) => {
     setCompletingId(id);
     try {
-      const res = await completeAssignment({ variables: { id, totalMinutes: 0 } });
-      if (res.data?.completeStaffAssignment) refetchAssign();
+      await completeAssignment({ id, totalMinutes: 0 });
+      refetchAssign();
     } catch (err: any) {
       setError(err.message || 'Failed to complete assignment');
     } finally {
@@ -296,8 +282,8 @@ export default function Appointments() {
 
   const handleRemoveAssignment = async (id: string) => {
     try {
-      const res = await deleteAssignment({ variables: { id } });
-      if (res.data?.deleteStaffAssignment) refetchAssign();
+      await deleteAssignment({ id });
+      refetchAssign();
     } catch (err: any) {
       setError(err.message || 'Failed to remove assignment');
     }
@@ -308,13 +294,7 @@ export default function Appointments() {
     setError('');
     setSubmitting(true);
     try {
-      const res = await reassignAssignment({
-        variables: { id: assignmentId, targetAppointmentId: reassignTargetId },
-      });
-      if (!res.data?.reassignStaffAssignment) {
-        setError(res.errors?.[0]?.message || 'Failed to reassign');
-        return;
-      }
+      await reassignAssignment({ id: assignmentId, targetAppointmentId: reassignTargetId });
       setReassigningId(null);
       setReassignTargetId('');
       refetchAssign();
@@ -330,20 +310,14 @@ export default function Appointments() {
     setError('');
     setSubmitting(true);
     try {
-      const res = await addApptPart({
-        variables: {
-          input: {
-            appointmentId: selectedAppt.id,
-            partId: newPartId,
-            quantity: newPartQty,
-            unitPrice: newPartPrice ? parseFloat(newPartPrice) : null,
-          },
+      await addApptPart({
+        input: {
+          appointmentId: selectedAppt.id,
+          partId: newPartId,
+          quantity: newPartQty,
+          unitPrice: newPartPrice ? parseFloat(newPartPrice) : null,
         },
       });
-      if (!res.data?.addAppointmentPart) {
-        setError(res.errors?.[0]?.message || 'Failed to add part');
-        return;
-      }
       setNewPartId('');
       setNewPartQty(1);
       setNewPartPrice('');
@@ -357,7 +331,7 @@ export default function Appointments() {
 
   const handleDeletePart = async (id: string) => {
     try {
-      await deleteApptPart({ variables: { id } });
+      await deleteApptPart({ id });
       refetchParts();
     } catch (err: any) {
       setError(err.message || 'Failed to remove part');

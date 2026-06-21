@@ -132,9 +132,9 @@ function ToggleItem({ label, defaultChecked }: { label: string; defaultChecked?:
 
 function ServicesSettings() {
   const { data, refetch } = useShopServicesQuery();
-  const { data: lookupData } = useServiceTypesQuery({ fetchPolicy: 'cache-first' });
-  const [createService] = useCreateShopServiceMutation();
-  const [deleteService] = useDeleteShopServiceMutation();
+  const { data: lookupData } = useServiceTypesQuery();
+  const { mutateAsync: createService } = useCreateShopServiceMutation();
+  const { mutateAsync: deleteService } = useDeleteShopServiceMutation();
   const [addOpen, setAddOpen] = useState(false);
   const [selectedTypeId, setSelectedTypeId] = useState('');
   const [searchText, setSearchText] = useState('');
@@ -213,8 +213,8 @@ function ServicesSettings() {
     const st = lookupTypes.find((t) => t.id === selectedTypeId);
     if (!st) { setError('Service type not found.'); setSubmitting(false); return; }
     try {
-      const res = await createService({ variables: { input: { tenantId: tid as any, serviceTypeId: selectedTypeId, name: st.name, code: st.code, system: st.system, category: st.category, estimatedHours: st.estimatedHours } } });
-      if (!res.data?.createShopService) { setError(res.errors?.[0]?.message || 'Failed to add service'); return; }
+      const res = await createService({ input: { tenantId: tid as any, serviceTypeId: selectedTypeId, name: st.name, code: st.code, system: st.system, category: st.category, estimatedHours: st.estimatedHours } });
+      if (!res?.createShopService) { setError('Failed to add service'); return; }
       setAddOpen(false); setSelectedTypeId(''); setSearchText(''); setFilterCategory(''); setFilterSystem(''); refetch();
     } catch (err: any) { setError(err.message || 'An error occurred'); }
     finally { setSubmitting(false); }
@@ -222,8 +222,8 @@ function ServicesSettings() {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await deleteService({ variables: { id } });
-      if (res.data?.deleteShopService) refetch();
+      const res = await deleteService({ id });
+      refetch();
     } catch { }
   };
 
@@ -322,15 +322,15 @@ function ServicesSettings() {
 
 function PartsSettings() {
   const { data, refetch } = useShopPartsQuery();
-  const { data: partNamesData } = usePartNamesQuery({ fetchPolicy: 'cache-first' });
-  const { data: makesData } = useVehicleMakesQuery({ fetchPolicy: 'cache-first' });
+  const { data: partNamesData } = usePartNamesQuery();
+  const { data: makesData } = useVehicleMakesQuery();
   const [selectedMake, setSelectedMake] = useState('');
-  const { data: modelsData } = useVehicleModelsQuery({ variables: { makeId: selectedMake || '00000000-0000-0000-0000-000000000000' }, skip: !selectedMake, fetchPolicy: 'cache-first' });
-  const { data: locationsData } = useStorageLocationsQuery({ fetchPolicy: 'cache-first' });
-  const [createPart] = useCreateShopPartMutation();
-  const [deletePart] = useDeleteShopPartMutation();
-  const [addBatch] = useAddPartBatchMutation();
-  const [deleteBatch] = useDeletePartBatchMutation();
+  const { data: modelsData } = useVehicleModelsQuery({ makeId: selectedMake || '00000000-0000-0000-0000-000000000000' }, { enabled: !!selectedMake });
+  const { data: locationsData } = useStorageLocationsQuery();
+  const { mutateAsync: createPart } = useCreateShopPartMutation();
+  const { mutateAsync: deletePart } = useDeleteShopPartMutation();
+  const { mutateAsync: addBatch } = useAddPartBatchMutation();
+  const { mutateAsync: deleteBatch } = useDeletePartBatchMutation();
   const [modalOpen, setModalOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedPartId, setSelectedPartId] = useState('');
@@ -402,7 +402,6 @@ function PartsSettings() {
       const selected = partNames.find((p) => p.id === selectedPartId);
       if (!selected) { setError('Selected part not found.'); setSubmitting(false); return; }
       const res = await createPart({
-        variables: {
           input: {
             tenantId: tid as any,
             name: selected.name,
@@ -411,9 +410,8 @@ function PartsSettings() {
             year: selectedYear ? parseInt(selectedYear) : null,
             locationId: selectedLocation || null,
           },
-        },
       });
-      if (!res.data?.createShopPart) { setError(res.errors?.[0]?.message || 'Failed to create part'); return; }
+      if (!res?.createShopPart) { setError('Failed to create part'); return; }
       setModalOpen(false); refetch();
     } catch (err: any) { setError(err.message || 'An error occurred'); }
     finally { setSubmitting(false); }
@@ -421,8 +419,8 @@ function PartsSettings() {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await deletePart({ variables: { id } });
-      if (res.data?.deleteShopPart) refetch();
+      const res = await deletePart({ id });
+      refetch();
     } catch { }
   };
 
@@ -435,14 +433,14 @@ function PartsSettings() {
     const cost = parseFloat(c);
     if (isNaN(qty) || qty <= 0 || isNaN(cost) || cost <= 0) { alert('Invalid quantity or cost.'); return; }
     try {
-      const res = await addBatch({ variables: { input: { partId, quantity: qty, unitCost: cost } } });
-      if (res.data?.addPartBatch) refetch();
+      const res = await addBatch({ input: { partId, quantity: qty, unitCost: cost } });
+      refetch();
     } catch { }
   };
 
   const handleDeleteBatch = async (id: string) => {
     try {
-      await deleteBatch({ variables: { id } });
+      await deleteBatch({ id });
       refetch();
     } catch { }
   };
@@ -567,9 +565,9 @@ function PartsSettings() {
 
 function ToolsSettings() {
   const { data, refetch } = useShopToolsQuery();
-  const [createTool] = useCreateShopToolMutation();
-  const [updateTool] = useUpdateShopToolMutation();
-  const [deleteTool] = useDeleteShopToolMutation();
+  const { mutateAsync: createTool } = useCreateShopToolMutation();
+  const { mutateAsync: updateTool } = useUpdateShopToolMutation();
+  const { mutateAsync: deleteTool } = useDeleteShopToolMutation();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -599,12 +597,12 @@ function ToolsSettings() {
     try {
       if (editingId) {
         const input: UpdateShopToolInput = { name: name || null, description: desc || null, quantity: qty ? parseInt(qty) : null, status: status || null };
-        const res = await updateTool({ variables: { id: editingId, input } });
-        if (!res.data?.updateShopTool) { setError(res.errors?.[0]?.message || 'Failed to update tool'); return; }
+        const res = await updateTool({ id: editingId, input });
+        if (!res?.updateShopTool) { setError('Failed to update tool'); return; }
       } else {
         const input: CreateShopToolInput = { tenantId: tid as any, name, description: desc || null, quantity: qty ? parseInt(qty) : null, status: status || null };
-        const res = await createTool({ variables: { input } });
-        if (!res.data?.createShopTool) { setError(res.errors?.[0]?.message || 'Failed to create tool'); return; }
+        const res = await createTool({ input });
+        if (!res?.createShopTool) { setError('Failed to create tool'); return; }
       }
       setModalOpen(false); refetch();
     } catch (err: any) { setError(err.message || 'An error occurred'); }
@@ -613,8 +611,8 @@ function ToolsSettings() {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await deleteTool({ variables: { id } });
-      if (res.data?.deleteShopTool) refetch();
+      const res = await deleteTool({ id });
+      refetch();
     } catch { }
   };
 
