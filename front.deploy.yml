@@ -5,6 +5,4 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GRAPHQL_URL: ${GRAPHQL_URL:-http://host.docker.internal:4000/graphql}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      GRAPHQL_URL: ${GRAPHQL_URL:-http://172.17.0.1:4000/graphql/query}
